@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Truck Listings — Paso Del Norte</title>
+  <meta name="description" content="Browse trucks for sale from verified sellers across Texas. Semi trucks, big rigs, owner-operator trucks."/>
+  <link rel="stylesheet" href="css/main.css"/>
+  <style>
+    /* ── Page shell ─────────────────────────────────────── */
+    .listings-hero {
+      padding: calc(var(--nav-h) + 40px) 0 32px;
+      background: linear-gradient(180deg, rgba(245,158,11,.06) 0%, transparent 100%);
+      border-bottom: 1px solid var(--border);
+    }
+    .listings-hero-inner {
+      max-width: 900px;
+    }
+    .listings-title {
+      font-family: var(--font-display);
+      font-size: clamp(28px, 5vw, 48px);
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      color: var(--chrome-bright);
+      margin-bottom: 6px;
+    }
+    .listings-title span { color: var(--amber); }
+    .listings-sub {
+      font-size: 14px;
+      color: var(--text-2);
+      margin-bottom: 20px;
+    }
+
+    /* ── Filters ─────────────────────────────────────────── */
+    .listings-filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      padding: 16px 0;
+    }
+    .lf-input {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--chrome-bright);
+      font-size: 13px;
+      padding: 8px 14px;
+      outline: none;
+      transition: border-color .2s;
+    }
+    .lf-input:focus { border-color: var(--amber); }
+    .lf-search { flex: 1; min-width: 180px; }
+    .lf-count {
+      font-size: 12px;
+      color: var(--text-2);
+      margin-left: auto;
+      white-space: nowrap;
+    }
+
+    /* ── Grid ────────────────────────────────────────────── */
+    .listings-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      padding: 28px 0 60px;
+    }
+    @media (max-width: 1024px) { .listings-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 640px)  { .listings-grid { grid-template-columns: 1fr; } }
+
+    /* ── Listing card ────────────────────────────────────── */
+    .listing-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      cursor: pointer;
+      transition: border-color .2s, transform .2s, box-shadow .2s;
+    }
+    .listing-card:hover {
+      border-color: var(--amber);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 32px rgba(245,158,11,.12);
+    }
+
+    /* Photo gallery on card */
+    .lc-gallery {
+      position: relative;
+      height: 200px;
+      background: var(--black-3);
+      overflow: hidden;
+    }
+    .lc-gallery img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      transition: opacity .3s;
+    }
+    .lc-gallery-nav {
+      position: absolute;
+      bottom: 8px; right: 8px;
+      display: flex;
+      gap: 4px;
+    }
+    .lc-gallery-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.4);
+      cursor: pointer;
+      transition: background .2s;
+    }
+    .lc-gallery-dot.active { background: var(--amber); }
+    .lc-gallery-prev, .lc-gallery-next {
+      position: absolute;
+      top: 50%; transform: translateY(-50%);
+      width: 28px; height: 28px;
+      background: rgba(0,0,0,.6);
+      border: none;
+      border-radius: 50%;
+      color: #fff;
+      font-size: 14px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0;
+      transition: opacity .2s;
+    }
+    .lc-gallery-prev { left: 8px; }
+    .lc-gallery-next { right: 8px; }
+    .lc-gallery:hover .lc-gallery-prev,
+    .lc-gallery:hover .lc-gallery-next { opacity: 1; }
+    .lc-no-photo {
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--chrome);
+      font-size: 48px;
+    }
+    .lc-photo-count {
+      position: absolute;
+      top: 8px; right: 8px;
+      background: rgba(0,0,0,.7);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 3px 7px;
+      border-radius: 20px;
+    }
+
+    /* Card body */
+    .lc-body { padding: 14px 16px 16px; }
+    .lc-seller {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .lc-avatar {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: var(--amber);
+      color: var(--black);
+      font-size: 11px;
+      font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .lc-seller-name { font-size: 12px; color: var(--chrome); font-weight: 600; }
+    .lc-seller-loc  { font-size: 11px; color: var(--text-2); }
+    .lc-title {
+      font-family: var(--font-display);
+      font-size: 16px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--chrome-bright);
+      letter-spacing: .03em;
+      margin-bottom: 6px;
+      line-height: 1.2;
+    }
+    .lc-specs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+    .lc-spec {
+      font-size: 11px;
+      color: var(--text-2);
+      background: var(--black-3);
+      padding: 3px 8px;
+      border-radius: 4px;
+    }
+    .lc-price {
+      font-family: var(--font-display);
+      font-size: 22px;
+      font-weight: 900;
+      color: var(--amber);
+      margin-bottom: 10px;
+    }
+
+    /* Trust bar */
+    .lc-trust {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+    .lc-trust-segs { display: flex; gap: 3px; }
+    .lc-trust-seg {
+      width: 28px; height: 4px;
+      border-radius: 2px;
+      background: var(--border);
+    }
+    .lc-trust-seg.lit-green  { background: #22c55e; }
+    .lc-trust-seg.lit-orange { background: #f59e0b; }
+    .lc-trust-seg.lit-red    { background: #ef4444; }
+    .lc-trust-label { font-size: 10px; color: var(--text-2); }
+
+    .lc-btn {
+      width: 100%;
+      padding: 10px;
+      background: var(--amber);
+      color: var(--black);
+      font-family: var(--font-display);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: opacity .2s;
+    }
+    .lc-btn:hover { opacity: .85; }
+
+    /* ── Detail modal ────────────────────────────────────── */
+    .listing-modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.85);
+      z-index: 2000;
+      display: none;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 20px 16px 40px;
+      overflow-y: auto;
+      backdrop-filter: blur(4px);
+    }
+    .listing-modal-overlay.open { display: flex; }
+    .listing-modal {
+      background: var(--black-2);
+      border: 1px solid var(--border-glow);
+      border-radius: 16px;
+      width: 100%;
+      max-width: 740px;
+      margin-top: 20px;
+      overflow: hidden;
+    }
+
+    /* Modal gallery */
+    .lm-gallery {
+      position: relative;
+      height: 320px;
+      background: var(--black-3);
+    }
+    @media (max-width: 640px) { .lm-gallery { height: 220px; } }
+    .lm-gallery img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+    }
+    .lm-gallery-prev, .lm-gallery-next {
+      position: absolute;
+      top: 50%; transform: translateY(-50%);
+      width: 36px; height: 36px;
+      background: rgba(0,0,0,.7);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 50%;
+      color: #fff;
+      font-size: 16px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .lm-gallery-prev { left: 12px; }
+    .lm-gallery-next { right: 12px; }
+    .lm-close {
+      position: absolute;
+      top: 12px; right: 12px;
+      width: 36px; height: 36px;
+      background: rgba(0,0,0,.75);
+      border: none; border-radius: 50%;
+      color: #fff; font-size: 20px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      z-index: 10;
+    }
+    .lm-thumb-strip {
+      display: flex;
+      gap: 6px;
+      padding: 8px 12px;
+      background: var(--black-3);
+      overflow-x: auto;
+    }
+    .lm-thumb {
+      width: 56px; height: 40px;
+      border-radius: 4px;
+      object-fit: cover;
+      cursor: pointer;
+      border: 2px solid transparent;
+      flex-shrink: 0;
+      opacity: .6;
+      transition: opacity .2s, border-color .2s;
+    }
+    .lm-thumb.active { border-color: var(--amber); opacity: 1; }
+    .lm-body { padding: 24px; }
+    .lm-title {
+      font-family: var(--font-display);
+      font-size: 22px;
+      font-weight: 900;
+      text-transform: uppercase;
+      color: var(--chrome-bright);
+      margin-bottom: 4px;
+    }
+    .lm-price {
+      font-family: var(--font-display);
+      font-size: 28px;
+      font-weight: 900;
+      color: var(--amber);
+      margin-bottom: 16px;
+    }
+    .lm-specs-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    @media (max-width: 500px) { .lm-specs-grid { grid-template-columns: repeat(2,1fr); } }
+    .lm-spec-cell {
+      background: var(--black-3);
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+    .lm-spec-label { font-size: 10px; color: var(--text-2); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 3px; }
+    .lm-spec-val   { font-size: 14px; color: var(--chrome-bright); font-weight: 700; }
+    .lm-desc { font-size: 13px; color: var(--text-2); line-height: 1.6; margin-bottom: 20px; }
+    .lm-seller-card {
+      background: var(--black-3);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    .lm-seller-head { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--chrome); margin-bottom: 10px; }
+    .lm-seller-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+    .lm-seller-row:last-child { border-bottom: none; }
+    .lm-seller-key { color: var(--text-2); }
+    .lm-seller-val { color: var(--chrome-bright); font-weight: 600; }
+    .lm-contact-btn {
+      width: 100%;
+      padding: 14px;
+      background: var(--amber);
+      color: var(--black);
+      font-family: var(--font-display);
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: opacity .2s;
+    }
+    .lm-contact-btn:hover { opacity: .85; }
+
+    /* Empty state */
+    .listings-empty {
+      text-align: center;
+      padding: 80px 20px;
+      color: var(--text-2);
+    }
+    .listings-empty-icon { font-size: 56px; margin-bottom: 16px; }
+    .listings-empty-title { font-family: var(--font-display); font-size: 20px; font-weight: 800; text-transform: uppercase; color: var(--chrome-bright); margin-bottom: 8px; }
+
+    /* Loading skeleton */
+    .skeleton-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .skeleton-img  { height: 200px; background: var(--black-3); }
+    .skeleton-body { padding: 16px; }
+    .skeleton-line {
+      height: 12px; border-radius: 6px;
+      background: linear-gradient(90deg, var(--black-3) 25%, var(--border) 50%, var(--black-3) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.4s infinite;
+      margin-bottom: 10px;
+    }
+    .skeleton-line.w60 { width: 60%; }
+    .skeleton-line.w40 { width: 40%; }
+    @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+  </style>
+</head>
+<body>
+
+<!-- ── Nav ──────────────────────────────────────────────── -->
+<nav class="nav" aria-label="Main navigation">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo" aria-label="Paso Del Norte Home">
+      <div class="nav-logo-mark">PDN</div>
+      <span class="nav-logo-text">Paso Del Norte</span>
+    </a>
+    <div class="nav-links">
+      <a href="index.html" class="nav-link">Home</a>
+      <a href="listings.html" class="nav-link active">Listings</a>
+      <a href="inventory.html" class="nav-link">Inventory</a>
+      <a href="truck-search.html" class="nav-link">Search</a>
+      <a href="financing.html" class="nav-link">Financing</a>
+    </div>
+    <div class="nav-actions">
+      <a href="dashboard.html" class="btn btn-primary btn-sm">Dashboard</a>
+      <button class="nav-hamburger" aria-label="Open menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- Mobile Nav Drawer -->
+<div class="nav-overlay" aria-hidden="true"></div>
+<div class="nav-drawer" role="dialog" aria-label="Mobile menu">
+  <div class="nav-drawer-header">
+    <span class="nav-drawer-logo">PDN Trucks</span>
+    <button class="nav-drawer-close" aria-label="Close menu">&times;</button>
+  </div>
+  <div class="nav-drawer-tabs">
+    <button class="nav-drawer-tab active" data-tab="browse">Browse</button>
+    <button class="nav-drawer-tab" data-tab="services">Services</button>
+    <button class="nav-drawer-tab" data-tab="account">Account</button>
+  </div>
+  <div class="nav-drawer-panels">
+    <div class="nav-drawer-panel active" data-panel="browse">
+      <div class="nav-drawer-section">Inventory</div>
+      <a href="listings.html" class="nav-link active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+        All Listings
+      </a>
+      <a href="inventory.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        Dealer Inventory
+      </a>
+      <a href="truck-search.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        Search Trucks
+      </a>
+      <div class="nav-drawer-cta"><a href="dashboard.html" class="btn btn-primary">Post Your Truck</a></div>
+    </div>
+    <div class="nav-drawer-panel" data-panel="services">
+      <div class="nav-drawer-section">Financial</div>
+      <a href="financing.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>
+        Financing
+      </a>
+      <a href="docs.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        Documents
+      </a>
+    </div>
+    <div class="nav-drawer-panel" data-panel="account">
+      <div class="nav-drawer-section">My Account</div>
+      <a href="dashboard.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+        Dashboard
+      </a>
+      <a href="login.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+        Sign In
+      </a>
+      <div class="nav-drawer-cta"><a href="login.html" class="btn btn-primary">Sign In / Register</a></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Hero ─────────────────────────────────────────────── -->
+<section class="listings-hero">
+  <div class="container listings-hero-inner">
+    <div class="listings-title">Trucks <span>For Sale</span></div>
+    <div class="listings-sub">Browse trucks posted by verified sellers across Texas</div>
+    <div class="listings-filters">
+      <input type="text" class="lf-input lf-search" id="lf-search" placeholder="Search make, model, year…">
+      <select class="lf-input" id="lf-make">
+        <option value="">All Makes</option>
+        <option>Peterbilt</option><option>Kenworth</option><option>Freightliner</option>
+        <option>International</option><option>Mack</option><option>Volvo</option><option>Western Star</option>
+      </select>
+      <select class="lf-input" id="lf-price">
+        <option value="">Any Price</option>
+        <option value="50000">Under $50k</option>
+        <option value="100000">Under $100k</option>
+        <option value="150000">Under $150k</option>
+        <option value="200000">Under $200k</option>
+      </select>
+      <select class="lf-input" id="lf-sort">
+        <option value="newest">Newest First</option>
+        <option value="price-asc">Price: Low to High</option>
+        <option value="price-desc">Price: High to Low</option>
+      </select>
+      <span class="lf-count" id="lf-count">Loading…</span>
+    </div>
+  </div>
+</section>
+
+<!-- ── Listings grid ─────────────────────────────────────── -->
+<main class="container">
+  <div class="listings-grid" id="listingsGrid">
+    <!-- Skeletons while loading -->
+    ${[1,2,3,4,5,6].map(() => `
+    <div class="skeleton-card">
+      <div class="skeleton-img"></div>
+      <div class="skeleton-body">
+        <div class="skeleton-line"></div>
+        <div class="skeleton-line w60"></div>
+        <div class="skeleton-line w40"></div>
+      </div>
+    </div>`).join('')}
+  </div>
+</main>
+
+<!-- ── Detail Modal ──────────────────────────────────────── -->
+<div class="listing-modal-overlay" id="listingModal">
+  <div class="listing-modal" id="listingModalBox">
+    <!-- filled by JS -->
+  </div>
+</div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="js/config.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/main.js"></script>
+<script>
+
+/* ── State ───────────────────────────────────────────────── */
+let allListings = [];
+let filteredListings = [];
+
+/* ── Load all trucks from all users ─────────────────────── */
+async function loadAllListings() {
+  try {
+    pdnFirebaseInit();
+    const db = pdnDB();
+    if (!db) throw new Error('Firestore not ready');
+
+    // Collection group query — gets trucks subcollection across ALL users
+    const snap = await db.collectionGroup('trucks')
+      .where('status', '==', 'available')
+      .orderBy('createdAt', 'desc')
+      .get();
+
+    // For each truck, also get the seller's user doc
+    const truckPromises = snap.docs.map(async doc => {
+      const truck = { id: doc.id, ...doc.data() };
+      const uid = doc.ref.parent.parent.id;
+      try {
+        const userDoc = await db.collection('users').doc(uid).get();
+        truck.seller = userDoc.exists ? { uid, ...userDoc.data() } : { uid, name: 'Seller' };
+      } catch(_) {
+        truck.seller = { uid, name: 'Seller' };
+      }
+      return truck;
+    });
+
+    allListings = await Promise.all(truckPromises);
+    applyFilters();
+  } catch(e) {
+    console.error('listings error:', e);
+    // Show empty state
+    document.getElementById('listingsGrid').innerHTML = `
+      <div class="listings-empty" style="grid-column:1/-1">
+        <div class="listings-empty-icon">🚛</div>
+        <div class="listings-empty-title">No Listings Yet</div>
+        <p>Be the first to post your truck for sale.</p>
+        <a href="dashboard.html" class="btn btn-primary" style="margin-top:16px;">Post Your Truck</a>
+      </div>`;
+    document.getElementById('lf-count').textContent = '0 listings';
+  }
+}
+
+/* ── Filters ─────────────────────────────────────────────── */
+function applyFilters() {
+  const kw    = document.getElementById('lf-search').value.trim().toLowerCase();
+  const make  = document.getElementById('lf-make').value;
+  const maxP  = parseInt(document.getElementById('lf-price').value) || null;
+  const sort  = document.getElementById('lf-sort').value;
+
+  filteredListings = allListings.filter(t => {
+    if (kw && !`${t.year} ${t.make} ${t.model} ${t.engine} ${t.description}`.toLowerCase().includes(kw)) return false;
+    if (make && t.make !== make) return false;
+    if (maxP && t.price > maxP) return false;
+    return true;
+  });
+
+  if (sort === 'price-asc')  filteredListings.sort((a,b) => a.price - b.price);
+  if (sort === 'price-desc') filteredListings.sort((a,b) => b.price - a.price);
+
+  renderListings();
+}
+
+['lf-search','lf-make','lf-price','lf-sort'].forEach(id => {
+  const el = document.getElementById(id);
+  el.addEventListener(id === 'lf-search' ? 'input' : 'change', applyFilters);
+});
+
+/* ── Render ──────────────────────────────────────────────── */
+function getTrustConfig(seller) {
+  const sold = seller?.soldCount || 0;
+  if (sold >= 5) return { level: 'good',     label: 'Trusted Seller',  segs: [1,1,1], cls: 'lit-green' };
+  if (sold >= 2) return { level: 'moderate', label: 'Moderate History', segs: [1,1,0], cls: 'lit-orange' };
+  if (sold >= 1) return { level: 'low',      label: 'New Seller',       segs: [1,0,0], cls: 'lit-red' };
+  return          { level: 'neutral',  label: 'No History Yet',  segs: [0,0,0], cls: '' };
+}
+
+function trustBarHTML(seller) {
+  const tc = getTrustConfig(seller);
+  const segs = tc.segs.map(lit => `<div class="lc-trust-seg ${lit ? tc.cls : ''}"></div>`).join('');
+  return `<div class="lc-trust"><div class="lc-trust-segs">${segs}</div><span class="lc-trust-label">${tc.label}</span></div>`;
+}
+
+function allPhotos(truck) {
+  const ext = truck.photos?.exterior || [];
+  const int = truck.photos?.interior || [];
+  return [...ext, ...int];
+}
+
+function renderListings() {
+  const grid = document.getElementById('listingsGrid');
+  document.getElementById('lf-count').textContent = `${filteredListings.length} listing${filteredListings.length !== 1 ? 's' : ''}`;
+
+  if (!filteredListings.length) {
+    grid.innerHTML = `
+      <div class="listings-empty" style="grid-column:1/-1">
+        <div class="listings-empty-icon">🔍</div>
+        <div class="listings-empty-title">No Results</div>
+        <p>Try adjusting your filters.</p>
+      </div>`;
+    return;
+  }
+
+  grid.innerHTML = filteredListings.map((t, idx) => {
+    const photos  = allPhotos(t);
+    const initials = (t.seller?.name || 'S').slice(0,2).toUpperCase();
+    const name     = t.seller?.name || 'Seller';
+    const loc      = t.location || t.seller?.location || 'Texas';
+    const photoCount = photos.length;
+
+    const imgHTML = photoCount
+      ? `<img src="${photos[0]}" alt="${t.year} ${t.make} ${t.model}" loading="lazy" onerror="this.style.display='none'">`
+      : `<div class="lc-no-photo">🚛</div>`;
+
+    return `
+    <div class="listing-card" data-idx="${idx}" onclick="openModal(${idx})">
+      <div class="lc-gallery">
+        ${imgHTML}
+        ${photoCount > 1 ? `<span class="lc-photo-count">📷 ${photoCount}</span>` : ''}
+      </div>
+      <div class="lc-body">
+        <div class="lc-seller">
+          <div class="lc-avatar">${initials}</div>
+          <div>
+            <div class="lc-seller-name">${name}</div>
+            <div class="lc-seller-loc">${loc}</div>
+          </div>
+        </div>
+        <div class="lc-title">${t.year} ${t.make} ${t.model}</div>
+        <div class="lc-specs">
+          ${t.mileage ? `<span class="lc-spec">${Number(t.mileage).toLocaleString()} mi</span>` : ''}
+          ${t.engine  ? `<span class="lc-spec">${t.engine}</span>` : ''}
+          ${t.transmission ? `<span class="lc-spec">${t.transmission}</span>` : ''}
+        </div>
+        <div class="lc-price">$${Number(t.price).toLocaleString()}</div>
+        ${trustBarHTML(t.seller)}
+        <button class="lc-btn">View Details</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ── Modal ───────────────────────────────────────────────── */
+let modalPhotoIdx = 0;
+let modalPhotos   = [];
+
+function openModal(idx) {
+  const t = filteredListings[idx];
+  if (!t) return;
+
+  modalPhotos   = allPhotos(t);
+  modalPhotoIdx = 0;
+
+  const seller  = t.seller || {};
+  const name    = seller.name  || 'Seller';
+  const phone   = seller.phone || 'Contact via listing';
+  const loc     = t.location   || seller.location || 'Texas';
+  const initials = name.slice(0,2).toUpperCase();
+  const tc = getTrustConfig(seller);
+  const segs = tc.segs.map(lit => `<div class="lc-trust-seg ${lit ? tc.cls : ''}"></div>`).join('');
+
+  const thumbs = modalPhotos.map((src, i) =>
+    `<img class="lm-thumb ${i===0?'active':''}" src="${src}" data-i="${i}" onclick="setModalPhoto(${i})" loading="lazy">`
+  ).join('');
+
+  const box = document.getElementById('listingModalBox');
+  box.innerHTML = `
+    <div class="lm-gallery" id="lmGallery">
+      ${modalPhotos.length
+        ? `<img src="${modalPhotos[0]}" id="lmMainImg" alt="${t.year} ${t.make}">`
+        : `<div class="lc-no-photo" style="height:100%">🚛</div>`}
+      ${modalPhotos.length > 1 ? `
+        <button class="lm-gallery-prev" onclick="shiftModal(-1)">&#8592;</button>
+        <button class="lm-gallery-next" onclick="shiftModal(1)">&#8594;</button>` : ''}
+      <button class="lm-close" onclick="closeModal()">&times;</button>
+    </div>
+    ${modalPhotos.length > 1 ? `<div class="lm-thumb-strip">${thumbs}</div>` : ''}
+    <div class="lm-body">
+      <div class="lm-title">${t.year} ${t.make} ${t.model}</div>
+      <div class="lm-price">$${Number(t.price).toLocaleString()}</div>
+      <div class="lm-specs-grid">
+        <div class="lm-spec-cell"><div class="lm-spec-label">Mileage</div><div class="lm-spec-val">${t.mileage ? Number(t.mileage).toLocaleString()+' mi' : 'N/A'}</div></div>
+        <div class="lm-spec-cell"><div class="lm-spec-label">Engine</div><div class="lm-spec-val">${t.engine || 'N/A'}</div></div>
+        <div class="lm-spec-cell"><div class="lm-spec-label">Transmission</div><div class="lm-spec-val">${t.transmission || 'N/A'}</div></div>
+        <div class="lm-spec-cell"><div class="lm-spec-label">Location</div><div class="lm-spec-val">${loc}</div></div>
+        <div class="lm-spec-cell"><div class="lm-spec-label">Year</div><div class="lm-spec-val">${t.year}</div></div>
+        <div class="lm-spec-cell"><div class="lm-spec-label">Condition</div><div class="lm-spec-val">${t.condition || 'Used'}</div></div>
+      </div>
+      ${t.description ? `<div class="lm-desc">${t.description}</div>` : ''}
+      <div class="lm-seller-card">
+        <div class="lm-seller-head">Seller Info</div>
+        <div class="lm-seller-row">
+          <span class="lm-seller-key">Name</span>
+          <span class="lm-seller-val">${name}</span>
+        </div>
+        <div class="lm-seller-row">
+          <span class="lm-seller-key">Location</span>
+          <span class="lm-seller-val">${loc}</span>
+        </div>
+        <div class="lm-seller-row">
+          <span class="lm-seller-key">Trust</span>
+          <span class="lm-seller-val" style="display:flex;align-items:center;gap:6px;">
+            <div class="lc-trust-segs">${segs}</div>${tc.label}
+          </span>
+        </div>
+        <div class="lm-seller-row">
+          <span class="lm-seller-key">Phone</span>
+          <span class="lm-seller-val">${phone !== 'Contact via listing'
+            ? `<a href="tel:${phone}" style="color:var(--amber)">${phone}</a>`
+            : phone}</span>
+        </div>
+      </div>
+      <button class="lm-contact-btn" onclick="contactSeller('${phone}', '${name}')">
+        Contact Seller
+      </button>
+    </div>`;
+
+  document.getElementById('listingModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  document.getElementById('listingModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function setModalPhoto(i) {
+  modalPhotoIdx = i;
+  const img = document.getElementById('lmMainImg');
+  if (img) img.src = modalPhotos[i];
+  document.querySelectorAll('.lm-thumb').forEach((th, ti) => th.classList.toggle('active', ti === i));
+}
+
+function shiftModal(dir) {
+  const next = (modalPhotoIdx + dir + modalPhotos.length) % modalPhotos.length;
+  setModalPhoto(next);
+}
+
+function contactSeller(phone, name) {
+  if (phone && phone !== 'Contact via listing') {
+    window.location.href = 'tel:' + phone.replace(/\D/g,'');
+  } else {
+    alert(`Contact ${name} via their listing or log in to message them.`);
+  }
+}
+
+// Close on overlay click
+document.getElementById('listingModal').addEventListener('click', e => {
+  if (e.target === document.getElementById('listingModal')) closeModal();
+});
+
+/* ── Init ────────────────────────────────────────────────── */
+document.addEventListener('DOMContentLoaded', loadAllListings);
+
+</script>
+</body>
+</html>
