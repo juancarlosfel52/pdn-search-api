@@ -3,95 +3,74 @@
 
 ---
 
-## What This Project Is
-A premium semi-truck marketplace website for **Paso Del Norte: Truck & Equipment Sales**.
-Built for owner-operators, fleet buyers, oilfield workers, and diesel enthusiasts.
-Vanilla HTML/CSS/JS — no frameworks. GSAP for animations. Firebase backend (stub).
+**Last Updated:** 2026-06-01 (Session S03)
 
-**Root:** `C:\Users\juanc\Desktop\truck-marketplace\`
-**Local:** `http://localhost:3000` (run Node server from project root)
-**Deploy:** Railway (static)
+## Live URLs
+| Service | URL |
+|---------|-----|
+| Frontend | `https://pdn-search-api-production-4ce5.up.railway.app` |
+| Search API | `https://pdn-search-api-production.up.railway.app` |
 
----
+## GitHub Repos
+| Repo | Purpose |
+|------|---------|
+| `github.com/juancarlosfel52/pdn-search-api` | Frontend (truck-marketplace folder) |
+| `github.com/juancarlosfel52/-pdn-search-api` | Backend (search-api folder) |
 
-## Design Rules — NEVER BREAK THESE
-- Dark matte black UI (`#060608` base)
-- Amber LED accents (`#f59e0b`) — primary color for highlights, CTAs, borders
-- Chrome/silver text (`#f4f4f5`) for headings
-- Fonts: **Barlow Condensed** (display), **Barlow** (body), **JetBrains Mono** (specs)
-- NO rustic, vintage, western, or farm aesthetics
-- Cinematic, premium, modern, industrial
+## Railway Environment Variables
+**Backend (search-api):**
+- `SERPER_API_KEY` — Serper.dev (Google search results)
+- `IMAGE_API_KEY` — Claude Haiku (contact/image extraction from listing pages)
 
----
+## Key Pages
+| Page | Purpose |
+|------|---------|
+| `index.html` | Main landing page |
+| `listings.html` | PUBLIC — all user-posted trucks (NEW S03) |
+| `truck-search.html` | Live Google/Serper search with SSE streaming |
+| `dashboard.html` | User profile, truck management, photo upload (8 exterior + 8 interior) |
+| `inventory.html` | Dealer inventory |
+| `financing.html` | Financing |
+| `login.html` | Firebase Auth |
 
-## File Map
-```
-truck-marketplace/
-├── index.html          Homepage (hero, featured, search, financing, contact)
-├── inventory.html      Full inventory with filters
-├── detail.html         Truck detail page
-├── financing.html      Financing app + calculator + trade-in
-├── admin.html          Admin dashboard (PIN: 1025)
-├── docs.html           Driver document center (10 trucker + 6 TX legal docs)
-├── css/
-│   └── main.css        Full design system
-├── js/
-│   ├── data.js         Truck data, filter, financing calc, export
-│   ├── main.js         GSAP, nav, canvas background, toast
-│   └── inventory.js    Search/filter/sort/render
-└── landmark/
-    ├── CLAUDE_SUMMARY.md       ← YOU ARE HERE
-    └── SESSION_NOTES_2026-05-28_S01.md
-```
-
----
-
-## Key Functions (js/data.js)
-- `TRUCKS[]` — all truck listings
-- `filterTrucks(filters)` — filter by make/cab/condition/price/mileage etc.
-- `getTruck(id)` — get single truck by ID
-- `calcPayment({price, downPercent, rateAPR, termMonths})` — financing estimator
-- `formatPrice(n)` — "$189,500"
-- `formatMileage(n)` — "312,000 mi"
-- `generateListing(truck, platform)` — export to Facebook/Craigslist/etc.
-- `submitLead(data)` — stub, wire to Firebase
-- `Saved` — localStorage save/toggle/check
-
----
+## Tech Stack
+- **Frontend:** Vanilla HTML/CSS/JS, Firebase Auth + Firestore
+- **Backend:** Node.js + Express, Serper.dev, Claude Haiku (`IMAGE_API_KEY`)
+- **Auth:** Firebase email/password (Google sign-in NOT yet enabled)
+- **DB:** Firestore — `users/{uid}/trucks/{truckId}`
+- **Photos:** Stored as base64 in Firestore ⚠ should migrate to Firebase Storage
+- **Search:** Serper.dev → `/search/stream` SSE → cards stream in live
 
 ## Admin
-- URL: `/admin.html`
-- PIN: `1025`
-- Panels: Dashboard | Inventory | Leads | Export Listings | AI Descriptions
+- **Admin PIN:** 1025
+- **Phone:** (832) 555-0180 (placeholder — needs real number)
 
----
+## Mobile Nav
+- 3-tab side panel: Browse / Services / Account
+- Updated in ALL 9 HTML pages + `css/main.css` + `js/main.js`
 
-## Document Center (docs.html)
-### How it works
-- Click doc in sidebar → renders in white paper card
-- Toolbar: New / Save (localStorage) / Load / Export JSON / Print-PDF
-- All fields are editable inputs
-- Print hides nav/toolbar — clean white doc output
+## Firestore Structure
+```
+users/{uid}
+  name, email, company, phone, location, tier
+  trucks/{truckId}
+    year, make, model, price, mileage, engine, transmission
+    location, description, status (available/sold)
+    photos: { exterior: [base64...], interior: [base64...] }
+    createdAt
+```
 
-### Texas Legal Docs
-All reference real Texas law (TX Transportation Code, Business & Commerce Code, TxDMV, TxDOT, FMCSA).
-Include legal disclaimer — not a substitute for attorney.
+## Pending for Next Session
+1. **Firestore index** — Create collection group index for `trucks` orderBy `createdAt` in Firebase Console (needed for listings.html)
+2. **Config.js API key** — `window.__PDN_API_KEY__` placeholder breaks AI features on live site
+3. **Fleet search toggle** — "Fleet Only" button on truck-search.html
+4. **Mobile polish** — Full audit done in S03, ready to implement
+5. **Firebase Storage** — Migrate photos from base64 → Storage URLs (Firestore 1MB doc limit)
+6. **Firestore security rules** — Lock down before going public
+7. **Google sign-in** — Enable in Firebase Console
+8. **Nav update** — Add listings.html link to main nav on all pages
 
----
-
-## What Needs To Be Done Next
-1. Firebase credentials → replace stub in `js/data.js`
-2. Real truck photos → replace Unsplash URLs with Cloudinary
-3. Real phone number → replace `(832) 555-0180`
-4. Signature pad → canvas draw on doc forms
-5. Claude API → wire AI description generator in admin
-6. Railway deploy → push static files
-7. Real truck listings → add to TRUCKS array
-
----
-
-## Cost Control Rules (always apply)
-- Read max 200–400 lines at a time on large files
-- Ask for function name / tag before reading
-- Keep responses under 150 lines
-- No full-file reads unless absolutely necessary
+## Session Notes Index
+- S01: `SESSION_NOTES_2026-05-28_S01.md` — Initial build
+- S02: `SESSION_NOTES_2026-05-28_S02.md` — Auth, dashboard, trust bar, seller profile
+- S03: `SESSION_NOTES_2026-06-01_S03.md` — Railway deploy, Serper search, listings page, photo upload, mobile nav 3-tab
