@@ -1,0 +1,2238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TX Truck Search — Paso Del Norte Truck & Equipment Sales</title>
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;900&family=Barlow:wght@400;500;600&family=JetBrains+Mono&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ── Page Reset ─────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #060608;
+      color: #f4f4f5;
+      font-family: 'Barlow', sans-serif;
+      min-height: 100vh;
+    }
+
+    /* ── Hero / Search Section ───────────────────────────── */
+    .search-hero {
+      padding-top: calc(72px + 56px);
+      padding-bottom: 0;
+      background: linear-gradient(180deg, #0c0c10 0%, #060608 100%);
+      border-bottom: 1px solid rgba(245,158,11,0.12);
+    }
+
+    .search-hero-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px 40px;
+    }
+
+    .search-hero-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      color: #f59e0b;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .search-hero-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 900;
+      font-size: clamp(40px, 7vw, 72px);
+      line-height: 0.95;
+      letter-spacing: -0.01em;
+      color: #f4f4f5;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .search-hero-title span {
+      color: #f59e0b;
+    }
+
+    .search-hero-sub {
+      font-family: 'Barlow', sans-serif;
+      font-size: 15px;
+      color: #71717a;
+      margin-bottom: 32px;
+    }
+
+    /* Search bar */
+    .search-bar-wrap {
+      display: flex;
+      gap: 0;
+      background: #16161c;
+      border: 1.5px solid rgba(245,158,11,0.30);
+      border-radius: 6px;
+      overflow: hidden;
+      margin-bottom: 20px;
+      transition: border-color 0.2s;
+    }
+    .search-bar-wrap:focus-within {
+      border-color: #f59e0b;
+      box-shadow: 0 0 0 3px rgba(245,158,11,0.10);
+    }
+
+    .search-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #f4f4f5;
+      font-family: 'Barlow', sans-serif;
+      font-size: 18px;
+      padding: 18px 24px;
+    }
+    .search-input::placeholder { color: #52525b; }
+
+    .search-btn {
+      background: #f59e0b;
+      color: #060608;
+      border: none;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 900;
+      font-size: 15px;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      padding: 18px 36px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.15s;
+    }
+    .search-btn:hover { background: #fbbf24; }
+    .search-btn:active { background: #d97706; }
+
+    /* Filter row */
+    .filter-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .filter-select {
+      background: #16161c;
+      border: 1px solid rgba(245,158,11,0.15);
+      color: #d4d4d8;
+      font-family: 'Barlow', sans-serif;
+      font-size: 13px;
+      padding: 9px 14px;
+      border-radius: 4px;
+      cursor: pointer;
+      outline: none;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23f59e0b' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 32px;
+      transition: border-color 0.15s;
+    }
+    .filter-select:hover, .filter-select:focus {
+      border-color: rgba(245,158,11,0.4);
+    }
+    .filter-select option { background: #16161c; color: #f4f4f5; }
+
+    /* Source tabs */
+    .source-tabs {
+      display: flex;
+      gap: 4px;
+      padding-bottom: 0;
+    }
+
+    .source-tab {
+      background: transparent;
+      border: 1px solid rgba(245,158,11,0.15);
+      color: #71717a;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 13px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 8px 20px;
+      border-radius: 4px 4px 0 0;
+      cursor: pointer;
+      transition: all 0.15s;
+      border-bottom: none;
+    }
+    .source-tab:hover { color: #d4d4d8; border-color: rgba(245,158,11,0.30); }
+    .source-tab.active {
+      background: #16161c;
+      color: #f59e0b;
+      border-color: rgba(245,158,11,0.30);
+      border-bottom: 1px solid #16161c;
+    }
+
+    /* ── Results Section ─────────────────────────────────── */
+    .results-section {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 32px 24px 80px;
+      position: relative;
+    }
+
+    .results-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .results-count {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .results-badge {
+      background: rgba(245,158,11,0.12);
+      border: 1px solid rgba(245,158,11,0.25);
+      color: #f59e0b;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      padding: 4px 12px;
+      border-radius: 3px;
+    }
+
+    .results-label {
+      font-family: 'Barlow', sans-serif;
+      font-size: 14px;
+      color: #71717a;
+    }
+
+    .sort-select {
+      background: #16161c;
+      border: 1px solid rgba(245,158,11,0.15);
+      color: #d4d4d8;
+      font-family: 'Barlow', sans-serif;
+      font-size: 13px;
+      padding: 8px 32px 8px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      outline: none;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23f59e0b' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+    }
+    .sort-select option { background: #16161c; }
+
+    /* Grid */
+    .results-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    @media (max-width: 1024px) {
+      .results-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 640px) {
+      .results-grid { grid-template-columns: 1fr; }
+      .filter-row { gap: 8px; }
+      .filter-select { flex: 1 1 calc(50% - 4px); }
+    }
+
+    /* ── Listing Card ─────────────────────────────────────── */
+    .listing-card {
+      background: #16161c;
+      border: 1px solid rgba(245,158,11,0.10);
+      border-radius: 6px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: border-color 0.2s, transform 0.15s, box-shadow 0.2s;
+      display: flex;
+      flex-direction: column;
+    }
+    .listing-card:hover {
+      border-color: rgba(245,158,11,0.35);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(245,158,11,0.08);
+    }
+
+    .card-img-wrap {
+      position: relative;
+      height: 200px;
+      background: #0c0c10;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .card-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.4s;
+    }
+    .listing-card:hover .card-img { transform: scale(1.04); }
+
+    .card-img-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #111116;
+    }
+    .card-img-placeholder svg {
+      width: 56px;
+      height: 56px;
+      opacity: 0.18;
+    }
+
+    .card-badge-source {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 3px;
+    }
+    .badge-craigslist { background: rgba(245,158,11,0.85); color: #060608; }
+    .badge-ebay       { background: rgba(59,130,246,0.85); color: #fff; }
+    .badge-demo       { background: rgba(34,197,94,0.75);  color: #060608; }
+
+    .card-badge-city {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(6,6,8,0.80);
+      border: 1px solid rgba(245,158,11,0.20);
+      color: #d4d4d8;
+      font-family: 'Barlow', sans-serif;
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 3px;
+      backdrop-filter: blur(4px);
+    }
+
+    .card-body {
+      padding: 16px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .card-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 17px;
+      color: #f4f4f5;
+      line-height: 1.2;
+    }
+
+    .card-price {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 900;
+      font-size: 22px;
+      color: #f59e0b;
+      letter-spacing: -0.01em;
+    }
+    .card-price.no-price { color: #52525b; font-size: 14px; font-weight: 500; font-family: 'Barlow', sans-serif; }
+
+    .card-meta {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .meta-pill {
+      background: #1c1c24;
+      border: 1px solid rgba(255,255,255,0.06);
+      color: #a1a1aa;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      padding: 3px 8px;
+      border-radius: 3px;
+    }
+
+    .card-desc {
+      font-size: 13px;
+      color: #71717a;
+      line-height: 1.55;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      flex: 1;
+    }
+
+    .card-footer {
+      padding: 12px 16px;
+      border-top: 1px solid rgba(255,255,255,0.04);
+    }
+
+    .card-view-btn {
+      width: 100%;
+      background: transparent;
+      border: 1px solid rgba(245,158,11,0.30);
+      color: #f59e0b;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 13px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .card-view-btn:hover {
+      background: rgba(245,158,11,0.08);
+      border-color: #f59e0b;
+    }
+
+    /* ── Skeleton Cards ───────────────────────────────────── */
+    /* ── Search Loading Overlay ──────────────────────────── */
+    .search-loading-overlay {
+      display: none;
+      position: absolute;
+      inset: 0;
+      z-index: 10;
+      background: rgba(6,6,8,0.7);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      border-radius: 12px;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 20px;
+      min-height: 360px;
+    }
+    .search-loading-overlay.active {
+      display: flex;
+    }
+
+    /* SVG ring */
+    .progress-ring-wrap {
+      position: relative;
+      width: 110px; height: 110px;
+      flex-shrink: 0;
+    }
+    .progress-ring-svg {
+      transform: rotate(-90deg);
+      width: 110px; height: 110px;
+    }
+    .progress-ring-track {
+      fill: none;
+      stroke: rgba(245,158,11,.12);
+      stroke-width: 6;
+    }
+    .progress-ring-fill {
+      fill: none;
+      stroke: #f59e0b;
+      stroke-width: 6;
+      stroke-linecap: round;
+      stroke-dasharray: 298;   /* 2π × 47.5 */
+      stroke-dashoffset: 298;
+      transition: stroke-dashoffset 0.5s ease;
+      filter: drop-shadow(0 0 6px rgba(245,158,11,.6));
+    }
+    .progress-ring-pct {
+      position: absolute;
+      inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 22px; font-weight: 700;
+      color: #f59e0b;
+    }
+
+    /* Status messages */
+    .loading-status-wrap {
+      text-align: center;
+    }
+    .loading-status-main {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 800; font-size: 15px;
+      text-transform: uppercase; letter-spacing: .08em;
+      color: #f4f4f5;
+      margin-bottom: 6px;
+    }
+    .loading-status-sub {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; color: #52525b;
+      letter-spacing: .08em;
+      min-height: 14px;
+      transition: opacity .3s;
+    }
+
+    /* City pills row inside overlay */
+    .loading-city-row {
+      display: flex; flex-wrap: wrap; gap: 6px;
+      justify-content: center;
+      max-width: 360px;
+    }
+
+    /* Card fade-in when results arrive */
+    .listing-card {
+      animation: cardIn .4s ease both;
+    }
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .skeleton-card {
+      background: #16161c;
+      border: 1px solid rgba(245,158,11,0.06);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .skeleton {
+      background: linear-gradient(90deg, #1c1c24 25%, #22222c 50%, #1c1c24 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.4s infinite;
+      border-radius: 3px;
+    }
+
+    @keyframes shimmer {
+      0%   { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    .skeleton-img  { height: 200px; width: 100%; border-radius: 0; }
+    .skeleton-body { padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+    .skeleton-title { height: 18px; width: 75%; }
+    .skeleton-price { height: 24px; width: 45%; }
+    .skeleton-meta  { height: 12px; width: 60%; }
+    .skeleton-desc  { height: 12px; width: 90%; }
+    .skeleton-desc2 { height: 12px; width: 65%; }
+
+    /* ── eBay Banner ─────────────────────────────────────── */
+    .ebay-banner {
+      grid-column: 1 / -1;
+      background: #111116;
+      border: 1px dashed rgba(59,130,246,0.25);
+      border-radius: 6px;
+      padding: 28px 32px;
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+    }
+    .ebay-banner-icon {
+      width: 40px;
+      height: 40px;
+      background: rgba(59,130,246,0.10);
+      border: 1px solid rgba(59,130,246,0.25);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .ebay-banner-icon svg { width: 18px; height: 18px; color: #3b82f6; }
+    .ebay-banner h3 {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 16px;
+      color: #d4d4d8;
+      margin-bottom: 4px;
+    }
+    .ebay-banner p {
+      font-size: 13px;
+      color: #52525b;
+      line-height: 1.55;
+      max-width: 560px;
+    }
+    .ebay-banner code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: #f59e0b;
+      background: rgba(245,158,11,0.08);
+      padding: 1px 5px;
+      border-radius: 2px;
+    }
+
+    /* ── Empty State ─────────────────────────────────────── */
+    .empty-state {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 80px 24px;
+    }
+    .empty-state svg {
+      width: 56px;
+      height: 56px;
+      color: #27272a;
+      margin: 0 auto 16px;
+      display: block;
+    }
+    .empty-state h3 {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 22px;
+      color: #52525b;
+      margin-bottom: 8px;
+    }
+    .empty-state p { font-size: 14px; color: #3f3f46; }
+
+    /* ── Toast ───────────────────────────────────────────── */
+    .toast-container {
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 9000;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      align-items: center;
+      pointer-events: none;
+    }
+
+    .toast {
+      background: #1c1c24;
+      border: 1px solid rgba(245,158,11,0.25);
+      color: #d4d4d8;
+      font-family: 'Barlow', sans-serif;
+      font-size: 14px;
+      padding: 12px 24px;
+      border-radius: 5px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+      animation: toastIn 0.25s ease forwards;
+      pointer-events: auto;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      white-space: nowrap;
+    }
+
+    .toast.error { border-color: rgba(220,38,38,0.35); }
+    .toast.error .toast-dot { background: #dc2626; }
+    .toast-dot { width: 7px; height: 7px; border-radius: 50%; background: #f59e0b; flex-shrink: 0; animation: pulse 1.1s infinite; }
+
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; } 50% { opacity: 0.4; }
+    }
+
+    /* ── Detail Modal ─────────────────────────────────────── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(6,6,8,0.90);
+      z-index: 8000;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 40px 20px;
+      overflow-y: auto;
+      backdrop-filter: blur(6px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+    .modal-overlay.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-box {
+      background: #16161c;
+      border: 1px solid rgba(245,158,11,0.18);
+      border-radius: 8px;
+      width: 100%;
+      max-width: 760px;
+      overflow: hidden;
+      transform: translateY(16px);
+      transition: transform 0.2s;
+    }
+    .modal-overlay.open .modal-box {
+      transform: translateY(0);
+    }
+
+    .modal-img-wrap {
+      position: relative;
+      height: 320px;
+      background: #0c0c10;
+    }
+    .modal-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .modal-img-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-img-placeholder svg { width: 80px; height: 80px; opacity: 0.12; }
+
+    .modal-close {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      width: 36px;
+      height: 36px;
+      background: rgba(6,6,8,0.80);
+      border: 1px solid rgba(245,158,11,0.20);
+      border-radius: 50%;
+      color: #d4d4d8;
+      font-size: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+      z-index: 2;
+    }
+    .modal-close:hover { background: rgba(245,158,11,0.15); color: #f59e0b; border-color: #f59e0b; }
+
+    .modal-source-badge {
+      position: absolute;
+      bottom: 14px;
+      right: 14px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 3px;
+    }
+
+    .modal-body {
+      padding: 28px 32px;
+    }
+
+    .modal-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 900;
+      font-size: 30px;
+      color: #f4f4f5;
+      line-height: 1.1;
+      margin-bottom: 6px;
+    }
+
+    .modal-location {
+      font-size: 13px;
+      color: #71717a;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .modal-location svg { width: 13px; height: 13px; }
+
+    .modal-price {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 900;
+      font-size: 36px;
+      color: #f59e0b;
+      margin-bottom: 20px;
+    }
+    .modal-price.no-price { color: #52525b; font-size: 18px; font-family: 'Barlow', sans-serif; font-weight: 500; }
+
+    .modal-desc {
+      font-size: 14px;
+      color: #a1a1aa;
+      line-height: 1.65;
+      margin-bottom: 24px;
+    }
+
+    /* Info grid */
+    .modal-info-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-bottom: 28px;
+    }
+    @media (max-width: 500px) { .modal-info-grid { grid-template-columns: 1fr; } }
+
+    .modal-info-cell {
+      background: #1c1c24;
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 4px;
+      padding: 12px 14px;
+    }
+    .modal-info-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #52525b;
+      margin-bottom: 4px;
+    }
+    .modal-info-value {
+      font-family: 'Barlow', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: #d4d4d8;
+    }
+
+    /* Seller section */
+    .modal-seller {
+      background: #111116;
+      border: 1px solid rgba(245,158,11,0.10);
+      border-radius: 6px;
+      padding: 20px;
+      margin-bottom: 24px;
+    }
+
+    .modal-seller-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 12px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #52525b;
+      margin-bottom: 14px;
+    }
+
+    .seller-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .seller-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .seller-row:first-of-type { padding-top: 0; }
+
+    .seller-row-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: #52525b;
+      text-transform: uppercase;
+      letter-spacing: 0.10em;
+      flex-shrink: 0;
+      width: 60px;
+    }
+
+    .seller-row-value {
+      font-size: 14px;
+      color: #a1a1aa;
+      flex: 1;
+    }
+
+    .seller-link-btn {
+      background: rgba(245,158,11,0.08);
+      border: 1px solid rgba(245,158,11,0.20);
+      color: #f59e0b;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 5px 12px;
+      border-radius: 3px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.15s;
+      flex-shrink: 0;
+    }
+    .seller-link-btn:hover { background: rgba(245,158,11,0.15); border-color: #f59e0b; }
+
+    .modal-cta-btn {
+      display: block;
+      width: 100%;
+      background: #f59e0b;
+      color: #060608;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 900;
+      font-size: 16px;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      padding: 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      text-align: center;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    .modal-cta-btn:hover { background: #fbbf24; }
+    .modal-cta-btn.disabled {
+      background: #27272a;
+      color: #52525b;
+      cursor: default;
+    }
+
+    /* ── Agent Progress Panel ───────────────────────────── */
+    .agent-panel {
+      display: none;
+      background: #0e0e14;
+      border: 1px solid rgba(245,158,11,0.20);
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin-bottom: 20px;
+      max-width: 1200px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .agent-panel.active { display: block; }
+
+    .agent-panel-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .agent-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: #f59e0b;
+      animation: pulse-dot 1s ease-in-out infinite;
+      flex-shrink: 0;
+    }
+    @keyframes pulse-dot {
+      0%,100% { opacity: 1; transform: scale(1); }
+      50%      { opacity: 0.4; transform: scale(0.7); }
+    }
+    .agent-panel-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #f59e0b;
+    }
+    .agent-status-text {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: #52525b;
+      margin-left: auto;
+    }
+    .agent-city-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .agent-city-pill {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      color: #52525b;
+      transition: all 0.3s;
+    }
+    .agent-city-pill.searching {
+      background: rgba(245,158,11,0.10);
+      border-color: rgba(245,158,11,0.30);
+      color: #f59e0b;
+    }
+    .agent-city-pill.done {
+      background: rgba(34,197,94,0.08);
+      border-color: rgba(34,197,94,0.20);
+      color: #22c55e;
+    }
+    .agent-city-pill.error {
+      background: rgba(239,68,68,0.08);
+      border-color: rgba(239,68,68,0.20);
+      color: #ef4444;
+    }
+    .agent-enrich-bar {
+      height: 2px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 2px;
+      margin-top: 12px;
+      overflow: hidden;
+    }
+    .agent-enrich-fill {
+      height: 100%;
+      background: #f59e0b;
+      border-radius: 2px;
+      width: 0%;
+      transition: width 0.4s ease;
+    }
+    .agent-enrich-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: #52525b;
+      margin-top: 6px;
+    }
+
+    /* ── Deep-link banners ───────────────────────────────── */
+    .deeplink-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+    .deeplink-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 6px;
+      background: #16161c;
+      color: #a1a1aa;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 13px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.15s;
+    }
+    .deeplink-btn:hover {
+      border-color: rgba(245,158,11,0.40);
+      color: #f59e0b;
+      background: rgba(245,158,11,0.05);
+    }
+    .deeplink-badge {
+      font-size: 9px;
+      background: rgba(245,158,11,0.15);
+      color: #f59e0b;
+      border-radius: 3px;
+      padding: 1px 5px;
+      letter-spacing: 0.08em;
+    }
+
+    /* ── Import button ───────────────────────────────────── */
+    .card-import-btn {
+      background: rgba(245,158,11,0.10);
+      border: 1px solid rgba(245,158,11,0.25);
+      color: #f59e0b;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+    .card-import-btn:hover {
+      background: rgba(245,158,11,0.20);
+      border-color: #f59e0b;
+    }
+    .card-import-btn.imported {
+      background: rgba(34,197,94,0.10);
+      border-color: rgba(34,197,94,0.30);
+      color: #22c55e;
+      cursor: default;
+    }
+
+    .modal-import-btn {
+      display: block;
+      width: 100%;
+      background: rgba(245,158,11,0.10);
+      border: 1px solid rgba(245,158,11,0.30);
+      color: #f59e0b;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 900;
+      font-size: 15px;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      padding: 14px;
+      border-radius: 5px;
+      cursor: pointer;
+      text-align: center;
+      margin-top: 10px;
+      transition: all 0.15s;
+    }
+    .modal-import-btn:hover {
+      background: rgba(245,158,11,0.20);
+      border-color: #f59e0b;
+    }
+    .modal-import-btn.imported {
+      background: rgba(34,197,94,0.10);
+      border-color: rgba(34,197,94,0.30);
+      color: #22c55e;
+      cursor: default;
+    }
+
+    /* ── Seller Trust Bar ───────────────────────────────── */
+    .seller-trust {
+      margin-top: 14px;
+      padding: 12px 14px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 6px;
+    }
+    .seller-trust-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .seller-trust-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #52525b;
+    }
+    .seller-trust-status {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .seller-trust-status.trust-new      { color: #71717a; }
+    .seller-trust-status.trust-good     { color: #22c55e; }
+    .seller-trust-status.trust-moderate { color: #f59e0b; }
+    .seller-trust-status.trust-poor     { color: #ef4444; }
+
+    /* 3-segment bar: red | orange | green */
+    .trust-bar-track {
+      display: flex;
+      gap: 3px;
+      height: 6px;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 6px;
+    }
+    .trust-seg {
+      flex: 1;
+      border-radius: 3px;
+      background: rgba(255,255,255,0.07);
+      transition: background 0.3s;
+    }
+    /* Red segment (left) */
+    .trust-seg.seg-red.lit   { background: #ef4444; }
+    /* Orange segment (mid) */
+    .trust-seg.seg-orange.lit { background: #f59e0b; }
+    /* Green segment (right) */
+    .trust-seg.seg-green.lit  { background: #22c55e; }
+
+    .trust-bar-note {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      color: #3f3f46;
+      line-height: 1.4;
+    }
+
+    /* Card-level mini trust strip */
+    .card-trust-strip {
+      height: 3px;
+      border-radius: 0 0 8px 8px;
+      margin-top: 2px;
+      overflow: hidden;
+      display: flex;
+      gap: 2px;
+    }
+    .card-trust-seg {
+      flex: 1;
+      background: rgba(255,255,255,0.06);
+    }
+    .card-trust-seg.seg-red.lit   { background: #ef4444; }
+    .card-trust-seg.seg-orange.lit { background: #f59e0b; }
+    .card-trust-seg.seg-green.lit  { background: #22c55e; }
+
+    /* ── AI enriched pill ────────────────────────────────── */
+    .badge-ai {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.08em;
+      color: #a855f7;
+      background: rgba(168,85,247,0.08);
+      border: 1px solid rgba(168,85,247,0.20);
+      border-radius: 3px;
+      padding: 1px 6px;
+      margin-left: 6px;
+    }
+
+    /* ── Nav overrides ───────────────────────────────────── */
+    @media (max-width: 640px) {
+      .modal-body { padding: 20px; }
+      .search-hero-inner { padding: 0 16px 32px; }
+      .results-section { padding: 24px 16px 60px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="nav" id="main-nav">
+    <a href="index.html" class="nav-logo">
+      <div class="nav-logo-icon"></div>
+      <div class="nav-logo-text">Paso Del <span>Norte</span></div>
+    </a>
+    <ul class="nav-links" role="list">
+      <li><a href="index.html" class="nav-link">Home</a></li>
+      <li><a href="inventory.html" class="nav-link">Inventory</a></li>
+      <li><a href="financing.html" class="nav-link">Financing</a></li>
+      <li><a href="docs.html" class="nav-link">Documents</a></li>
+      <li><a href="post-generator.html" class="nav-link">Post Generator</a></li>
+      <li><a href="truck-search.html" class="nav-link active">TX Truck Search</a></li>
+      <li><a href="index.html#contact" class="nav-link">Contact</a></li>
+    </ul>
+    <div class="nav-actions">
+      <div class="nav-phone">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 0110 1.18 2 2 0 0112 3.14V6.18a2 2 0 01-1.45 1.93l-1.18.39a16 16 0 006.61 6.61l.39-1.18A2 2 0 0118.82 12h3a2 2 0 012 2.18z"/></svg>
+        (832) 555-0180
+      </div>
+      <button class="nav-hamburger" aria-label="Open menu"><span></span><span></span><span></span></button>
+    </div>
+  </nav>
+  <div class="nav-overlay" aria-hidden="true"></div>
+  <div class="nav-drawer" role="dialog">
+    <a href="index.html" class="nav-link">Home</a>
+    <a href="inventory.html" class="nav-link">Inventory</a>
+    <a href="financing.html" class="nav-link">Financing</a>
+    <a href="docs.html" class="nav-link">Documents</a>
+    <a href="post-generator.html" class="nav-link">Post Generator</a>
+    <a href="truck-search.html" class="nav-link">TX Truck Search</a>
+    <a href="index.html#contact" class="nav-link">Contact</a>
+  </div>
+
+  <!-- HERO / SEARCH -->
+  <section class="search-hero">
+    <div class="search-hero-inner">
+      <div class="search-hero-label">&#9632; Live Market Feed</div>
+      <h1 class="search-hero-title">Texas Truck<br><span>Market</span></h1>
+      <p class="search-hero-sub">Live listings across the state — Craigslist + eBay Motors</p>
+
+      <div class="search-bar-wrap">
+        <input
+          type="text"
+          class="search-input"
+          id="searchInput"
+          placeholder="Search trucks across Texas..."
+          autocomplete="off"
+        />
+        <button class="search-btn" id="searchBtn">Search Texas</button>
+      </div>
+
+      <div class="filter-row">
+        <select class="filter-select" id="filterCity">
+          <option value="">All Texas Cities</option>
+          <option value="Houston">Houston</option>
+          <option value="Dallas">Dallas</option>
+          <option value="San Antonio">San Antonio</option>
+          <option value="Austin">Austin</option>
+          <option value="El Paso">El Paso</option>
+          <option value="Laredo">Laredo</option>
+        </select>
+        <select class="filter-select" id="filterMinPrice">
+          <option value="">Min Price</option>
+          <option value="10000">$10,000</option>
+          <option value="25000">$25,000</option>
+          <option value="50000">$50,000</option>
+          <option value="75000">$75,000</option>
+          <option value="100000">$100,000</option>
+          <option value="150000">$150,000</option>
+        </select>
+        <select class="filter-select" id="filterMaxPrice">
+          <option value="">Max Price</option>
+          <option value="50000">$50,000</option>
+          <option value="75000">$75,000</option>
+          <option value="100000">$100,000</option>
+          <option value="125000">$125,000</option>
+          <option value="150000">$150,000</option>
+          <option value="200000">$200,000</option>
+        </select>
+        <select class="filter-select" id="filterYearFrom">
+          <option value="">Year From</option>
+          <option value="2010">2010</option>
+          <option value="2012">2012</option>
+          <option value="2015">2015</option>
+          <option value="2017">2017</option>
+          <option value="2018">2018</option>
+          <option value="2019">2019</option>
+          <option value="2020">2020</option>
+          <option value="2021">2021</option>
+        </select>
+        <select class="filter-select" id="filterYearTo">
+          <option value="">Year To</option>
+          <option value="2018">2018</option>
+          <option value="2019">2019</option>
+          <option value="2020">2020</option>
+          <option value="2021">2021</option>
+          <option value="2022">2022</option>
+          <option value="2023">2023</option>
+          <option value="2024">2024</option>
+          <option value="2025">2025</option>
+        </select>
+      </div>
+
+      <div class="source-tabs">
+        <button class="source-tab active" data-source="all">All Sources</button>
+        <button class="source-tab" data-source="craigslist">Craigslist</button>
+        <button class="source-tab" data-source="ebay">eBay Motors</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- AGENT PROGRESS PANEL -->
+  <div class="agent-panel" id="agentPanel" style="padding: 16px 24px; max-width:1200px; margin:16px auto 0;">
+    <div class="agent-panel-header">
+      <div class="agent-dot"></div>
+      <div class="agent-panel-title">Search Agent Running</div>
+      <div class="agent-status-text" id="agentStatusText">Initializing...</div>
+    </div>
+    <div class="agent-city-list" id="agentCityList"></div>
+    <div class="agent-enrich-bar"><div class="agent-enrich-fill" id="agentEnrichFill"></div></div>
+    <div class="agent-enrich-label" id="agentEnrichLabel"></div>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="results-section">
+
+    <!-- Deep-link row (external sites) -->
+    <div class="deeplink-row" id="deeplinkRow" style="display:none">
+      <a id="dlEbay" href="#" target="_blank" rel="noopener noreferrer" class="deeplink-btn">
+        eBay Motors <span class="deeplink-badge">LIVE</span>
+      </a>
+      <a id="dlTruckPaper" href="#" target="_blank" rel="noopener noreferrer" class="deeplink-btn">
+        TruckPaper <span class="deeplink-badge">LIVE</span>
+      </a>
+      <a id="dlCCT" href="#" target="_blank" rel="noopener noreferrer" class="deeplink-btn">
+        Commercial Truck Trader <span class="deeplink-badge">LIVE</span>
+      </a>
+      <a id="dlFB" href="#" target="_blank" rel="noopener noreferrer" class="deeplink-btn">
+        Facebook Marketplace <span class="deeplink-badge">LIVE</span>
+      </a>
+    </div>
+
+    <div class="results-header">
+      <div class="results-count">
+        <div class="results-badge" id="resultsCountBadge">0</div>
+        <span class="results-label" id="resultsLabel">search to fetch live listings</span>
+      </div>
+      <select class="sort-select" id="sortSelect">
+        <option value="newest">Newest First</option>
+        <option value="price-asc">Price: Low to High</option>
+        <option value="price-desc">Price: High to Low</option>
+      </select>
+    </div>
+
+    <!-- Loading overlay (shown during search) -->
+    <div class="search-loading-overlay" id="searchLoadingOverlay">
+      <div class="progress-ring-wrap">
+        <svg class="progress-ring-svg" viewBox="0 0 110 110">
+          <circle class="progress-ring-track" cx="55" cy="55" r="47.5"/>
+          <circle class="progress-ring-fill" id="ringFill" cx="55" cy="55" r="47.5"/>
+        </svg>
+        <div class="progress-ring-pct" id="ringPct">0%</div>
+      </div>
+      <div class="loading-status-wrap">
+        <div class="loading-status-main" id="loadingMain">Scanning Texas</div>
+        <div class="loading-status-sub" id="loadingSub">Connecting to live feeds...</div>
+      </div>
+      <div class="loading-city-row" id="loadingCityRow"></div>
+    </div>
+
+    <div class="results-grid" id="resultsGrid">
+      <!-- populated by JS -->
+    </div>
+  </div>
+
+  <!-- DETAIL MODAL -->
+  <div class="modal-overlay" id="modalOverlay" role="dialog" aria-modal="true" aria-label="Listing detail">
+    <div class="modal-box" id="modalBox">
+      <!-- populated by JS -->
+    </div>
+  </div>
+
+  <!-- TOAST CONTAINER -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script>
+    /* ════════════════════════════════════════════════════
+       PASO DEL NORTE — Texas Truck Search
+       ════════════════════════════════════════════════════ */
+
+    const SEARCH_API = 'https://pdn-search-api-production.up.railway.app';
+
+    const CL_CITIES = [
+      { name: 'Houston',     url: 'https://houston.craigslist.org' },
+      { name: 'Dallas',      url: 'https://dallas.craigslist.org' },
+      { name: 'San Antonio', url: 'https://sanantonio.craigslist.org' },
+      { name: 'Austin',      url: 'https://austin.craigslist.org' },
+      { name: 'El Paso',     url: 'https://elpaso.craigslist.org' },
+      { name: 'Laredo',      url: 'https://laredo.craigslist.org' },
+    ];
+
+    /* ── State ──────────────────────────────────────────── */
+    let allListings = [];
+    let activeSource = 'all';
+    let isLoading = false;
+
+    /* ── Elements ───────────────────────────────────────── */
+    const grid         = document.getElementById('resultsGrid');
+    const searchInput  = document.getElementById('searchInput');
+    const searchBtn    = document.getElementById('searchBtn');
+    const filterCity   = document.getElementById('filterCity');
+    const filterMinP   = document.getElementById('filterMinPrice');
+    const filterMaxP   = document.getElementById('filterMaxPrice');
+    const filterYearF  = document.getElementById('filterYearFrom');
+    const filterYearT  = document.getElementById('filterYearTo');
+    const sortSelect   = document.getElementById('sortSelect');
+    const countBadge   = document.getElementById('resultsCountBadge');
+    const resultsLabel = document.getElementById('resultsLabel');
+    const modalOverlay = document.getElementById('modalOverlay');
+    const modalBox     = document.getElementById('modalBox');
+    const toastCont    = document.getElementById('toastContainer');
+
+    /* ── Toast ──────────────────────────────────────────── */
+    function showToast(msg, type = 'info', duration = 3500) {
+      const t = document.createElement('div');
+      t.className = 'toast' + (type === 'error' ? ' error' : '');
+      t.innerHTML = `<span class="toast-dot"></span>${msg}`;
+      toastCont.appendChild(t);
+      setTimeout(() => {
+        t.style.animation = 'none';
+        t.style.opacity = '0';
+        t.style.transform = 'translateY(10px)';
+        t.style.transition = 'opacity 0.3s, transform 0.3s';
+        setTimeout(() => t.remove(), 350);
+      }, duration);
+    }
+
+    /* ── Streaming search via SSE ───────────────────────── */
+    function streamSearch(query, cityFilter, onCity, onDone, onError) {
+      const params = new URLSearchParams({ q: query });
+      if (cityFilter) params.set('city', cityFilter.toLowerCase().replace(/\s/g,''));
+      const url = `${SEARCH_API}/search/stream?${params}`;
+      const es = new EventSource(url);
+
+      es.addEventListener('city', e => {
+        try { onCity(JSON.parse(e.data)); } catch(_) {}
+      });
+      es.addEventListener('done', e => {
+        es.close();
+        try { onDone(JSON.parse(e.data)); } catch(_) { onDone({}); }
+      });
+      es.addEventListener('error', () => {
+        es.close();
+        onError(new Error('Stream connection failed'));
+      });
+
+      return es; // caller can call es.close() to abort
+    }
+
+    /* ── Filter + sort listings ─────────────────────────── */
+    function priceNum(str) {
+      if (!str) return null;
+      return parseInt(str.replace(/[^0-9]/g, ''), 10);
+    }
+
+    function applyFilters(listings) {
+      const kw     = searchInput.value.trim().toLowerCase();
+      const city   = filterCity.value;
+      const minP   = filterMinP.value ? parseInt(filterMinP.value) : null;
+      const maxP   = filterMaxP.value ? parseInt(filterMaxP.value) : null;
+      const yearF  = filterYearF.value ? parseInt(filterYearF.value) : null;
+      const yearT  = filterYearT.value ? parseInt(filterYearT.value) : null;
+      const src    = activeSource;
+
+      return listings.filter(l => {
+        if (kw && !l.title.toLowerCase().includes(kw) && !l.description.toLowerCase().includes(kw)) return false;
+        if (city && !l.location.toLowerCase().includes(city.toLowerCase())) return false;
+        if (src === 'craigslist' && l.source !== 'Craigslist') return false;
+        const p = priceNum(l.price);
+        if (minP && p !== null && p < minP) return false;
+        if (maxP && p !== null && p > maxP) return false;
+        const y = l.year ? parseInt(l.year) : null;
+        if (yearF && y !== null && y < yearF) return false;
+        if (yearT && y !== null && y > yearT) return false;
+        return true;
+      });
+    }
+
+    function sortListings(listings) {
+      const mode = sortSelect.value;
+      if (mode === 'price-asc') {
+        return [...listings].sort((a,b) => (priceNum(a.price) || 0) - (priceNum(b.price) || 0));
+      }
+      if (mode === 'price-desc') {
+        return [...listings].sort((a,b) => (priceNum(b.price) || 999999) - (priceNum(a.price) || 999999));
+      }
+      return [...listings].sort((a,b) => new Date(b.posted || 0) - new Date(a.posted || 0));
+    }
+
+    /* ── Seller Trust Helpers ───────────────────────────── */
+    const TRUST_CONFIG = {
+      good:     { label: 'Trusted Seller',  cls: 'trust-good',     segs: [false, false, true],  icon: '▲' },
+      moderate: { label: 'Moderate History',cls: 'trust-moderate',  segs: [false, true,  false], icon: '◆' },
+      poor:     { label: 'Low Trust',       cls: 'trust-poor',      segs: [true,  false, false], icon: '▼' },
+      new:      { label: 'New Seller',      cls: 'trust-new',       segs: [false, false, false], icon: '●' },
+    };
+
+    function getTrust(l) {
+      return l.sellerTrust && TRUST_CONFIG[l.sellerTrust]
+        ? TRUST_CONFIG[l.sellerTrust]
+        : TRUST_CONFIG.new;
+    }
+
+    // Full bar for modal
+    function buildTrustBar(l) {
+      const t = getTrust(l);
+      const note = l.trustNote || (l.source === 'Craigslist' ? 'Craigslist listing — verify seller independently' : 'No history data available');
+      const segs = ['seg-red', 'seg-orange', 'seg-green'];
+      const segHtml = segs.map((cls, i) =>
+        `<div class="trust-seg ${cls}${t.segs[i] ? ' lit' : ''}"></div>`
+      ).join('');
+      return `
+        <div class="seller-trust">
+          <div class="seller-trust-header">
+            <span class="seller-trust-label">Seller History</span>
+            <span class="seller-trust-status ${t.cls}">${t.icon} ${t.label}</span>
+          </div>
+          <div class="trust-bar-track">${segHtml}</div>
+          <div class="trust-bar-note">${note}</div>
+        </div>`;
+    }
+
+    // Mini 3-segment strip for listing card bottom
+    function buildCardTrustStrip(l) {
+      const t = getTrust(l);
+      const segs = ['seg-red', 'seg-orange', 'seg-green'];
+      return `<div class="card-trust-strip">${
+        segs.map((cls, i) => `<div class="card-trust-seg ${cls}${t.segs[i] ? ' lit' : ''}"></div>`).join('')
+      }</div>`;
+    }
+
+    // Assign trust to Craigslist listings based on simple heuristics
+    function assignCraigslistTrust(l) {
+      if (l.sellerTrust) return l;
+      // No real data — use 'new' by default for external listings
+      return { ...l, sellerTrust: 'new', trustNote: 'Craigslist listing — verify seller independently before transacting' };
+    }
+
+    /* ── Render helpers ─────────────────────────────────── */
+    const TRUCK_SVG = `<svg viewBox="0 0 64 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="14" width="38" height="20" rx="2" fill="currentColor" opacity="0.4"/><path d="M40 22h12l6 8v4H40V22z" fill="currentColor" opacity="0.4"/><circle cx="12" cy="36" r="4" fill="currentColor" opacity="0.5"/><circle cx="46" cy="36" r="4" fill="currentColor" opacity="0.5"/></svg>`;
+
+    function badgeClass(source) {
+      if (source === 'Craigslist') return 'badge-craigslist';
+      if (source === 'eBay')       return 'badge-ebay';
+      return 'badge-demo';
+    }
+
+    function formatDate(str) {
+      if (!str) return 'N/A';
+      try {
+        return new Date(str).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
+      } catch { return str; }
+    }
+
+    function buildSkeletons(n = 6) {
+      const frag = document.createDocumentFragment();
+      for (let i = 0; i < n; i++) {
+        const s = document.createElement('div');
+        s.className = 'skeleton-card';
+        s.innerHTML = `
+          <div class="skeleton skeleton-img"></div>
+          <div class="skeleton-body">
+            <div class="skeleton skeleton-title"></div>
+            <div class="skeleton skeleton-price"></div>
+            <div class="skeleton skeleton-meta"></div>
+            <div class="skeleton skeleton-desc"></div>
+            <div class="skeleton skeleton-desc2"></div>
+          </div>
+        `;
+        frag.appendChild(s);
+      }
+      return frag;
+    }
+
+    function buildEbayBanner() {
+      const d = document.createElement('div');
+      d.className = 'ebay-banner';
+      d.innerHTML = `
+        <div class="ebay-banner-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        </div>
+        <div>
+          <h3>eBay Motors — API Integration Available</h3>
+          <p>To display live eBay Motors listings, add your eBay App ID to <code>truck-search.html</code> and enable the <code>fetchEbayListings()</code> function. Visit <code>developer.ebay.com</code> to register a free app and obtain credentials. Once configured, results will appear here automatically alongside Craigslist listings.</p>
+        </div>
+      `;
+      return d;
+    }
+
+    /* ── Render results ─────────────────────────────────── */
+    function renderResults(listings) {
+      grid.innerHTML = '';
+      let display = applyFilters(listings);
+      display = sortListings(display);
+
+      countBadge.textContent = display.length;
+
+      if (activeSource === 'ebay') {
+        const ebayBanner = buildEbayBanner();
+        grid.appendChild(ebayBanner);
+        resultsLabel.textContent = 'eBay Motors integration pending';
+        countBadge.textContent = '—';
+        return;
+      }
+
+      if (display.length === 0) {
+        const empty = document.createElement('div');
+        empty.className = 'empty-state';
+        empty.innerHTML = `
+          ${TRUCK_SVG}
+          <h3>No listings found</h3>
+          <p>Try different keywords, a wider price range, or remove city filters.</p>
+        `;
+        grid.appendChild(empty);
+        resultsLabel.textContent = 'no results — adjust filters';
+        return;
+      }
+
+      const frag = document.createDocumentFragment();
+      display.forEach((l, i) => {
+        const card = buildCard(l);
+        card.style.animationDelay = (i * 0.05) + 's';
+        frag.appendChild(card);
+      });
+      grid.appendChild(frag);
+
+      const liveCount = display.filter(l => l.source === 'Craigslist').length;
+      const demoCount = display.filter(l => l.source === 'Demo').length;
+      const parts = [];
+      if (liveCount) parts.push(`${liveCount} live`);
+      if (demoCount) parts.push(`${demoCount} demo`);
+      resultsLabel.textContent = parts.join(' + ') + ' listings';
+    }
+
+    function closeModal() {
+      modalOverlay.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    modalOverlay.addEventListener('click', e => {
+      if (e.target === modalOverlay) closeModal();
+    });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') closeModal();
+    });
+
+    /* ── Ready state (shown before any search) ──────────── */
+    function renderReadyState() {
+      grid.innerHTML = '';
+      countBadge.textContent = '—';
+      resultsLabel.textContent = 'enter a search above';
+
+      // User info card (if logged in via Firebase)
+      let userCard = '';
+      try {
+        const u = typeof pdnAuth === 'function' && pdnAuth() ? pdnAuth().currentUser : null;
+        if (u) {
+          const initials = (u.displayName || u.email || 'U').slice(0,2).toUpperCase();
+          userCard = `
+            <div style="
+              background:#111116; border:1px solid rgba(245,158,11,.15);
+              border-radius:10px; padding:18px 20px;
+              display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+              margin-bottom:4px;
+            ">
+              <div style="
+                width:44px; height:44px; border-radius:50%;
+                background:#f59e0b; color:#060608;
+                display:flex; align-items:center; justify-content:center;
+                font-family:'Barlow Condensed',sans-serif; font-weight:900; font-size:18px;
+                flex-shrink:0;
+              ">${initials}</div>
+              <div style="flex:1; min-width:140px;">
+                <div style="font-family:'Barlow Condensed',sans-serif; font-size:14px; font-weight:800; text-transform:uppercase; color:#f4f4f5;">${u.displayName || 'My Account'}</div>
+                <div style="font-size:10px; color:#52525b; font-family:'JetBrains Mono',monospace; margin-top:2px;">${u.email}</div>
+              </div>
+              <a href="dashboard.html" style="
+                font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:11px;
+                letter-spacing:.08em; text-transform:uppercase;
+                padding:7px 14px; border-radius:5px;
+                background:rgba(245,158,11,.08); border:1px solid rgba(245,158,11,.25);
+                color:#f59e0b; text-decoration:none; transition:all .15s;
+              ">My Dashboard →</a>
+            </div>`;
+        }
+      } catch(e) {}
+
+      grid.innerHTML = `
+        ${userCard}
+        <div style="
+          grid-column: 1/-1;
+          text-align:center; padding:60px 20px;
+          border:1px dashed rgba(255,255,255,.07);
+          border-radius:10px; color:#3f3f46;
+        ">
+          <div style="font-size:48px; margin-bottom:14px; opacity:.4;">🔍</div>
+          <div style="font-family:'Barlow Condensed',sans-serif; font-size:20px; font-weight:800; text-transform:uppercase; color:#52525b; margin-bottom:8px;">Search Texas Trucks</div>
+          <div style="font-size:12px; color:#3f3f46; line-height:1.6; max-width:340px; margin:0 auto;">
+            Type a keyword above — Peterbilt, Kenworth, Cascadia — and hit Search Texas.<br>
+            The agent scans Craigslist across all 6 cities simultaneously.
+          </div>
+        </div>`;
+    }
+
+    /* ── Progress Ring Controller ───────────────────────── */
+    const loadingOverlay = document.getElementById('searchLoadingOverlay');
+    const ringFill       = document.getElementById('ringFill');
+    const ringPct        = document.getElementById('ringPct');
+    const loadingMain    = document.getElementById('loadingMain');
+    const loadingSub     = document.getElementById('loadingSub');
+    const loadingCityRow = document.getElementById('loadingCityRow');
+
+    const RING_CIRC = 298; // 2π × 47.5
+
+    const STATUS_MSGS = [
+      'Scanning Craigslist feeds...',
+      'Checking Houston listings...',
+      'Pulling Dallas results...',
+      'Searching San Antonio...',
+      'Reaching El Paso & Laredo...',
+      'Parsing listing data...',
+      'Running AI enrichment...',
+      'Extracting make, model, mileage...',
+      'Almost done...'
+    ];
+    let _statusInterval = null;
+    let _statusIdx = 0;
+
+    function ringShow(cities) {
+      loadingOverlay.classList.add('active');
+      setRing(0);
+      loadingMain.textContent = 'Scanning Texas';
+      loadingSub.textContent  = 'Connecting to live feeds...';
+      _statusIdx = 0;
+
+      // Duplicate city pills inside overlay
+      loadingCityRow.innerHTML = cities.map(c =>
+        `<span class="agent-city-pill" id="ov-pill-${c.name.replace(/\s/g,'')}">${c.name}</span>`
+      ).join('');
+
+      // Cycle sub-messages every 1.8s
+      clearInterval(_statusInterval);
+      _statusInterval = setInterval(() => {
+        _statusIdx = (_statusIdx + 1) % STATUS_MSGS.length;
+        loadingSub.style.opacity = '0';
+        setTimeout(() => {
+          loadingSub.textContent = STATUS_MSGS[_statusIdx];
+          loadingSub.style.opacity = '1';
+        }, 200);
+      }, 1800);
+    }
+
+    function ringHide() {
+      loadingOverlay.classList.remove('active');
+      clearInterval(_statusInterval);
+    }
+
+    function setRing(pct) {
+      const offset = RING_CIRC - (RING_CIRC * pct / 100);
+      ringFill.style.strokeDashoffset = offset;
+      ringPct.textContent = Math.round(pct) + '%';
+    }
+
+    function ringCityDone(cityName, state) {
+      // Update overlay pill
+      const pill = document.getElementById('ov-pill-' + cityName.replace(/\s/g,''));
+      if (pill) pill.className = 'agent-city-pill ' + state;
+    }
+
+    /* ── Agent Progress UI ──────────────────────────────── */
+    const agentPanel     = document.getElementById('agentPanel');
+    const agentCityList  = document.getElementById('agentCityList');
+    const agentStatusTxt = document.getElementById('agentStatusText');
+    const agentFill      = document.getElementById('agentEnrichFill');
+    const agentEnrLabel  = document.getElementById('agentEnrichLabel');
+    const deeplinkRow    = document.getElementById('deeplinkRow');
+
+    function agentShow() { agentPanel.classList.add('active'); }
+    function agentHide() { agentPanel.classList.remove('active'); }
+
+    function buildCityPills(cities) {
+      agentCityList.innerHTML = '';
+      cities.forEach(c => {
+        const pill = document.createElement('span');
+        pill.className = 'agent-city-pill';
+        pill.textContent = c.name;
+        pill.id = 'pill-' + c.name.replace(/\s/g,'');
+        agentCityList.appendChild(pill);
+      });
+    }
+
+    function pillState(cityName, state) {
+      const pill = document.getElementById('pill-' + cityName.replace(/\s/g,''));
+      if (pill) { pill.className = 'agent-city-pill ' + state; }
+    }
+
+    function agentEnrichProgress(done, total, label) {
+      const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+      agentFill.style.width = pct + '%';
+      agentEnrLabel.textContent = label || '';
+    }
+
+    /* ── Claude AI enrichment ───────────────────────────── */
+    async function aiEnrichListing(raw) {
+      if (typeof pdnClaude !== 'function') return raw;
+      const system = 'You extract truck listing data from raw text. Return ONLY valid JSON with keys: make, model, year (number or null), mileage (string like "450,000 mi" or null), engine, transmission, condition ("excellent"|"good"|"fair"|"unknown"), summary (1 sentence). No extra text.';
+      const user = `Title: ${raw.title}\nDescription: ${raw.description}`;
+      try {
+        const reply = await pdnClaude(system, user, 300);
+        const match = reply.match(/\{[\s\S]*\}/);
+        if (!match) return raw;
+        const data = JSON.parse(match[0]);
+        return {
+          ...raw,
+          make:         data.make         || null,
+          model:        data.model        || null,
+          year:         data.year ? String(data.year) : raw.year,
+          mileage:      data.mileage      || raw.mileage,
+          engine:       data.engine       || null,
+          transmission: data.transmission || null,
+          condition:    data.condition    || 'unknown',
+          aiSummary:    data.summary      || null,
+          aiEnriched:   true
+        };
+      } catch { return raw; }
+    }
+
+    async function enrichBatch(listings) {
+      const CL_LISTINGS = listings.filter(l => l.source === 'Craigslist');
+      if (!CL_LISTINGS.length) return listings;
+
+      let done = 0;
+      agentEnrichProgress(0, CL_LISTINGS.length, `AI enriching 0 / ${CL_LISTINGS.length} listings...`);
+
+      // Process in groups of 3 (rate limit friendly)
+      const enriched = [...listings];
+      for (let i = 0; i < CL_LISTINGS.length; i += 3) {
+        const batch = CL_LISTINGS.slice(i, i + 3);
+        const results = await Promise.allSettled(batch.map(l => aiEnrichListing(l)));
+        results.forEach((res, idx) => {
+          const orig = batch[idx];
+          const rich = res.status === 'fulfilled' ? res.value : orig;
+          const globalIdx = enriched.findIndex(l => l.id === orig.id);
+          if (globalIdx !== -1) enriched[globalIdx] = rich;
+          done++;
+        });
+        agentEnrichProgress(done, CL_LISTINGS.length, `AI enriching ${done} / ${CL_LISTINGS.length} listings...`);
+        // Small pause between batches
+        if (i + 3 < CL_LISTINGS.length) await new Promise(r => setTimeout(r, 400));
+      }
+
+      agentEnrichProgress(CL_LISTINGS.length, CL_LISTINGS.length, `AI enriched ${done} listings`);
+      return enriched;
+    }
+
+    /* ── Deep-link builder ──────────────────────────────── */
+    function buildDeepLinks(query) {
+      const q = encodeURIComponent(query || 'semi truck');
+      document.getElementById('dlEbay').href       = `https://www.ebay.com/sch/i.html?_nkw=${q}&_sacat=63732`;
+      document.getElementById('dlTruckPaper').href = `https://www.truckpaper.com/listings/trucks/for-sale/list?FullTextSearchInput=${q}&StateCode=TX`;
+      document.getElementById('dlCCT').href        = `https://www.commercialtrucktrader.com/find/trucks?keyword=${q}&state=TX`;
+      document.getElementById('dlFB').href         = `https://www.facebook.com/marketplace/category/trucks/?query=${q}`;
+      deeplinkRow.style.display = 'flex';
+    }
+
+    /* ── Import listing to dashboard ─────────────────────── */
+    async function importListing(l, btn) {
+      if (!btn || btn.classList.contains('imported')) return;
+
+      // Need to be logged in
+      if (typeof pdnAuth !== 'function' || !pdnAuth().currentUser) {
+        showToast('Sign in to import listings to your dashboard', 'error');
+        setTimeout(() => { window.location.href = 'login.html'; }, 1800);
+        return;
+      }
+
+      btn.textContent = 'Saving...';
+      btn.disabled = true;
+
+      const truckData = {
+        make:         l.make  || l.title.split(' ').slice(2).join(' '),
+        model:        l.model || '',
+        year:         l.year  || '',
+        price:        l.price ? parseInt(l.price.replace(/[^0-9]/g,''),10) : 0,
+        mileage:      l.mileage ? parseInt(l.mileage.replace(/[^0-9]/g,''),10) : 0,
+        engine:       l.engine || '',
+        transmission: l.transmission || '',
+        condition:    l.condition || 'unknown',
+        location:     l.location || '',
+        description:  l.aiSummary || l.description || '',
+        sourceUrl:    l.url && l.url !== '#' ? l.url : '',
+        sourceName:   l.source,
+        status:       'available',
+        images:       l.image ? [l.image] : [],
+        importedAt:   new Date().toISOString()
+      };
+
+      try {
+        if (typeof pdnAddUserTruck === 'function') {
+          await pdnAddUserTruck(truckData);
+        } else {
+          // Fallback: save to localStorage if auth not ready
+          const saved = JSON.parse(localStorage.getItem('pdn_imported') || '[]');
+          saved.push(truckData);
+          localStorage.setItem('pdn_imported', JSON.stringify(saved));
+        }
+        btn.textContent = '✓ Imported';
+        btn.classList.add('imported');
+        btn.disabled = false;
+        showToast('Truck imported to your dashboard');
+      } catch (err) {
+        btn.textContent = 'Import Failed';
+        btn.disabled = false;
+        showToast('Import failed — please try again', 'error');
+      }
+    }
+
+    /* ── Upgrade buildCard to include import button ──────── */
+    const _origBuildCard = buildCard;
+    function buildCard(l) {
+      const card = document.createElement('div');
+      card.className = 'listing-card';
+      card.setAttribute('role', 'button');
+      card.setAttribute('tabindex', '0');
+
+      const imgHtml = l.image
+        ? `<img class="card-img" src="${l.image}" alt="${l.title}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+          + `<div class="card-img-placeholder" style="display:none">${TRUCK_SVG}</div>`
+        : `<div class="card-img-placeholder">${TRUCK_SVG}</div>`;
+
+      const aiPill = l.aiEnriched ? `<span class="badge-ai">&#9679; AI</span>` : '';
+
+      const trust = getTrust(l);
+      card.innerHTML = `
+        <div class="card-img-wrap">
+          ${imgHtml}
+          <span class="card-badge-source ${badgeClass(l.source)}">${l.source}</span>
+          <span class="card-badge-city">${l.location}</span>
+        </div>
+        <div class="card-body">
+          <div class="card-title">${l.title}${aiPill}</div>
+          <div class="card-price ${l.price ? '' : 'no-price'}">${l.price || 'Price on request'}</div>
+          <div class="card-meta">
+            ${l.year    ? `<span class="meta-pill">${l.year}</span>` : ''}
+            ${l.mileage ? `<span class="meta-pill">${l.mileage}</span>` : ''}
+            ${l.location ? `<span class="meta-pill">${l.location.split(',')[0]}</span>` : ''}
+          </div>
+          ${l.aiSummary ? `<p class="card-desc">${l.aiSummary}</p>` : (l.description ? `<p class="card-desc">${l.description.slice(0,120)}${l.description.length > 120 ? '…' : ''}</p>` : '')}
+        </div>
+        <div class="card-footer" style="display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap;">
+          <button class="card-view-btn" style="flex:1">View Details &rarr;</button>
+          ${l.source !== 'Demo' ? `<button class="card-import-btn">+ Import</button>` : ''}
+        </div>
+        ${buildCardTrustStrip(l)}
+      `;
+
+      const open = (e) => {
+        if (e.target.classList.contains('card-import-btn')) return;
+        openModal(l);
+      };
+      card.addEventListener('click', open);
+      card.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') openModal(l); });
+
+      const importBtn = card.querySelector('.card-import-btn');
+      if (importBtn) importBtn.addEventListener('click', e => { e.stopPropagation(); importListing(l, importBtn); });
+
+      return card;
+    }
+
+    /* ── Build modal HTML ────────────────────────────────── */
+    function buildModalHTML(l, detail = null) {
+      const hasUrl = l.url && l.url !== '#';
+
+      // Images: prefer detail images, fall back to listing image
+      const imgs = detail?.images?.length
+        ? detail.images
+        : (l.image ? [l.image] : []);
+
+      const imgHtml = imgs.length
+        ? `<div class="modal-gallery" id="modalGallery">
+            ${imgs.map((src, i) => `<img class="modal-img${i > 0 ? ' gallery-thumb' : ''}" src="${src}" alt="${l.title}" loading="lazy" onerror="this.style.display='none'">`).join('')}
+           </div>`
+        : `<div class="modal-img-placeholder">${TRUCK_SVG}</div>`;
+
+      // Merge AI detail data over listing data
+      const phone     = detail?.phone     || l.seller?.phone || 'See listing';
+      const email     = detail?.email     || l.seller?.email || 'See listing';
+      const dealer    = detail?.dealer_name || l.seller?.name || 'See listing';
+      const price     = detail?.price     || l.price || null;
+      const year      = detail?.year      || l.year  || null;
+      const mileage   = detail?.mileage   || l.mileage || null;
+      const condition = detail?.condition || l.condition || null;
+      const location  = detail?.location  || l.location;
+      const desc      = detail?.description || l.aiSummary || l.description || '';
+      const make      = detail?.make      || '';
+      const model     = detail?.model     || '';
+
+      const ctaBtn = hasUrl
+        ? `<a href="${l.url}" target="_blank" rel="noopener noreferrer" class="modal-cta-btn">View Full Listing &rarr;</a>`
+        : `<button class="modal-cta-btn disabled" disabled>No External URL</button>`;
+
+      const importBtn = l.source !== 'Demo'
+        ? `<button class="modal-import-btn" id="modalImportBtn">+ Import to My Dashboard</button>`
+        : '';
+
+      const aiPill = detail ? `<span class="badge-ai" style="font-size:10px;margin-left:8px;">&#9679; AI Scanned</span>` : '';
+
+      return `
+        <div class="modal-img-wrap">
+          ${imgHtml}
+          <button class="modal-close" id="modalClose" aria-label="Close">&times;</button>
+          <span class="modal-source-badge ${badgeClass(l.source)}">${l.source}</span>
+        </div>
+        <div class="modal-body">
+          <h2 class="modal-title">${l.title}${aiPill}</h2>
+          <div class="modal-location">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            ${location}
+          </div>
+          <div class="modal-price ${price ? '' : 'no-price'}">${price || 'Price on request'}</div>
+          ${desc ? `<p class="modal-desc">${desc}</p>` : ''}
+
+          <div class="modal-info-grid">
+            <div class="modal-info-cell"><div class="modal-info-label">Year</div><div class="modal-info-value">${year || 'N/A'}</div></div>
+            <div class="modal-info-cell"><div class="modal-info-label">Mileage</div><div class="modal-info-value">${mileage || 'N/A'}</div></div>
+            <div class="modal-info-cell"><div class="modal-info-label">Make</div><div class="modal-info-value">${make || 'N/A'}</div></div>
+            <div class="modal-info-cell"><div class="modal-info-label">Model</div><div class="modal-info-value">${model || 'N/A'}</div></div>
+            <div class="modal-info-cell"><div class="modal-info-label">Condition</div><div class="modal-info-value" style="text-transform:capitalize">${condition || 'N/A'}</div></div>
+            <div class="modal-info-cell"><div class="modal-info-label">Source</div><div class="modal-info-value">${l.source}</div></div>
+          </div>
+
+          <div class="modal-seller">
+            <div class="modal-seller-title">Seller Info</div>
+            <div class="seller-row">
+              <span class="seller-row-label">Name</span>
+              <span class="seller-row-value" id="detailDealer">${dealer}</span>
+            </div>
+            <div class="seller-row">
+              <span class="seller-row-label">Phone</span>
+              <span class="seller-row-value" id="detailPhone">${phone !== 'See listing' ? `<a href="tel:${phone}" style="color:var(--amber)">${phone}</a>` : phone}</span>
+              ${hasUrl ? `<a href="${l.url}" target="_blank" rel="noopener noreferrer" class="seller-link-btn">Open Listing</a>` : ''}
+            </div>
+            <div class="seller-row">
+              <span class="seller-row-label">Email</span>
+              <span class="seller-row-value" id="detailEmail">${email !== 'See listing' ? `<a href="mailto:${email}" style="color:var(--amber)">${email}</a>` : email}</span>
+            </div>
+          </div>
+
+          ${buildTrustBar(l)}
+          ${ctaBtn}
+          ${importBtn}
+        </div>
+      `;
+    }
+
+    /* ── openModal — shows instantly, then enriches with /detail ── */
+    function openModal(l) {
+      // Show modal immediately with available data
+      modalBox.innerHTML = buildModalHTML(l, null);
+      modalOverlay.classList.add('open');
+      document.body.style.overflow = 'hidden';
+      document.getElementById('modalClose').addEventListener('click', closeModal);
+
+      const mImportBtn = document.getElementById('modalImportBtn');
+      if (mImportBtn) mImportBtn.addEventListener('click', async () => await importListing(l, mImportBtn));
+
+      // Fetch full detail in background if there's a real URL
+      if (l.url && l.url !== '#') {
+        const detailUrl = `${SEARCH_API}/detail?url=${encodeURIComponent(l.url)}`;
+        fetch(detailUrl)
+          .then(r => r.json())
+          .then(detail => {
+            if (!modalOverlay.classList.contains('open')) return; // closed already
+            if (!detail.ok) return;
+            // Re-render modal with enriched data
+            const scrollTop = modalBox.scrollTop;
+            modalBox.innerHTML = buildModalHTML(l, detail);
+            modalBox.scrollTop = scrollTop;
+            document.getElementById('modalClose').addEventListener('click', closeModal);
+            const btn = document.getElementById('modalImportBtn');
+            if (btn) btn.addEventListener('click', async () => await importListing(l, btn));
+          })
+          .catch(() => {}); // silent fail — original data stays
+      }
+    }
+
+    /* ── Build enriched query from search + filters ─────── */
+    function buildQuery() {
+      const base  = searchInput.value.trim() || 'semi truck';
+      const city  = filterCity.value;
+      const minP  = filterMinP.value;
+      const maxP  = filterMaxP.value;
+      const yearF = filterYearF.value;
+      const yearT = filterYearT.value;
+
+      let q = base;
+      if (city)  q += ` ${city}`;
+      if (yearF && yearT)  q += ` ${yearF}-${yearT}`;
+      else if (yearF)      q += ` ${yearF}`;
+      else if (yearT)      q += ` ${yearT}`;
+      if (minP && maxP)    q += ` $${parseInt(minP).toLocaleString()}-$${parseInt(maxP).toLocaleString()}`;
+      else if (maxP)       q += ` under $${parseInt(maxP).toLocaleString()}`;
+      else if (minP)       q += ` over $${parseInt(minP).toLocaleString()}`;
+      return q.trim();
+    }
+
+    /* ── doSearch — live streaming city by city ─────────── */
+    function doSearch() {
+      if (isLoading) return;
+      const query = buildQuery();
+      const cityVal = filterCity.value;
+
+      isLoading = true;
+      searchBtn.textContent = 'Searching...';
+      searchBtn.disabled = true;
+      grid.innerHTML = '';
+      allListings = [];
+
+      const citiesToFetch = cityVal
+        ? CL_CITIES.filter(c => c.name === cityVal)
+        : CL_CITIES;
+
+      ringShow(citiesToFetch);
+      buildCityPills(citiesToFetch);
+      agentStatusTxt.textContent = `Scanning ${citiesToFetch.length} cities...`;
+      agentFill.style.width = '0%';
+      agentEnrLabel.textContent = '';
+      agentShow();
+      buildDeepLinks(query);
+
+      let citiesDone = 0;
+      const totalCities = citiesToFetch.length;
+
+      // Live counter badge
+      const liveCountEl = document.createElement('div');
+      liveCountEl.id = 'liveCount';
+      liveCountEl.style.cssText = 'position:fixed;bottom:24px;right:24px;background:var(--amber);color:#000;font-weight:800;font-size:13px;padding:8px 16px;border-radius:99px;z-index:9999;box-shadow:0 4px 20px rgba(245,158,11,.4);transition:transform .2s;';
+      liveCountEl.textContent = '0 results';
+      document.body.appendChild(liveCountEl);
+
+      streamSearch(
+        query, cityVal,
+
+        /* onCity — fires as each city finishes */
+        (cityData) => {
+          citiesDone++;
+          const pct = Math.round((citiesDone / totalCities) * 85);
+          setRing(pct);
+
+          const state = cityData.ok && cityData.count > 0 ? 'done' : (cityData.ok ? 'done' : 'error');
+          pillState(cityData.city, state);
+          ringCityDone(cityData.city, state);
+
+          agentStatusTxt.textContent = `${citiesDone}/${totalCities} cities — ${allListings.length} found`;
+
+          if (cityData.items && cityData.items.length > 0) {
+            allListings.push(...cityData.items);
+            // Render new cards immediately
+            const filtered = applyFilters(cityData.items);
+            filtered.forEach((l, i) => {
+              const card = buildCard(l);
+              card.style.opacity = '0';
+              card.style.transform = 'translateY(16px)';
+              card.style.transition = 'opacity .35s ease, transform .35s ease';
+              grid.appendChild(card);
+              requestAnimationFrame(() => {
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+              });
+            });
+            // Bounce the live count badge
+            liveCountEl.textContent = `${allListings.length} result${allListings.length !== 1 ? 's' : ''}`;
+            liveCountEl.style.transform = 'scale(1.2)';
+            setTimeout(() => { liveCountEl.style.transform = 'scale(1)'; }, 200);
+
+            // Update count badge in header
+            if (countBadge) countBadge.textContent = allListings.length;
+          }
+        },
+
+        /* onDone — all cities finished */
+        (summary) => {
+          setRing(100);
+          loadingMain.textContent = allListings.length > 0 ? `${allListings.length} Listings Found` : 'No Results';
+          loadingSub.textContent  = allListings.length > 0 ? 'Live results from Texas' : 'Try different keywords';
+          agentStatusTxt.textContent = `Done — ${allListings.length} results`;
+
+          setTimeout(() => { ringHide(); agentHide(); }, 800);
+          setTimeout(() => { liveCountEl.style.opacity = '0'; setTimeout(() => liveCountEl.remove(), 400); }, 3000);
+
+          if (allListings.length === 0) {
+            showToast('No listings found — try "semi truck", "peterbilt", "kenworth"');
+            renderReadyState();
+          } else {
+            showToast(`${allListings.length} live listing${allListings.length !== 1 ? 's' : ''} loaded`);
+            if (countBadge) countBadge.textContent = allListings.length;
+          }
+
+          isLoading = false;
+          searchBtn.textContent = 'Search Texas';
+          searchBtn.disabled = false;
+        },
+
+        /* onError */
+        (err) => {
+          setRing(100);
+          setTimeout(ringHide, 1000);
+          liveCountEl.remove();
+          showToast('Connection error — check your internet and try again', 'error');
+          agentHide();
+          isLoading = false;
+          searchBtn.textContent = 'Search Texas';
+          searchBtn.disabled = false;
+        }
+      );
+    }
+
+    /* ── Source tabs ─────────────────────────────────────── */
+    document.querySelectorAll('.source-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.source-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        activeSource = tab.dataset.source;
+        renderResults(allListings);
+      });
+    });
+
+    /* ── Filter / sort listeners ─────────────────────────── */
+    let filterDebounce = null;
+    [filterCity, filterMinP, filterMaxP, filterYearF, filterYearT].forEach(el => {
+      el.addEventListener('change', () => {
+        // Only re-search if we've already done a search
+        if (allListings.length > 0 || isLoading) {
+          clearTimeout(filterDebounce);
+          filterDebounce = setTimeout(() => doSearch(), 400);
+        }
+      });
+    });
+
+    // Sort is always local — no re-search needed
+    sortSelect.addEventListener('change', () => renderResults(allListings));
+
+    searchBtn.addEventListener('click', doSearch);
+    searchInput.addEventListener('keydown', e => { if (e.key === 'Enter') doSearch(); });
+
+    /* ── Init ────────────────────────────────────────────── */
+    renderReadyState();
+  </script>
+
+  <!-- Firebase + auth + config -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

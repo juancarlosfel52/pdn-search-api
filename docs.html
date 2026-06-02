@@ -1,0 +1,2100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Driver Documents — Paso Del Norte: Truck & Equipment Sales</title>
+  <link rel="stylesheet" href="css/main.css" />
+  <style>
+    /* ── Layout ────────────────────────────────────── */
+    .docs-shell {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      min-height: 100vh;
+      padding-top: var(--nav-h);
+    }
+
+    /* ── Sidebar ───────────────────────────────────── */
+    .docs-sidebar {
+      background: var(--black-2);
+      border-right: 1px solid var(--border);
+      padding: 24px 12px;
+      position: sticky;
+      top: var(--nav-h);
+      height: calc(100vh - var(--nav-h));
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .docs-sidebar-label {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: 0.22em;
+      color: var(--text-3);
+      text-transform: uppercase;
+      padding: 14px 10px 6px;
+    }
+    .doc-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 6px;
+      border: none;
+      background: none;
+      color: var(--text-2);
+      font-size: 13px;
+      cursor: pointer;
+      text-align: left;
+      width: 100%;
+      transition: all 0.15s;
+      position: relative;
+    }
+    .doc-btn:hover { background: var(--surface); color: var(--chrome-bright); }
+    .doc-btn.active { background: var(--amber-trace); color: var(--amber); border-left: 2px solid var(--amber); padding-left: 10px; }
+    .doc-btn .doc-icon { font-size: 16px; flex-shrink: 0; }
+    .doc-btn .doc-saved {
+      margin-left: auto;
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--green);
+      flex-shrink: 0;
+    }
+
+    /* ── Main area ─────────────────────────────────── */
+    .docs-main { background: var(--black); display: flex; flex-direction: column; }
+
+    .docs-toolbar {
+      background: var(--black-2);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      position: sticky;
+      top: var(--nav-h);
+      z-index: 40;
+    }
+    .docs-toolbar-title {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--chrome-bright);
+      flex: 1;
+      min-width: 160px;
+    }
+    .toolbar-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text-2);
+      font-family: var(--font-display);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .toolbar-btn:hover { border-color: var(--amber); color: var(--amber); }
+    .toolbar-btn.primary { background: var(--amber); color: var(--black); border-color: var(--amber); }
+    .toolbar-btn.primary:hover { background: var(--amber-light); }
+    .toolbar-btn.danger:hover { border-color: var(--red); color: var(--red); }
+
+    /* ── Document editor area ──────────────────────── */
+    .docs-editor {
+      flex: 1;
+      padding: 32px 24px;
+      display: flex;
+      justify-content: center;
+    }
+
+    /* ── The Document (printable card) ────────────── */
+    .doc-paper {
+      background: #fff;
+      color: #111;
+      width: 100%;
+      max-width: 860px;
+      border-radius: 4px;
+      box-shadow: 0 4px 40px rgba(0,0,0,0.5);
+      overflow: hidden;
+      font-family: 'Barlow', sans-serif;
+    }
+
+    .doc-header {
+      background: #0a0a0b;
+      color: #fff;
+      padding: 24px 32px;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 20px;
+      align-items: center;
+    }
+    .doc-header-logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .doc-header-logo-icon {
+      width: 28px; height: 28px;
+      background: #f59e0b;
+      clip-path: polygon(0 20%, 100% 0, 100% 100%, 0 80%);
+    }
+    .doc-header-brand {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+    .doc-header-brand span { color: #f59e0b; }
+    .doc-header-center { text-align: center; }
+    .doc-type-label {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 22px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .doc-number-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: #f59e0b;
+      letter-spacing: 0.15em;
+      margin-top: 2px;
+    }
+    .doc-header-right { text-align: right; }
+    .doc-date-box {
+      font-size: 12px;
+      color: #aaa;
+    }
+    .doc-date-box strong { color: #fff; display: block; font-size: 14px; }
+
+    .doc-amber-bar {
+      height: 3px;
+      background: linear-gradient(90deg, #f59e0b, #fbbf24, #f59e0b);
+    }
+
+    /* ── Field system ──────────────────────────────── */
+    .doc-body { padding: 28px 32px; }
+    .doc-section { margin-bottom: 24px; }
+    .doc-section-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #666;
+      border-bottom: 1px solid #e5e5e5;
+      padding-bottom: 6px;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .doc-section-title::before {
+      content: '';
+      display: block;
+      width: 3px; height: 14px;
+      background: #f59e0b;
+      border-radius: 2px;
+    }
+    .doc-grid { display: grid; gap: 12px; }
+    .doc-grid-2 { grid-template-columns: 1fr 1fr; }
+    .doc-grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+    .doc-grid-4 { grid-template-columns: repeat(4, 1fr); }
+    .doc-field { display: flex; flex-direction: column; gap: 3px; }
+    .doc-label {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #888;
+    }
+    .doc-input {
+      border: none;
+      border-bottom: 1.5px solid #ddd;
+      padding: 5px 0;
+      font-size: 14px;
+      color: #111;
+      background: transparent;
+      width: 100%;
+      outline: none;
+      font-family: 'Barlow', sans-serif;
+      transition: border-color 0.2s;
+    }
+    .doc-input:focus { border-bottom-color: #f59e0b; }
+    .doc-input::placeholder { color: #ccc; font-size: 12px; }
+    select.doc-input { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23aaa' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 4px center; padding-right: 20px; }
+    textarea.doc-input { border: 1.5px solid #ddd; border-radius: 4px; padding: 8px; resize: vertical; min-height: 72px; font-size: 13px; }
+    textarea.doc-input:focus { border-color: #f59e0b; }
+
+    /* ── Checkbox items ─────────────────────────────── */
+    .checklist { display: flex; flex-direction: column; gap: 6px; }
+    .check-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 8px;
+      border-radius: 4px;
+      transition: background 0.1s;
+    }
+    .check-row:hover { background: #f9f9f9; }
+    .check-row input[type="checkbox"] {
+      width: 15px; height: 15px;
+      accent-color: #f59e0b;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .check-row label { font-size: 13px; color: #333; cursor: pointer; flex: 1; }
+    .check-status {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      width: 60px;
+      text-align: center;
+    }
+    .check-status.ok { color: #16a34a; }
+    .check-status.fail { color: #dc2626; }
+    .check-status.na { color: #999; }
+    .check-row select.check-sel {
+      border: 1px solid #ddd;
+      border-radius: 3px;
+      padding: 2px 4px;
+      font-size: 11px;
+      cursor: pointer;
+      background: #fff;
+      outline: none;
+    }
+
+    /* ── Table ──────────────────────────────────────── */
+    .doc-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .doc-table thead tr { background: #f5f5f5; }
+    .doc-table th {
+      text-align: left;
+      padding: 8px 10px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #666;
+      border-bottom: 1px solid #e5e5e5;
+    }
+    .doc-table td {
+      padding: 6px 10px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .doc-table td input {
+      border: none;
+      background: transparent;
+      width: 100%;
+      font-size: 13px;
+      outline: none;
+      font-family: 'Barlow', sans-serif;
+      color: #111;
+    }
+    .doc-table td input::placeholder { color: #ccc; }
+    .doc-table .add-row-btn {
+      background: none;
+      border: 1px dashed #ddd;
+      color: #aaa;
+      padding: 6px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      margin-top: 8px;
+      transition: all 0.2s;
+      width: 100%;
+    }
+    .doc-table .add-row-btn:hover { border-color: #f59e0b; color: #f59e0b; }
+
+    /* ── Signature block ────────────────────────────── */
+    .sig-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-top: 8px; }
+    .sig-block { display: flex; flex-direction: column; gap: 4px; }
+    .sig-line {
+      border-bottom: 1.5px solid #ccc;
+      height: 40px;
+      margin-bottom: 4px;
+      position: relative;
+    }
+    .sig-label { font-size: 10px; color: #999; text-transform: uppercase; letter-spacing: 0.1em; }
+
+    /* ── Footer strip ────────────────────────────────── */
+    .doc-footer-strip {
+      background: #f5f5f5;
+      border-top: 1px solid #e5e5e5;
+      padding: 12px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 10px;
+      color: #999;
+    }
+    .doc-footer-strip strong { color: #333; }
+
+    /* ── Saved docs list ────────────────────────────── */
+    .saved-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 10px;
+      color: var(--green);
+      font-family: var(--font-mono);
+    }
+
+    /* ── Print styles ────────────────────────────────── */
+    @media print {
+      html, body { background: #fff !important; }
+      .nav, .docs-sidebar, .docs-toolbar, .no-print { display: none !important; }
+      .docs-shell { display: block; padding: 0; }
+      .docs-main { display: block; }
+      .docs-editor { padding: 0; }
+      .doc-paper { box-shadow: none; max-width: 100%; border-radius: 0; }
+      .doc-input { border-bottom-color: #ddd !important; }
+      .doc-input:focus { border-bottom-color: #ddd !important; }
+      @page { margin: 0.5in; }
+    }
+
+    /* ── Responsive ─────────────────────────────────── */
+    @media (max-width: 860px) {
+      .docs-shell { grid-template-columns: 1fr; }
+      .docs-sidebar { position: static; height: auto; flex-direction: row; flex-wrap: wrap; padding: 12px; overflow-x: auto; gap: 4px; }
+      .docs-sidebar-label { display: none; }
+      .doc-btn { flex-direction: column; gap: 2px; font-size: 11px; padding: 8px 10px; width: auto; flex-shrink: 0; }
+      .doc-header { grid-template-columns: 1fr 1fr; }
+      .doc-header-center { grid-column: 1/-1; order: -1; text-align: left; }
+      .doc-grid-3, .doc-grid-4 { grid-template-columns: 1fr 1fr; }
+      .sig-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 560px) {
+      .doc-body { padding: 20px 16px; }
+      .doc-header { padding: 16px; }
+      .doc-grid-2, .doc-grid-3, .doc-grid-4 { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav class="nav" role="navigation" aria-label="Main navigation">
+  <a href="index.html" class="nav-logo">
+    <div class="nav-logo-icon" aria-hidden="true"></div>
+    <div class="nav-logo-text">Paso Del <span>Norte</span></div>
+  </a>
+  <ul class="nav-links" role="list">
+    <li><a href="index.html" class="nav-link">Home</a></li>
+    <li><a href="inventory.html" class="nav-link">Inventory</a></li>
+    <li><a href="financing.html" class="nav-link">Financing</a></li>
+    <li><a href="docs.html" class="nav-link active">Documents</a></li>
+    <li><a href="post-generator.html" class="nav-link">Post Generator</a></li>
+    <li><a href="truck-search.html" class="nav-link">TX Truck Search</a></li>
+    <li><a href="index.html#contact" class="nav-link">Contact</a></li>
+  </ul>
+  <div class="nav-actions">
+    <div class="nav-phone">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 0110 1.18 2 2 0 0112 3.14V6.18a2 2 0 01-1.45 1.93l-1.18.39a16 16 0 006.61 6.61l.39-1.18A2 2 0 0118.82 12h3a2 2 0 012 2.18z"/></svg>
+      (832) 555-0180
+    </div>
+    <button class="nav-hamburger" aria-label="Open menu"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+<div class="nav-overlay" aria-hidden="true"></div>
+<div class="nav-drawer" role="dialog">
+  <a href="index.html" class="nav-link">Home</a>
+  <a href="inventory.html" class="nav-link">Inventory</a>
+  <a href="financing.html" class="nav-link">Financing</a>
+  <a href="docs.html" class="nav-link">Documents</a>
+  <a href="post-generator.html" class="nav-link">Post Generator</a>
+</div>
+
+<div class="docs-shell">
+
+  <!-- ─── Sidebar ─────────────────────────────────── -->
+  <aside class="docs-sidebar" role="navigation" aria-label="Document types">
+    <div class="docs-sidebar-label">Trip Documents</div>
+    <button class="doc-btn active" data-doc="bol">
+      <span class="doc-icon">📦</span> Bill of Lading
+    </button>
+    <button class="doc-btn" data-doc="trip">
+      <span class="doc-icon">🗺️</span> Trip Report
+    </button>
+    <button class="doc-btn" data-doc="fuel">
+      <span class="doc-icon">⛽</span> Fuel Log
+    </button>
+    <button class="doc-btn" data-doc="mileage">
+      <span class="doc-icon">🛣️</span> Mileage Log
+    </button>
+
+    <div class="docs-sidebar-label">Safety & Inspection</div>
+    <button class="doc-btn" data-doc="pretripA">
+      <span class="doc-icon">🔍</span> Pre-Trip (DVIR)
+    </button>
+    <button class="doc-btn" data-doc="dotinspect">
+      <span class="doc-icon">✅</span> DOT Inspection
+    </button>
+
+    <div class="docs-sidebar-label">Load & Cargo</div>
+    <button class="doc-btn" data-doc="load">
+      <span class="doc-icon">📋</span> Load Confirmation
+    </button>
+    <button class="doc-btn" data-doc="manifest">
+      <span class="doc-icon">📄</span> Cargo Manifest
+    </button>
+
+    <div class="docs-sidebar-label">Business</div>
+    <button class="doc-btn" data-doc="lease">
+      <span class="doc-icon">🤝</span> Driver Agreement
+    </button>
+    <button class="doc-btn" data-doc="expense">
+      <span class="doc-icon">💰</span> Expense Report
+    </button>
+
+    <div class="docs-sidebar-label" style="color:var(--amber);">⭐ Texas Legal</div>
+    <button class="doc-btn" data-doc="tx_bill_of_sale">
+      <span class="doc-icon">🏷️</span> TX Bill of Sale
+    </button>
+    <button class="doc-btn" data-doc="tx_lease_purchase">
+      <span class="doc-icon">📝</span> TX Lease-Purchase
+    </button>
+    <button class="doc-btn" data-doc="tx_purchase_agreement">
+      <span class="doc-icon">🤝</span> TX Purchase Agreement
+    </button>
+    <button class="doc-btn" data-doc="tx_oversize_permit">
+      <span class="doc-icon">🚨</span> TX Oversize Permit
+    </button>
+    <button class="doc-btn" data-doc="tx_motor_carrier">
+      <span class="doc-icon">📜</span> TX Motor Carrier Cert
+    </button>
+    <button class="doc-btn" data-doc="tx_release_lien">
+      <span class="doc-icon">🔓</span> TX Lien Release
+    </button>
+  </aside>
+
+  <!-- ─── Main ─────────────────────────────────────── -->
+  <div class="docs-main">
+
+    <!-- Toolbar -->
+    <div class="docs-toolbar no-print">
+      <div class="docs-toolbar-title" id="toolbar-title">Bill of Lading</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+        <span id="saved-indicator" style="display:none;" class="saved-badge">✓ Saved</span>
+        <button class="toolbar-btn" id="btn-new" title="Clear form">🗂 New</button>
+        <button class="toolbar-btn" id="btn-save" title="Save to browser">💾 Save</button>
+        <button class="toolbar-btn" id="btn-load" title="Load saved">📂 Load</button>
+        <button class="toolbar-btn" id="btn-export" title="Export as JSON">⬇ Export</button>
+        <button class="toolbar-btn primary" id="btn-print" title="Print / Save PDF">🖨 Print / PDF</button>
+      </div>
+    </div>
+
+    <!-- Document editor -->
+    <div class="docs-editor">
+      <div class="doc-paper" id="doc-paper" aria-live="polite"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Saved docs picker modal -->
+<div id="load-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:3000;align-items:center;justify-content:center;">
+  <div style="background:var(--surface);border:1px solid var(--border-glow);border-radius:var(--radius-lg);padding:32px;width:100%;max-width:480px;max-height:80vh;overflow-y:auto;">
+    <div style="font-family:var(--font-display);font-size:20px;font-weight:800;text-transform:uppercase;color:var(--chrome-bright);margin-bottom:20px;">Saved Documents</div>
+    <div id="saved-list" style="display:flex;flex-direction:column;gap:8px;"></div>
+    <div style="margin-top:20px;"><button class="btn btn-ghost btn-sm" id="close-modal">Close</button></div>
+  </div>
+</div>
+
+<script src="js/data.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="js/config.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/main.js"></script>
+<script>
+/* ============================================================
+   DOCS ENGINE
+   ============================================================ */
+
+// ── Document templates ─────────────────────────────────────
+const DOC_TEMPLATES = {
+
+  bol: {
+    title: 'Bill of Lading',
+    docNum: () => 'BOL-' + Date.now().toString().slice(-6),
+    render(id) {
+      return `
+      ${docHeader('Bill of Lading', id)}
+      <div class="doc-body">
+        <div class="doc-section">
+          <div class="doc-section-title">Shipper</div>
+          <div class="doc-grid doc-grid-2">
+            <div class="doc-field"><div class="doc-label">Company Name</div><input class="doc-input" name="shipper_name" placeholder="Company or individual name" /></div>
+            <div class="doc-field"><div class="doc-label">Contact / Phone</div><input class="doc-input" name="shipper_phone" placeholder="(xxx) xxx-xxxx" /></div>
+            <div class="doc-field"><div class="doc-label">Address</div><input class="doc-input" name="shipper_addr" placeholder="Street address" /></div>
+            <div class="doc-field"><div class="doc-label">City / State / Zip</div><input class="doc-input" name="shipper_city" placeholder="City, TX 00000" /></div>
+          </div>
+        </div>
+        <div class="doc-section">
+          <div class="doc-section-title">Consignee (Delivery To)</div>
+          <div class="doc-grid doc-grid-2">
+            <div class="doc-field"><div class="doc-label">Company Name</div><input class="doc-input" name="consignee_name" placeholder="Receiving company" /></div>
+            <div class="doc-field"><div class="doc-label">Contact / Phone</div><input class="doc-input" name="consignee_phone" placeholder="(xxx) xxx-xxxx" /></div>
+            <div class="doc-field"><div class="doc-label">Delivery Address</div><input class="doc-input" name="consignee_addr" placeholder="Street address" /></div>
+            <div class="doc-field"><div class="doc-label">City / State / Zip</div><input class="doc-input" name="consignee_city" placeholder="City, TX 00000" /></div>
+          </div>
+        </div>
+        <div class="doc-section">
+          <div class="doc-section-title">Carrier / Driver</div>
+          <div class="doc-grid doc-grid-3">
+            <div class="doc-field"><div class="doc-label">Carrier Name</div><input class="doc-input" name="carrier" placeholder="Carrier / Company" /></div>
+            <div class="doc-field"><div class="doc-label">Driver Name</div><input class="doc-input" name="driver" placeholder="Full name" /></div>
+            <div class="doc-field"><div class="doc-label">CDL Number</div><input class="doc-input" name="cdl" placeholder="CDL #" /></div>
+            <div class="doc-field"><div class="doc-label">Truck / Unit #</div><input class="doc-input" name="unit" placeholder="Unit or plate #" /></div>
+            <div class="doc-field"><div class="doc-label">Trailer #</div><input class="doc-input" name="trailer" placeholder="Trailer ID" /></div>
+            <div class="doc-field"><div class="doc-label">Pro / Load #</div><input class="doc-input" name="pro" placeholder="Load number" /></div>
+          </div>
+        </div>
+        <div class="doc-section">
+          <div class="doc-section-title">Freight Description</div>
+          <table class="doc-table">
+            <thead><tr>
+              <th>Qty</th><th>Package Type</th><th>Description</th>
+              <th>Weight (lbs)</th><th>Hazmat?</th>
+            </tr></thead>
+            <tbody id="freight-rows">
+              ${freightRow()}${freightRow()}${freightRow()}
+            </tbody>
+          </table>
+          <button class="add-row-btn" onclick="addRow('freight-rows', freightRow)">+ Add Row</button>
+        </div>
+        <div class="doc-section">
+          <div class="doc-section-title">Special Instructions</div>
+          <textarea class="doc-input" name="instructions" placeholder="Temperature requirements, fragile handling, delivery windows, access codes…" rows="3"></textarea>
+        </div>
+        <div class="doc-section">
+          <div class="doc-section-title">Signatures</div>
+          <div class="sig-grid">
+            <div class="sig-block">
+              <div class="sig-line"></div>
+              <div class="doc-label">Shipper Signature & Date</div>
+            </div>
+            <div class="sig-block">
+              <div class="sig-line"></div>
+              <div class="doc-label">Driver Signature & Date</div>
+            </div>
+            <div class="sig-block">
+              <div class="sig-line"></div>
+              <div class="doc-label">Receiver Signature & Date</div>
+            </div>
+            <div class="sig-block">
+              <div class="sig-line"></div>
+              <div class="doc-label">Delivery Confirmed By & Date</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      ${docFooter()}`;
+    }
+  },
+
+  trip: {
+    title: 'Trip Report',
+    docNum: () => 'TRIP-' + Date.now().toString().slice(-6),
+    render(id) {
+      return `
+      ${docHeader('Trip Report', id)}
+      <div class="doc-body">
+        <div class="doc-section">
+          <div class="doc-section-title">Driver & Truck Info</div>
+          <div class="doc-grid doc-grid-3">
+            <div class="doc-field"><div class="doc-label">Driver Name</div><input class="doc-input" name="driver" placeholder="Full name" /></div>
+            <div class="doc-field"><div class="doc-label">Unit / Truck #</div><input class="doc-input" name="unit" placeholder="Unit #" /></div>
+            <div class="doc-field"><div class="doc-label">Trailer #</div><input class="doc-input" name="trailer" placeholder="Trailer ID" /></div>
+          </div>
+        </div>
+        <div class="doc-section">
+          <div class="doc-section-title">Trip Details</div>
+          <div class="doc-grid doc-grid-2">
+            <div class="doc-field"><div class="doc-label">Origin</div><input class="doc-input" name="origin" placeholder="City, State" /></div>
+            <div class="doc-field"><div class="doc-label">Destination</div><input class="doc-input" name="destination" placeholder="City, State" /></div>
+            <div class="doc-field"><div class="doc-label">Departure Date</div><input class="doc-input" type="date" name="dep_date" /></div>
+            <div class="doc-field"><div class="doc-label">Departure Time</div><input class="doc-input" type="time" name="dep_time" /></div>
+            <div class="doc-field"><div class="doc-label">Arrival Date</div><input class="doc-input" type="date" name="arr_date" /></div>
+            <div class="doc-field"><div class="doc-label">Arrival Time</div><input class="doc-input" type="time" name="arr_time" /></div>
+          </div>
+        </div>
+        <div class="doc-section">
+          <div class="doc-section-title">Odometer</div>
+          <div class="doc-grid doc-grid-4">
+            <div class="doc-field"><div class="doc-label">Start Miles</div><input class="doc-input" name="odo_start" placeholder="000000" /></div>
+            <div class="doc-field"><div class="doc-label">End Miles</div><input class="doc-input" name="odo_end" placeholder="000000" /></div>
+            <div class="doc-field"><div class="doc-label">Total Miles</div><input class="doc-input" name="odo_total" placeholder="Auto-calc" /></div>
+            <div class="doc-field"><div class="doc-label">Empty Miles</div><input class="doc-input" name="odo_empty" placeholder="0" /></div>
+          </div>
+        </div>
+        <div class="doc-section">
+          <div class="doc-section-title">Stops Log</div>
+          <table class="doc-table">
+            <thead><tr><th>City / State</th><th>Arrival</th><th>Departure</th><th>Purpose</th><th>Miles</th></tr></thead>
+            <tbody id="stops-rows">
+              ${stopRow()}${stopRow()}${stopRow()}
+            </tbody>
+          </table>
+          <button class="add-row-btn" onclick="addRow('stops-rows', stopRow)">+ Add Stop</button>
+        </div>
+        <div class="doc-section">
+          <div class="doc-section-title">Notes / Incidents</div>
+          <textarea class="doc-input" name="notes" placeholder="Any delays, breakdowns, accidents, or special circumstances during this trip…" rows="4"></textarea>
+        </div>
+        <div class="doc-section">
+          <div class="doc-section-title">Driver Signature</div>
+          <div class="sig-grid">
+            <div class="sig-block">
+              <div class="sig-line"></div>
+              <div class="doc-label">Driver Signature & Date</div>
+            </div>
+            <div class="sig-block">
+              <div class="sig-line"></div>
+              <div class="doc-label">Dispatcher / Manager</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      ${docFooter()}`;
+    }
+  },
+
+  fuel: {
+    title: 'Fuel Log',
+    docNum: () => 'FUEL-' + Date.now().toString().slice(-6),
+    render(id) {
+      return `
+      ${docHeader('Fuel Log', id)}
+      <div class="doc-body">
+        <div class="doc-section">
+          <div class="doc-section-title">Vehicle Info</div>
+          <div class="doc-grid doc-grid-3">
+            <div class="doc-field"><div class="doc-label">Driver</div><input class="doc-input" name="driver" /></div>
+            <div class="doc-field"><div class="doc-label">Unit / Truck #</div><input class="doc-input" name="unit" /></div>
+            <div class="doc-field"><div class="doc-label">Period (Month/Year)</div><input class="doc-input" name="period" placeholder="May 2024" /></div>
+          </div>
+        </div>
+        <div class="doc-section">
+          <div class="doc-section-title">Fuel Entries</div>
+          <table class="doc-table">
+            <thead><tr>
+              <th>Date</th><th>Location / State</th><th>Station</th>
+              <th>Gallons</th><th>Price/Gal</th><th>Total $</th><th>Odometer</th>
+            </tr></thead>
+            <tbody id="fuel-rows">
+              ${fuelRow()}${fuelRow()}${fuelRow()}${fuelRow()}${fuelRow()}
+            </tbody>
+          </table>
+          <button class="add-row-btn" onclick="addRow('fuel-rows', fuelRow)">+ Add Entry</button>
+        </div>
+        <div class="doc-section">
+          <div class="doc-section-title">Totals</div>
+          <div class="doc-grid doc-grid-4">
+            <div class="doc-field"><div class="doc-label">Total Gallons</div><input class="doc-input" name="total_gal" placeholder="0.00" /></div>
+            <div class="doc-field"><div class="doc-label">Total Fuel Cost</div><input class="doc-input" name="total_cost" placeholder="$0.00" /></div>
+            <div class="doc-field"><div class="doc-label">Total Miles</div><input class="doc-input" name="total_miles" placeholder="0" /></div>
+            <div class="doc-field"><div class="doc-label">Avg MPG</div><input class="doc-input" name="avg_mpg" placeholder="0.00" /></div>
+          </div>
+        </div>
+      </div>
+      ${docFooter()}`;
+    }
+  },
+
+  mileage: {
+    title: 'Mileage Log',
+    docNum: () => 'MLG-' + Date.now().toString().slice(-6),
+    render(id) {
+      return `
+      ${docHeader('Mileage Log', id)}
+      <div class="doc-body">
+        <div class="doc-section">
+          <div class="doc-section-title">Driver & Vehicle</div>
+          <div class="doc-grid doc-grid-3">
+            <div class="doc-field"><div class="doc-label">Driver Name</div><input class="doc-input" name="driver" /></div>
+            <div class="doc-field"><div class="doc-label">Truck / Unit #</div><input class="doc-input" name="unit" /></div>
+            <div class="doc-field"><div class="doc-label">Log Period</div><input class="doc-input" name="period" placeholder="Week of: ___" /></div>
+          </div>
+        </div>
+        <div class="doc-section">
+          <div class="doc-section-title">Daily Mileage</div>
+          <table class="doc-table">
+            <thead><tr>
+              <th>Date</th><th>From</th><th>To</th>
+              <th>Odo Start</th><th>Odo End</th><th>Miles</th><th>Load / Empty</th>
+            </tr></thead>
+            <tbody id="mileage-rows">
+              ${mileageRow('Monday')}
+              ${mileageRow('Tuesday')}
+              ${mileageRow('Wednesday')}
+              ${mileageRow('Thursday')}
+              ${mileageRow('Friday')}
+              ${mileageRow('Saturday')}
+              ${mileageRow('Sunday')}
+            </tbody>
+          </table>
+        </div>
+        <div class="doc-section">
+          <div class="doc-section-title">Week Totals</div>
+          <div class="doc-grid doc-grid-4">
+            <div class="doc-field"><div class="doc-label">Total Miles</div><input class="doc-input" name="total_miles" /></div>
+            <div class="doc-field"><div class="doc-label">Loaded Miles</div><input class="doc-input" name="loaded_miles" /></div>
+            <div class="doc-field"><div class="doc-label">Empty Miles</div><input class="doc-input" name="empty_miles" /></div>
+            <div class="doc-field"><div class="doc-label">States Driven</div><input class="doc-input" name="states" placeholder="TX, NM, AZ…" /></div>
+          </div>
+        </div>
+        <div class="sig-grid" style="padding:0 0 20px;">
+          <div class="sig-block"><div class="sig-line"></div><div class="doc-label">Driver Signature</div></div>
+          <div class="sig-block"><div class="sig-line"></div><div class="doc-label">Supervisor</div></div>
+        </div>
+      </div>
+      ${docFooter()}`;
+    }
+  },
+
+  pretripA: {
+    title: 'Texas Pre-Trip Inspection (DVIR)',
+    docNum: () => 'DVIR-' + Date.now().toString().slice(-6),
+    render(id) {
+      // Organized per 49 CFR §396.11 + TxDOT Mandatory Inspection Items (Texas Transportation Code §548)
+      const sections = {
+        'Engine Compartment': [
+          ['Engine Oil Level', 'Dipstick — between MIN/MAX marks'],
+          ['Coolant Level', 'Overflow reservoir at proper level'],
+          ['Power Steering Fluid', 'Reservoir full, no leaks'],
+          ['Windshield Washer Fluid', 'Full'],
+          ['Belts & Hoses', 'No cracks, fraying, or leaks'],
+          ['Air Compressor', 'Visible check — no unusual noise'],
+          ['Fuel System', 'No leaks at tanks, lines, or filters'],
+          ['Battery', 'Secured, terminals tight, no corrosion'],
+        ],
+        'Cab / Interior': [
+          ['Seat Belt', 'Latches, retracts, not frayed'],
+          ['Horn', 'Air horn and city horn operational'],
+          ['Windshield', 'No cracks in driver\'s line of sight (TX §547.603)'],
+          ['Wipers / Washers', 'Blades in good condition, washer works'],
+          ['Mirrors', 'All adjusted — flat & convex (TX §547.501)'],
+          ['Defroster / Heater', 'Functional'],
+          ['Gauges / Warning Lights', 'Oil pressure, temp, volt, air — all in range'],
+          ['Air Pressure Gauge', 'Builds to 120–140 PSI, low warning at 60 PSI'],
+          ['Emergency Equipment', 'Fire extinguisher (charged), 3 reflective triangles, flares or fuses'],
+          ['ELD / Logbook', 'Compliant device mounted and functional (49 CFR §395.8)'],
+          ['Registration / Cab Card', 'Current — displayed in cab'],
+          ['Insurance Certificate', 'Current — in cab'],
+          ['IFTA Decals', 'Displayed (both sides) if required'],
+        ],
+        'Lights & Electrical': [
+          ['Headlights — Low Beam', 'Both functional (TX §547.333)'],
+          ['Headlights — High Beam', 'Both functional'],
+          ['Taillights', 'Both functional (TX §547.333)'],
+          ['Brake Lights', 'Both functional'],
+          ['Turn Signals — All 4', 'Front and rear operational'],
+          ['4-Way Hazard Flashers', 'All 4 corners flash'],
+          ['Marker / Clearance Lights', 'All amber/red lights present and lit (TX §547.352)'],
+          ['Reverse Lights', 'Illuminate when in reverse'],
+          ['Reflectors', 'All present and securely mounted'],
+        ],
+        'Steering': [
+          ['Steering Wheel Play', 'Max 2" free play for manual, 4½" for power'],
+          ['Steering Column', 'No excessive up/down or in/out play'],
+          ['Tie Rods & Drag Links', 'No looseness or cracks'],
+          ['Power Steering', 'Fluid level OK, no leaks, smooth operation'],
+        ],
+        'Brakes': [
+          ['Air System Build-Up', 'Builds from 50–90 PSI in under 3 min'],
+          ['Low Air Warning', 'Activates at or before 60 PSI'],
+          ['Air Pressure Loss', 'Loss < 3 PSI/min engine off, < 4 PSI/min with brakes applied'],
+          ['Parking / Spring Brake', 'Pops out at 20–45 PSI; holds vehicle on grade'],
+          ['Service Brake Test', 'Air held at 90 PSI, push pedal — should not bleed down'],
+          ['Brake Drums / Rotors', 'No cracks, excessive grooves, or missing hardware'],
+          ['Brake Lining / Pads', 'Above minimum thickness (Texas CMV §396.3)'],
+          ['Air Lines & Couplings', 'No cuts, chafing, or kinks — glad hands sealed'],
+          ['Slack Adjusters', 'All within adjustment limits'],
+          ['ABS Warning Light', 'Illuminates then extinguishes at start-up'],
+        ],
+        'Tires & Wheels': [
+          ['Steer Tires — Tread', 'Min 4/32" tread depth (TX §547.422)'],
+          ['Drive / Trailer Tires — Tread', 'Min 2/32" tread depth'],
+          ['All Tires — Inflation', 'No flat or noticeably low tires'],
+          ['Tires — Condition', 'No cuts, bulges, or exposed cords'],
+          ['Lug Nuts', 'All present and tight — no rust streaks'],
+          ['Rims / Wheels', 'No cracks, bends, or damaged welds'],
+          ['Valve Stems & Caps', 'Present, no leaks'],
+        ],
+        '5th Wheel / Coupling': [
+          ['5th Wheel Mounting', 'Secure to frame — no cracks or loose bolts'],
+          ['5th Wheel Latch', 'Kingpin locked — pull test performed'],
+          ['5th Wheel Skid Plate', 'Greased, no cracks'],
+          ['Apron / Kingpin', 'No damage to trailer apron or kingpin'],
+          ['Glad Hands', 'Service (blue) and emergency (red) connected and secure'],
+          ['Safety Chains/Cables', 'Crossed and secured (if applicable)'],
+          ['Landing Gear', 'Fully raised, crank handle stored'],
+          ['Air / Electrical Lines', 'No dragging, kinks, or chafing'],
+        ],
+        'Trailer (if applicable)': [
+          ['Trailer Body', 'No holes, damage affecting cargo or safety'],
+          ['Rear Doors / Seals', 'Latches work, seals intact'],
+          ['Cargo', 'Properly blocked, braced, tied — no overloading'],
+          ['Mudflaps', 'Present and within 6 inches of ground (TX §547.606)'],
+          ['ICC Bumper', 'Present and secure (if required)'],
+          ['Conspicuity Tape', 'Present on sides and rear (49 CFR §393.11)'],
+        ],
+      };
+
+      const statOpts = `<option value="ok">✓ OK</option><option value="defect">✗ Defect</option><option value="na">N/A</option>`;
+      let checkIdx = 0;
+      const sectHTML = Object.entries(sections).map(([sec, items]) => `
+        <div class="doc-section">
+          <div class="doc-section-title">${sec}</div>
+          <div class="checklist">
+            ${items.map(([label, note]) => {
+              const i = checkIdx++;
+              return `<div class="check-row">
+                <input type="checkbox" id="chk-${i}" />
+                <label for="chk-${i}"><strong>${label}</strong>${note ? `<span style="color:#999;font-size:11px;margin-left:6px;">— ${note}</span>` : ''}</label>
+                <select class="check-sel" title="Status">${statOpts}</select>
+              </div>`;
+            }).join('')}
+          </div>
+        </div>`).join('');
+
+      return `
+      ${docHeader('Texas Pre-Trip Inspection — DVIR', id)}
+      <div class="doc-body">
+        <div style="background:#fffbeb;border:1px solid #f59e0b;border-radius:4px;padding:10px 14px;margin-bottom:16px;font-size:11px;color:#92400e;line-height:1.5;">
+          <strong>Legal Basis:</strong> 49 CFR §396.11 (FMCSA DVIR) · Texas Transportation Code §§547, 548 · TxDOT Motor Carrier Safety Standards.
+          Drivers must complete this inspection before operating a CMV. Defects must be reported. Vehicle may not operate with out-of-service conditions.
+        </div>
+
+        <div class="doc-section">
+          <div class="doc-section-title">Driver & Vehicle Information</div>
+          <div class="doc-grid doc-grid-3">
+            <div class="doc-field"><div class="doc-label">Driver Full Name</div><input class="doc-input" name="driver" /></div>
+            <div class="doc-field"><div class="doc-label">CDL # / State</div><input class="doc-input" name="cdl" /></div>
+            <div class="doc-field"><div class="doc-label">Carrier / Company</div><input class="doc-input" name="carrier" /></div>
+            <div class="doc-field"><div class="doc-label">Unit / Truck #</div><input class="doc-input" name="unit" /></div>
+            <div class="doc-field"><div class="doc-label">License Plate / State</div><input class="doc-input" name="plate" /></div>
+            <div class="doc-field"><div class="doc-label">Trailer # (if applicable)</div><input class="doc-input" name="trailer" /></div>
+            <div class="doc-field"><div class="doc-label">Odometer Reading</div><input class="doc-input" name="odo" placeholder="miles" /></div>
+            <div class="doc-field"><div class="doc-label">Inspection Date</div><input class="doc-input" type="date" name="date" /></div>
+            <div class="doc-field"><div class="doc-label">Inspection Time</div><input class="doc-input" type="time" name="time" /></div>
+            <div class="doc-field"><div class="doc-label">Location / City, TX</div><input class="doc-input" name="location" placeholder="City, TX" /></div>
+            <div class="doc-field"><div class="doc-label">USDOT #</div><input class="doc-input" name="dot_num" /></div>
+            <div class="doc-field"><div class="doc-label">Trip / Load #</div><input class="doc-input" name="trip_num" /></div>
+          </div>
+        </div>
+
+        ${sectHTML}
+
+        <div class="doc-section">
+          <div class="doc-section-title">Defects Report — 49 CFR §396.11(b)</div>
+          <div style="margin-bottom:10px;">
+            <label style="display:flex;align-items:center;gap:8px;font-size:13px;margin-bottom:8px;">
+              <input type="radio" name="defect_status" value="no_defect" checked style="accent-color:#f59e0b;" />
+              <strong>No defects found</strong> — Vehicle is in safe operating condition
+            </label>
+            <label style="display:flex;align-items:center;gap:8px;font-size:13px;">
+              <input type="radio" name="defect_status" value="defects" style="accent-color:#f59e0b;" />
+              <strong>Defects found</strong> — Listed below (vehicle may not be driven until repaired or noted safe by mechanic)
+            </label>
+          </div>
+          <textarea class="doc-input" name="defects" placeholder="Describe each defect: Item — Description — Location. Example: Left rear tire — sidewall bulge — drive axle outer. If none, write NONE." rows="5"></textarea>
+        </div>
+
+        <div class="doc-section">
+          <div class="doc-section-title">Previous DVIR Review — 49 CFR §396.11(c)</div>
+          <div class="doc-grid doc-grid-2">
+            <div>
+              <label style="display:flex;align-items:center;gap:8px;font-size:13px;margin-bottom:8px;">
+                <input type="radio" name="prev_dvir" value="reviewed" style="accent-color:#f59e0b;" />
+                I have reviewed the previous DVIR and all reported defects have been repaired or noted as not requiring repair
+              </label>
+              <label style="display:flex;align-items:center;gap:8px;font-size:13px;">
+                <input type="radio" name="prev_dvir" value="none" style="accent-color:#f59e0b;" />
+                No previous DVIR / First trip of the day
+              </label>
+            </div>
+            <div class="doc-field">
+              <div class="doc-label">Previous DVIR Date</div>
+              <input class="doc-input" type="date" name="prev_dvir_date" />
+            </div>
+          </div>
+        </div>
+
+        <div class="doc-section">
+          <div class="doc-section-title">Certification — Texas Transportation Code §548 / 49 CFR §396.11</div>
+          <div style="font-size:11px;color:#555;line-height:1.7;background:#f9f9f9;border:1px solid #e5e5e5;border-radius:4px;padding:12px;margin-bottom:16px;">
+            I certify that I have personally inspected this motor vehicle in accordance with the requirements of 49 CFR §396.11 and applicable Texas Transportation Code provisions. The above vehicle is in proper condition and repair for safe operation, EXCEPT for defects noted above. I understand that making a false statement on this form is a violation of Federal and Texas law.
+          </div>
+          <div class="sig-grid">
+            <div class="sig-block">
+              <div class="sig-line"></div>
+              <div class="doc-label">Driver Signature & Date</div>
+            </div>
+            <div class="sig-block">
+              <div class="sig-line"></div>
+              <div class="doc-label">Mechanic Signature (if defects repaired)</div>
+            </div>
+          </div>
+          <div style="margin-top:16px;padding:10px 14px;background:#f9f9f9;border-radius:4px;font-size:11px;color:#555;">
+            <strong>Mechanic Statement (if applicable):</strong> All defects listed above have been repaired. Vehicle is safe to operate. &nbsp;
+            Repaired by: <input class="doc-input" name="mechanic_name" style="width:200px;display:inline-block;" /> &nbsp;
+            Date: <input class="doc-input" type="date" name="repair_date" style="width:160px;display:inline-block;" />
+          </div>
+        </div>
+      </div>
+      ${docFooter()}`;
+    }
+  },
+
+  dotinspect: {
+    title: 'DOT Compliance Checklist',
+    docNum: () => 'DOT-' + Date.now().toString().slice(-6),
+    render(id) {
+      const sections = {
+        'Driver Requirements': ['Valid CDL for vehicle class','Medical Certificate current','ELD / Logbook compliant','Hours of Service in compliance','Drug & Alcohol testing current'],
+        'Vehicle Documents': ['Current Registration','Cab Card','Insurance Certificate','Annual Inspection Sticker','IFTA Decals (if required)','IRP Plates'],
+        'Safety Equipment': ['Fire Extinguisher — charged, accessible','3 Reflective Triangles','Spare Fuses','First Aid Kit'],
+        'Mechanical': ['Brakes functional — air & park','Lights all operational','Tires — tread depth legal','Coupling devices secure','Steering not excessive play','Fuel system — no leaks','Exhaust — no leaks into cab'],
+        'Cargo': ['Load properly secured','Weight legal — check axle weights','Hazmat placarded (if applicable)','Cargo documents on board'],
+      };
+      return `
+      ${docHeader('DOT Compliance Checklist', id)}
+      <div class="doc-body">
+        <div class="doc-section">
+          <div class="doc-section-title">Inspection Info</div>
+          <div class="doc-grid doc-grid-3">
+            <div class="doc-field"><div class="doc-label">Driver</div><input class="doc-input" name="driver" /></div>
+            <div class="doc-field"><div class="doc-label">Unit #</div><input class="doc-input" name="unit" /></div>
+            <div class="doc-field"><div class="doc-label">Date</div><input class="doc-input" type="date" name="date" /></div>
+            <div class="doc-field"><div class="doc-label">Location</div><input class="doc-input" name="location" /></div>
+            <div class="doc-field"><div class="doc-label">Inspector</div><input class="doc-input" name="inspector" /></div>
+            <div class="doc-field"><div class="doc-label">DOT #</div><input class="doc-input" name="dot_num" /></div>
+          </div>
+        </div>
+        ${Object.entries(sections).map(([sec, items]) => `
+        <div class="doc-section">
+          <div class="doc-section-title">${sec}</div>
+          <div class="checklist">
+            ${items.map((item, i) => `
+            <div class="check-row">
+              <input type="checkbox" id="dot-${sec.slice(0,3)}-${i}" />
+              <label for="dot-${sec.slice(0,3)}-${i}">${item}</label>
+              <select class="check-sel" title="Status">
+                <option value="pass">✓ Pass</option>
+                <option value="fail">✗ Fail</option>
+                <option value="na">N/A</option>
+              </select>
+            </div>`).join('')}
+          </div>
+        </div>`).join('')}
+        <div class="doc-section">
+          <div class="doc-section-title">Violations / Notes</div>
+          <textarea class="doc-input" name="violations" placeholder="List any violations, out-of-service conditions, or corrective actions required…" rows="3"></textarea>
+        </div>
+        <div class="sig-grid" style="padding-bottom:20px;">
+          <div class="sig-block"><div class="sig-line"></div><div class="doc-label">Driver Signature</div></div>
+          <div class="sig-block"><div class="sig-line"></div><div class="doc-label">Inspector Signature</div></div>
+        </div>
+      </div>
+      ${docFooter()}`;
+    }
+  },
+
+  load: {
+    title: 'Load Confirmation',
+    docNum: () => 'LC-' + Date.now().toString().slice(-6),
+    render(id) {
+      return `
+      ${docHeader('Load Confirmation', id)}
+      <div class="doc-body">
+        <div class="doc-section">
+          <div class="doc-section-title">Broker / Shipper</div>
+          <div class="doc-grid doc-grid-2">
+            <div class="doc-field"><div class="doc-label">Company</div><input class="doc-input" name="broker" /></div>
+            <div class="doc-field"><div class="doc-label">Contact</div><input class="doc-input" name="broker_contact" /></div>
+            <div class="doc-field"><div class="doc-label">Phone</div><input class="doc-input" name="broker_phone" /></div>
+            <div class="doc-field"><div class="doc-label">MC # / DOT #</div><input class="doc-input" name="broker_mc" /></div>
+          </div>
+        </div>
+        <div class="doc-section">
+          <div class="doc-section-title">Load Details</div>
+          <div class="doc-grid doc-grid-2">
+            <div class="doc-field"><div class="doc-label">Load / Reference #</div><input class="doc-input" name="load_num" /></div>
+            <div class="doc-field"><div class="doc-label">Commodity</div><input class="doc-input" name="commodity" /></div>
+            <div class="doc-field"><div class="doc-label">Weight</div><input class="doc-input" name="weight" placeholder="lbs" /></div>
+            <div class="doc-field"><div class="doc-label">Trailer Type</div>
+              <select class="doc-input" name="trailer_type">
+                <option>Dry Van</option><option>Reefer</option><option>Flatbed</option>
+                <option>Step Deck</option><option>RGN</option><option>Tanker</option><option>Other</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="doc-section">
+          <div class="doc-section-title">Pickup</div>
+          <div class="doc-grid doc-grid-2">
+            <div class="doc-field"><div class="doc-label">Facility / Company</div><input class="doc-input" name="pu_name" /></div>
+            <div class="doc-field"><div class="doc-label">Address</div><input class="doc-input" name="pu_addr" /></div>
+            <div class="doc-field"><div class="doc-label">City / State</div><input class="doc-input" name="pu_city" /></div>
+            <div class="doc-field"><div class="doc-label">Pickup Date & Time</div><input class="doc-input" name="pu_time" placeholder="MM/DD HH:MM" /></div>
+          </div>
+        </div>
+        <div class="doc-section">
+          <div class="doc-section-title">Delivery</div>
+          <div class="doc-grid doc-grid-2">
+            <div class="doc-field"><div class="doc-label">Facility / Company</div><input class="doc-input" name="del_name" /></div>
+            <div class="doc-field"><div class="doc-label">Address</div><input class="doc-input" name="del_addr" /></div>
+            <div class="doc-field"><div class="doc-label">City / State</div><input class="doc-input" name="del_city" /></div>
+            <div class="doc-field"><div class="doc-label">Delivery Date & Time</div><input class="doc-input" name="del_time" placeholder="MM/DD HH:MM" /></div>
+          </div>
+        </div>
+        <div class="doc-section">
+          <div class="doc-section-title">Rate & Terms</div>
+          <div class="doc-grid doc-grid-3">
+            <div class="doc-field"><div class="doc-label">All-In Rate</div><input class="doc-input" name="rate" placeholder="$0.00" /></div>
+            <div class="doc-field"><div class="doc-label">Fuel Surcharge</div><input class="doc-input" name="fsc" placeholder="$0.00" /></div>
+            <div class="doc-field"><div class="doc-label">Detention Rate/Hr</div><input class="doc-input" name="detention" placeholder="$50/hr after 2hr free" /></div>
+          </div>
+        </div>
+        <div class="doc-section">
+          <div class="doc-section-title">Special Instructions</div>
+          <textarea class="doc-input" name="instructions" placeholder="Appointment required, lumper service, tarp needed, appointment #, access codes…" rows="3"></textarea>
+        </div>
+        <div class="sig-grid" style="padding-bottom:20px;">
+          <div class="sig-block"><div class="sig-line"></div><div class="doc-label">Driver / Carrier Signature</div></div>
+          <div class="sig-block"><div class="sig-line"></div><div class="doc-label">Broker Signature & Date</div></div>
+        </div>
+      </div>
+      ${docFooter()}`;
+    }
+  },
+
+  manifest: {
+    title: 'Cargo Manifest',
+    docNum: () => 'MAN-' + Date.now().toString().slice(-6),
+    render(id) {
+      return `
+      ${docHeader('Cargo Manifest', id)}
+      <div class="doc-body">
+        <div class="doc-section">
+          <div class="doc-section-title">Shipment Info</div>
+          <div class="doc-grid doc-grid-3">
+            <div class="doc-field"><div class="doc-label">Manifest #</div><input class="doc-input" name="manifest_num" /></div>
+            <div class="doc-field"><div class="doc-label">Date</div><input class="doc-input" type="date" name="date" /></div>
+            <div class="doc-field"><div class="doc-label">Driver</div><input class="doc-input" name="driver" /></div>
+            <div class="doc-field"><div class="doc-label">Unit / Trailer</div><input class="doc-input" name="unit" /></div>
+            <div class="doc-field"><div class="doc-label">Origin</div><input class="doc-input" name="origin" /></div>
+            <div class="doc-field"><div class="doc-label">Destination</div><input class="doc-input" name="destination" /></div>
+          </div>
+        </div>
+        <div class="doc-section">
+          <div class="doc-section-title">Cargo Items</div>
+          <table class="doc-table">
+            <thead><tr>
+              <th>#</th><th>Item / Description</th><th>Pkg Type</th>
+              <th>Qty</th><th>Weight</th><th>Dims (L×W×H)</th><th>Hazmat</th>
+            </tr></thead>
+            <tbody id="manifest-rows">
+              ${manifestRow(1)}${manifestRow(2)}${manifestRow(3)}
+              ${manifestRow(4)}${manifestRow(5)}
+            </tbody>
+          </table>
+          <button class="add-row-btn" onclick="addManifestRow()">+ Add Item</button>
+        </div>
+        <div class="doc-section">
+          <div class="doc-section-title">Summary</div>
+          <div class="doc-grid doc-grid-4">
+            <div class="doc-field"><div class="doc-label">Total Pieces</div><input class="doc-input" name="total_pieces" /></div>
+            <div class="doc-field"><div class="doc-label">Total Weight (lbs)</div><input class="doc-input" name="total_weight" /></div>
+            <div class="doc-field"><div class="doc-label">Hazmat?</div>
+              <select class="doc-input" name="hazmat"><option>No</option><option>Yes</option></select>
+            </div>
+            <div class="doc-field"><div class="doc-label">UN Number (if hazmat)</div><input class="doc-input" name="un_num" /></div>
+          </div>
+        </div>
+        <div class="sig-grid" style="padding-bottom:20px;">
+          <div class="sig-block"><div class="sig-line"></div><div class="doc-label">Loaded By</div></div>
+          <div class="sig-block"><div class="sig-line"></div><div class="doc-label">Driver Verified</div></div>
+        </div>
+      </div>
+      ${docFooter()}`;
+    }
+  },
+
+  lease: {
+    title: 'Driver Agreement',
+    docNum: () => 'AGR-' + Date.now().toString().slice(-6),
+    render(id) {
+      return `
+      ${docHeader('Driver / Lease Agreement', id)}
+      <div class="doc-body">
+        <div class="doc-section">
+          <div class="doc-section-title">Parties</div>
+          <div class="doc-grid doc-grid-2">
+            <div class="doc-field"><div class="doc-label">Company / Carrier Name</div><input class="doc-input" name="company" placeholder="Paso Del Norte Truck & Equipment" /></div>
+            <div class="doc-field"><div class="doc-label">MC / DOT #</div><input class="doc-input" name="mc_dot" /></div>
+            <div class="doc-field"><div class="doc-label">Driver Full Name</div><input class="doc-input" name="driver" /></div>
+            <div class="doc-field"><div class="doc-label">CDL # / State</div><input class="doc-input" name="cdl" /></div>
+            <div class="doc-field"><div class="doc-label">Driver Phone</div><input class="doc-input" name="driver_phone" /></div>
+            <div class="doc-field"><div class="doc-label">Driver Address</div><input class="doc-input" name="driver_addr" /></div>
+          </div>
+        </div>
+        <div class="doc-section">
+          <div class="doc-section-title">Equipment</div>
+          <div class="doc-grid doc-grid-3">
+            <div class="doc-field"><div class="doc-label">Unit / Truck #</div><input class="doc-input" name="unit" /></div>
+            <div class="doc-field"><div class="doc-label">Year / Make / Model</div><input class="doc-input" name="truck_ymm" placeholder="2021 Peterbilt 389" /></div>
+            <div class="doc-field"><div class="doc-label">VIN</div><input class="doc-input" name="vin" /></div>
+          </div>
+        </div>
+        <div class="doc-section">
+          <div class="doc-section-title">Agreement Terms</div>
+          <div class="doc-grid doc-grid-2">
+            <div class="doc-field"><div class="doc-label">Start Date</div><input class="doc-input" type="date" name="start_date" /></div>
+            <div class="doc-field"><div class="doc-label">End Date (if applicable)</div><input class="doc-input" type="date" name="end_date" /></div>
+            <div class="doc-field"><div class="doc-label">Pay Type</div>
+              <select class="doc-input" name="pay_type">
+                <option>Percentage of Load</option><option>Per Mile</option>
+                <option>Hourly</option><option>Weekly Salary</option><option>Lease Purchase</option>
+              </select>
+            </div>
+            <div class="doc-field"><div class="doc-label">Pay Rate / %</div><input class="doc-input" name="pay_rate" placeholder="e.g. 70% / $0.55/mi" /></div>
+          </div>
+        </div>
+        <div class="doc-section">
+          <div class="doc-section-title">Driver Responsibilities</div>
+          <div class="checklist">
+            ${['Maintain valid CDL and Medical Certificate','Follow all Federal and State regulations','Complete pre/post trip inspections daily',
+               'Maintain accurate HOS logs / ELD compliance','Report all accidents and incidents immediately',
+               'Responsible for all fuel costs (if owner-op)','Maintain cargo insurance (if owner-op)',
+               'Keep truck clean and in good working order'].map((item, i) => `
+            <div class="check-row">
+              <input type="checkbox" id="agr-${i}" checked />
+              <label for="agr-${i}">${item}</label>
+            </div>`).join('')}
+          </div>
+        </div>
+        <div class="doc-section">
+          <div class="doc-section-title">Additional Terms</div>
+          <textarea class="doc-input" name="terms" placeholder="Add any additional terms, conditions, deductions, or special agreements…" rows="4"></textarea>
+        </div>
+        <div class="doc-section">
+          <div class="doc-section-title">Signatures</div>
+          <div class="sig-grid">
+            <div class="sig-block">
+              <div class="sig-line"></div>
+              <div class="doc-label">Driver Signature & Date</div>
+            </div>
+            <div class="sig-block">
+              <div class="sig-line"></div>
+              <div class="doc-label">Company Representative & Date</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      ${docFooter()}`;
+    }
+  },
+
+  expense: {
+    title: 'Expense Report',
+    docNum: () => 'EXP-' + Date.now().toString().slice(-6),
+    render(id) {
+      return `
+      ${docHeader('Expense Report', id)}
+      <div class="doc-body">
+        <div class="doc-section">
+          <div class="doc-section-title">Driver & Period</div>
+          <div class="doc-grid doc-grid-3">
+            <div class="doc-field"><div class="doc-label">Driver Name</div><input class="doc-input" name="driver" /></div>
+            <div class="doc-field"><div class="doc-label">Period From</div><input class="doc-input" type="date" name="period_from" /></div>
+            <div class="doc-field"><div class="doc-label">Period To</div><input class="doc-input" type="date" name="period_to" /></div>
+          </div>
+        </div>
+        <div class="doc-section">
+          <div class="doc-section-title">Expenses</div>
+          <table class="doc-table">
+            <thead><tr>
+              <th>Date</th><th>Category</th><th>Description</th>
+              <th>Receipt #</th><th>Amount</th>
+            </tr></thead>
+            <tbody id="expense-rows">
+              ${expenseRow()}${expenseRow()}${expenseRow()}
+              ${expenseRow()}${expenseRow()}
+            </tbody>
+          </table>
+          <button class="add-row-btn" onclick="addRow('expense-rows', expenseRow)">+ Add Expense</button>
+        </div>
+        <div class="doc-section">
+          <div class="doc-section-title">Summary by Category</div>
+          <div class="doc-grid doc-grid-4">
+            <div class="doc-field"><div class="doc-label">Fuel</div><input class="doc-input" name="cat_fuel" placeholder="$0.00" /></div>
+            <div class="doc-field"><div class="doc-label">Meals / Per Diem</div><input class="doc-input" name="cat_meals" placeholder="$0.00" /></div>
+            <div class="doc-field"><div class="doc-label">Tolls / Scales</div><input class="doc-input" name="cat_tolls" placeholder="$0.00" /></div>
+            <div class="doc-field"><div class="doc-label">Repairs / Parts</div><input class="doc-input" name="cat_repair" placeholder="$0.00" /></div>
+            <div class="doc-field"><div class="doc-label">Lodging</div><input class="doc-input" name="cat_lodge" placeholder="$0.00" /></div>
+            <div class="doc-field"><div class="doc-label">Permits / Fees</div><input class="doc-input" name="cat_fees" placeholder="$0.00" /></div>
+            <div class="doc-field"><div class="doc-label">Other</div><input class="doc-input" name="cat_other" placeholder="$0.00" /></div>
+            <div class="doc-field"><div class="doc-label" style="color:#111;font-weight:700;">TOTAL</div><input class="doc-input" name="total" placeholder="$0.00" style="font-weight:700;font-size:16px;" /></div>
+          </div>
+        </div>
+        <div class="sig-grid" style="padding-bottom:20px;">
+          <div class="sig-block"><div class="sig-line"></div><div class="doc-label">Driver Signature</div></div>
+          <div class="sig-block"><div class="sig-line"></div><div class="doc-label">Approved By & Date</div></div>
+        </div>
+      </div>
+      ${docFooter()}`;
+    }
+  },
+
+  // ─── TEXAS LEGAL DOCUMENTS ───────────────────────────────
+
+  tx_bill_of_sale: {
+    title: 'Texas Vehicle Bill of Sale',
+    docNum: () => 'TX-BOS-' + Date.now().toString().slice(-6),
+    render(id) {
+      return `
+      ${docHeader('Texas Vehicle Bill of Sale', id)}
+      <div class="doc-body">
+        <div style="background:#fffbeb;border:1px solid #f59e0b;border-radius:4px;padding:12px 16px;margin-bottom:20px;font-size:11px;color:#92400e;line-height:1.6;">
+          ⚠️ <strong>Texas Legal Notice:</strong> This document is provided as a template for reference. For full legal compliance, consult a licensed Texas attorney or use the official Texas DMV Form VTR-346. This document references Texas Transportation Code §501.0234 and Texas Occupations Code §2301.
+        </div>
+        <div class="doc-section">
+          <div class="doc-section-title">State of Texas — Vehicle Bill of Sale</div>
+          <div style="font-size:12px;color:#555;margin-bottom:12px;">
+            Know all persons by these presents that the Seller named below, for and in consideration of the purchase price below, does hereby sell, transfer, and convey to Buyer all right, title, and interest in the following vehicle:
+          </div>
+          <div class="doc-grid doc-grid-2">
+            <div class="doc-field"><div class="doc-label">Vehicle Year</div><input class="doc-input" name="veh_year" /></div>
+            <div class="doc-field"><div class="doc-label">Make</div><input class="doc-input" name="veh_make" placeholder="Peterbilt, Kenworth…" /></div>
+            <div class="doc-field"><div class="doc-label">Model</div><input class="doc-input" name="veh_model" /></div>
+            <div class="doc-field"><div class="doc-label">Body Style</div>
+              <select class="doc-input" name="veh_body">
+                <option>Semi-Truck / Tractor</option><option>Trailer</option><option>Flatbed</option>
+                <option>Tanker</option><option>Dump Truck</option><option>Other</option>
+              </select>
+            </div>
+            <div class="doc-field"><div class="doc-label">VIN (17-Digit)</div><input class="doc-input" name="vin" maxlength="17" placeholder="1XPBD49X…" /></div>
+            <div class="doc-field"><div class="doc-label">Texas License Plate</div><input class="doc-input" name="plate" /></div>
+            <div class="doc-field"><div class="doc-label">Current Odometer Reading</div><input class="doc-input" name="odometer" placeholder="In miles" /></div>
+            <div class="doc-field"><div class="doc-label">Title Number</div><input class="doc-input" name="title_num" /></div>
+          </div>
+        </div>
+        <div class="doc-section">
+          <div class="doc-section-title">Seller Information</div>
+          <div class="doc-grid doc-grid-2">
+            <div class="doc-field"><div class="doc-label">Full Legal Name / Company</div><input class="doc-input" name="seller_name" /></div>
+            <div class="doc-field"><div class="doc-label">Texas Driver License # or EIN</div><input class="doc-input" name="seller_id" /></div>
+            <div class="doc-field"><div class="doc-label">Address</div><input class="doc-input" name="seller_addr" /></div>
+            <div class="doc-field"><div class="doc-label">City, TX Zip</div><input class="doc-input" name="seller_city" placeholder="Houston, TX 77001" /></div>
+            <div class="doc-field"><div class="doc-label">Phone</div><input class="doc-input" name="seller_phone" /></div>
+            <div class="doc-field"><div class="doc-label">TxDMV Dealer # (if dealer)</div><input class="doc-input" name="seller_dmv" placeholder="If applicable" /></div>
+          </div>
+        </div>
+        <div class="doc-section">
+          <div class="doc-section-title">Buyer Information</div>
+          <div class="doc-grid doc-grid-2">
+            <div class="doc-field"><div class="doc-label">Full Legal Name / Company</div><input class="doc-input" name="buyer_name" /></div>
+            <div class="doc-field"><div class="doc-label">Texas Driver License # or EIN</div><input class="doc-input" name="buyer_id" /></div>
+            <div class="doc-field"><div class="doc-label">Address</div><input class="doc-input" name="buyer_addr" /></div>
+            <div class="doc-field"><div class="doc-label">City, TX Zip</div><input class="doc-input" name="buyer_city" placeholder="Houston, TX 77001" /></div>
+            <div class="doc-field"><div class="doc-label">Phone</div><input class="doc-input" name="buyer_phone" /></div>
+          </div>
+        </div>
+        <div class="doc-section">
+          <div class="doc-section-title">Sale Terms</div>
+          <div class="doc-grid doc-grid-2">
+            <div class="doc-field"><div class="doc-label">Sale Price (USD)</div><input class="doc-input" name="sale_price" placeholder="$0.00" /></div>
+            <div class="doc-field"><div class="doc-label">Sale Date</div><input class="doc-input" type="date" name="sale_date" /></div>
+            <div class="doc-field"><div class="doc-label">Payment Method</div>
+              <select class="doc-input" name="payment_method">
+                <option>Cash</option><option>Cashier's Check</option><option>Wire Transfer</option>
+                <option>Financing</option><option>Trade-In + Cash</option>
+              </select>
+            </div>
+            <div class="doc-field"><div class="doc-label">Trade-In Value (if any)</div><input class="doc-input" name="trade_value" placeholder="$0.00 or N/A" /></div>
+          </div>
+        </div>
+        <div class="doc-section">
+          <div class="doc-section-title">Condition Disclosures (Texas Required)</div>
+          <div class="checklist">
+            <div class="check-row"><input type="checkbox" id="tx1" /><label for="tx1">Vehicle is sold AS-IS with no warranty expressed or implied (unless noted below)</label></div>
+            <div class="check-row"><input type="checkbox" id="tx2" /><label for="tx2">Title is free and clear of all liens and encumbrances</label></div>
+            <div class="check-row"><input type="checkbox" id="tx3" /><label for="tx3">Odometer disclosure is accurate to the best of seller's knowledge</label></div>
+            <div class="check-row"><input type="checkbox" id="tx4" /><label for="tx4">Vehicle has not been declared a total loss / salvage title in any state</label></div>
+            <div class="check-row"><input type="checkbox" id="tx5" /><label for="tx5">All known defects have been disclosed to buyer</label></div>
+          </div>
+          <div class="doc-field" style="margin-top:12px;">
+            <div class="doc-label">Warranty / Additional Disclosures</div>
+            <textarea class="doc-input" name="warranty_notes" placeholder="Any warranty terms, known issues, or additional disclosures…" rows="3"></textarea>
+          </div>
+        </div>
+        <div class="doc-section" style="background:#f9f9f9;border:1px solid #e5e5e5;border-radius:4px;padding:16px;margin-bottom:20px;">
+          <div style="font-size:11px;color:#555;line-height:1.7;">
+            <strong>Texas Odometer Disclosure Statement</strong> — Federal law (49 U.S.C. 32705) and Texas Transportation Code §501.0234 require that you state the mileage upon transfer of ownership. Failure to complete or providing a false statement may result in fines and/or imprisonment. The odometer now reads <input style="border:none;border-bottom:1px solid #999;width:100px;font-size:11px;" name="odo_confirm" placeholder="______" /> miles and to the best of my knowledge reflects the actual mileage.
+          </div>
+        </div>
+        <div class="doc-section">
+          <div class="doc-section-title">Signatures — County of <input class="doc-input" name="county" placeholder="Harris" style="width:140px;display:inline-block;" />, State of Texas</div>
+          <div class="sig-grid">
+            <div class="sig-block">
+              <div class="sig-line"></div>
+              <div class="doc-label">Seller Signature & Date</div>
+              <div style="margin-top:8px;"><input class="doc-input" name="seller_printed" placeholder="Printed name" /></div>
+            </div>
+            <div class="sig-block">
+              <div class="sig-line"></div>
+              <div class="doc-label">Buyer Signature & Date</div>
+              <div style="margin-top:8px;"><input class="doc-input" name="buyer_printed" placeholder="Printed name" /></div>
+            </div>
+            <div class="sig-block">
+              <div class="sig-line"></div>
+              <div class="doc-label">Notary Public (if required)</div>
+            </div>
+            <div class="sig-block">
+              <div class="doc-label" style="margin-top:8px;">Notary Commission Expires:</div>
+              <input class="doc-input" name="notary_exp" placeholder="MM/DD/YYYY" />
+            </div>
+          </div>
+        </div>
+      </div>
+      ${docFooter()}`;
+    }
+  },
+
+  tx_lease_purchase: {
+    title: 'Texas Truck Lease-Purchase Agreement',
+    docNum: () => 'TX-LP-' + Date.now().toString().slice(-6),
+    render(id) {
+      return `
+      ${docHeader('Texas Truck Lease-Purchase Agreement', id)}
+      <div class="doc-body">
+        <div style="background:#fffbeb;border:1px solid #f59e0b;border-radius:4px;padding:12px 16px;margin-bottom:20px;font-size:11px;color:#92400e;line-height:1.6;">
+          ⚠️ <strong>Texas Legal Notice:</strong> This agreement is governed by Texas law, including Texas Business & Commerce Code Chapter 2A (Leases). Consult a licensed Texas attorney before signing. References: Texas Transportation Code §522, FMCSA 49 CFR Part 376.
+        </div>
+        <div class="doc-section">
+          <div class="doc-section-title">Parties to This Agreement</div>
+          <div class="doc-grid doc-grid-2">
+            <div class="doc-field"><div class="doc-label">Lessor / Seller (Company)</div><input class="doc-input" name="lessor" placeholder="Paso Del Norte Truck & Equipment" /></div>
+            <div class="doc-field"><div class="doc-label">TxDMV Dealer License #</div><input class="doc-input" name="dealer_lic" /></div>
+            <div class="doc-field"><div class="doc-label">Lessor Address</div><input class="doc-input" name="lessor_addr" placeholder="4500 Industrial Blvd, Houston, TX 77020" /></div>
+            <div class="doc-field"><div class="doc-label">Lessor Phone</div><input class="doc-input" name="lessor_phone" /></div>
+            <div class="doc-field"><div class="doc-label">Lessee / Buyer (Full Legal Name)</div><input class="doc-input" name="lessee" /></div>
+            <div class="doc-field"><div class="doc-label">CDL # / DL #</div><input class="doc-input" name="lessee_cdl" /></div>
+            <div class="doc-field"><div class="doc-label">Lessee Address</div><input class="doc-input" name="lessee_addr" /></div>
+            <div class="doc-field"><div class="doc-label">DOT # (if applicable)</div><input class="doc-input" name="lessee_dot" /></div>
+          </div>
+        </div>
+        <div class="doc-section">
+          <div class="doc-section-title">Equipment Description</div>
+          <div class="doc-grid doc-grid-3">
+            <div class="doc-field"><div class="doc-label">Year</div><input class="doc-input" name="veh_year" /></div>
+            <div class="doc-field"><div class="doc-label">Make</div><input class="doc-input" name="veh_make" /></div>
+            <div class="doc-field"><div class="doc-label">Model</div><input class="doc-input" name="veh_model" /></div>
+            <div class="doc-field"><div class="doc-label">VIN</div><input class="doc-input" name="vin" maxlength="17" /></div>
+            <div class="doc-field"><div class="doc-label">Engine</div><input class="doc-input" name="engine" /></div>
+            <div class="doc-field"><div class="doc-label">Mileage at Signing</div><input class="doc-input" name="mileage" /></div>
+          </div>
+        </div>
+        <div class="doc-section">
+          <div class="doc-section-title">Financial Terms</div>
+          <div class="doc-grid doc-grid-2">
+            <div class="doc-field"><div class="doc-label">Total Purchase Price</div><input class="doc-input" name="total_price" placeholder="$0.00" /></div>
+            <div class="doc-field"><div class="doc-label">Down Payment</div><input class="doc-input" name="down_payment" placeholder="$0.00" /></div>
+            <div class="doc-field"><div class="doc-label">Amount Financed</div><input class="doc-input" name="amt_financed" placeholder="$0.00" /></div>
+            <div class="doc-field"><div class="doc-label">Interest Rate (APR)</div><input class="doc-input" name="apr" placeholder="0.00%" /></div>
+            <div class="doc-field"><div class="doc-label">Monthly Payment</div><input class="doc-input" name="monthly_pmt" placeholder="$0.00" /></div>
+            <div class="doc-field"><div class="doc-label">Term (Months)</div><input class="doc-input" name="term" placeholder="60" /></div>
+            <div class="doc-field"><div class="doc-label">First Payment Due</div><input class="doc-input" type="date" name="first_pmt" /></div>
+            <div class="doc-field"><div class="doc-label">Final Balloon (if any)</div><input class="doc-input" name="balloon" placeholder="$0.00 or N/A" /></div>
+          </div>
+        </div>
+        <div class="doc-section">
+          <div class="doc-section-title">Lease Terms & Conditions</div>
+          <div class="checklist">
+            <div class="check-row"><input type="checkbox" id="lp1" checked /><label for="lp1">Lessee is responsible for all fuel, maintenance, and insurance during term</label></div>
+            <div class="check-row"><input type="checkbox" id="lp2" checked /><label for="lp2">Vehicle must be maintained in good working condition per manufacturer spec</label></div>
+            <div class="check-row"><input type="checkbox" id="lp3" checked /><label for="lp3">Title remains with Lessor until final payment is received in full</label></div>
+            <div class="check-row"><input type="checkbox" id="lp4" checked /><label for="lp4">Lessee must maintain minimum commercial liability insurance — $1M</label></div>
+            <div class="check-row"><input type="checkbox" id="lp5" checked /><label for="lp5">Late payments subject to 5% late fee after 10-day grace period</label></div>
+            <div class="check-row"><input type="checkbox" id="lp6" checked /><label for="lp6">Default after 30 days past due — Lessor may repossess per Texas law</label></div>
+            <div class="check-row"><input type="checkbox" id="lp7" checked /><label for="lp7">No unauthorized modifications without written consent of Lessor</label></div>
+            <div class="check-row"><input type="checkbox" id="lp8" /><label for="lp8">GPS tracking device installed — Lessor may monitor location</label></div>
+          </div>
+          <div class="doc-field" style="margin-top:12px;">
+            <div class="doc-label">Additional Terms / Special Conditions</div>
+            <textarea class="doc-input" name="special_terms" rows="3" placeholder="Any additional conditions agreed by both parties…"></textarea>
+          </div>
+        </div>
+        <div class="doc-section">
+          <div class="doc-section-title">Default & Remedies — Texas Law</div>
+          <div style="font-size:11px;color:#555;line-height:1.7;background:#f9f9f9;padding:12px;border-radius:4px;">
+            In the event of default, Lessor may exercise all rights and remedies available under Texas Business & Commerce Code Chapter 2A and/or 9. Lessee agrees to pay all costs of collection including reasonable attorney fees. Venue for any dispute shall be <input class="doc-input" name="venue_county" placeholder="Harris" style="width:100px;display:inline-block;" /> County, Texas.
+          </div>
+        </div>
+        <div class="sig-grid" style="padding-bottom:20px;">
+          <div class="sig-block">
+            <div class="sig-line"></div>
+            <div class="doc-label">Lessee Signature & Date</div>
+          </div>
+          <div class="sig-block">
+            <div class="sig-line"></div>
+            <div class="doc-label">Lessor Authorized Signature & Date</div>
+          </div>
+          <div class="sig-block">
+            <div class="sig-line"></div>
+            <div class="doc-label">Witness</div>
+          </div>
+          <div class="sig-block">
+            <div class="sig-line"></div>
+            <div class="doc-label">Notary Public — Texas</div>
+          </div>
+        </div>
+      </div>
+      ${docFooter()}`;
+    }
+  },
+
+  tx_purchase_agreement: {
+    title: 'Texas Vehicle Purchase Agreement',
+    docNum: () => 'TX-PA-' + Date.now().toString().slice(-6),
+    render(id) {
+      return `
+      ${docHeader('Texas Vehicle Purchase Agreement', id)}
+      <div class="doc-body">
+        <div style="background:#fffbeb;border:1px solid #f59e0b;border-radius:4px;padding:12px 16px;margin-bottom:20px;font-size:11px;color:#92400e;line-height:1.6;">
+          ⚠️ <strong>Texas Legal Notice:</strong> Governed by Texas Business & Commerce Code and Texas Transportation Code. TxDMV-licensed dealers must provide Buyer's Guide per FTC rules. Consult a licensed Texas attorney for complex transactions.
+        </div>
+        <div class="doc-section">
+          <div class="doc-section-title">Dealer / Seller</div>
+          <div class="doc-grid doc-grid-2">
+            <div class="doc-field"><div class="doc-label">Dealership Name</div><input class="doc-input" name="dealer_name" placeholder="Paso Del Norte Truck & Equipment Sales" /></div>
+            <div class="doc-field"><div class="doc-label">TxDMV GDN #</div><input class="doc-input" name="gdn" /></div>
+            <div class="doc-field"><div class="doc-label">Address</div><input class="doc-input" name="dealer_addr" /></div>
+            <div class="doc-field"><div class="doc-label">City / State / Zip</div><input class="doc-input" name="dealer_city" placeholder="Houston, TX 77020" /></div>
+            <div class="doc-field"><div class="doc-label">Phone</div><input class="doc-input" name="dealer_phone" /></div>
+            <div class="doc-field"><div class="doc-label">Salesperson</div><input class="doc-input" name="salesperson" /></div>
+          </div>
+        </div>
+        <div class="doc-section">
+          <div class="doc-section-title">Buyer</div>
+          <div class="doc-grid doc-grid-2">
+            <div class="doc-field"><div class="doc-label">Buyer Full Name / Company</div><input class="doc-input" name="buyer_name" /></div>
+            <div class="doc-field"><div class="doc-label">Texas DL # or EIN</div><input class="doc-input" name="buyer_id" /></div>
+            <div class="doc-field"><div class="doc-label">Address</div><input class="doc-input" name="buyer_addr" /></div>
+            <div class="doc-field"><div class="doc-label">City / State / Zip</div><input class="doc-input" name="buyer_city" /></div>
+            <div class="doc-field"><div class="doc-label">Phone</div><input class="doc-input" name="buyer_phone" /></div>
+            <div class="doc-field"><div class="doc-label">Email</div><input class="doc-input" name="buyer_email" /></div>
+          </div>
+        </div>
+        <div class="doc-section">
+          <div class="doc-section-title">Vehicle</div>
+          <div class="doc-grid doc-grid-3">
+            <div class="doc-field"><div class="doc-label">Year</div><input class="doc-input" name="veh_year" /></div>
+            <div class="doc-field"><div class="doc-label">Make</div><input class="doc-input" name="veh_make" /></div>
+            <div class="doc-field"><div class="doc-label">Model</div><input class="doc-input" name="veh_model" /></div>
+            <div class="doc-field"><div class="doc-label">VIN</div><input class="doc-input" name="vin" maxlength="17" /></div>
+            <div class="doc-field"><div class="doc-label">Odometer</div><input class="doc-input" name="odometer" /></div>
+            <div class="doc-field"><div class="doc-label">Color</div><input class="doc-input" name="color" /></div>
+          </div>
+        </div>
+        <div class="doc-section">
+          <div class="doc-section-title">Purchase Price Breakdown</div>
+          <table class="doc-table">
+            <tbody>
+              <tr><td style="width:60%;color:#555;">Vehicle Price</td><td><input class="doc-input" name="veh_price" placeholder="$0.00" /></td></tr>
+              <tr><td style="color:#555;">Trade-In Allowance</td><td><input class="doc-input" name="tradein" placeholder="($0.00)" /></td></tr>
+              <tr><td style="color:#555;">Trade-In Payoff</td><td><input class="doc-input" name="tradein_payoff" placeholder="$0.00" /></td></tr>
+              <tr><td style="color:#555;">Texas State Sales Tax (6.25%)</td><td><input class="doc-input" name="sales_tax" placeholder="$0.00" /></td></tr>
+              <tr><td style="color:#555;">TxDMV Title / Registration Fees</td><td><input class="doc-input" name="title_fee" placeholder="$0.00" /></td></tr>
+              <tr><td style="color:#555;">Documentary Fee</td><td><input class="doc-input" name="doc_fee" placeholder="$0.00" /></td></tr>
+              <tr><td style="color:#555;">Other Fees / Add-ons</td><td><input class="doc-input" name="other_fees" placeholder="$0.00" /></td></tr>
+              <tr style="background:#f5f5f5;"><td><strong>Total Amount Due</strong></td><td><input class="doc-input" name="total_due" placeholder="$0.00" style="font-weight:700;" /></td></tr>
+              <tr><td style="color:#555;">Less Down Payment</td><td><input class="doc-input" name="down_pmt" placeholder="($0.00)" /></td></tr>
+              <tr style="background:#fffbeb;"><td><strong>Balance Financed</strong></td><td><input class="doc-input" name="balance_fin" placeholder="$0.00" style="font-weight:700;" /></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="doc-section">
+          <div class="doc-section-title">Texas Required Disclosures</div>
+          <div class="checklist">
+            <div class="check-row"><input type="checkbox" id="tpa1" /><label for="tpa1">FTC Buyer's Guide provided to buyer (AS-IS or Warranty)</label></div>
+            <div class="check-row"><input type="checkbox" id="tpa2" /><label for="tpa2">Texas Lemon Law rights explained (new vehicles only)</label></div>
+            <div class="check-row"><input type="checkbox" id="tpa3" /><label for="tpa3">Odometer Disclosure Statement signed separately</label></div>
+            <div class="check-row"><input type="checkbox" id="tpa4" /><label for="tpa4">Vehicle history / title brand disclosed</label></div>
+            <div class="check-row"><input type="checkbox" id="tpa5" /><label for="tpa5">Retail Installment Contract provided (if financed)</label></div>
+          </div>
+        </div>
+        <div class="doc-section">
+          <div class="doc-section-title">Warranty Terms</div>
+          <div class="doc-grid doc-grid-2">
+            <div class="doc-field"><div class="doc-label">Warranty Type</div>
+              <select class="doc-input" name="warranty_type">
+                <option>AS-IS — No Warranty</option>
+                <option>Dealer Warranty</option>
+                <option>Manufacturer Warranty Remaining</option>
+                <option>Extended Service Contract</option>
+              </select>
+            </div>
+            <div class="doc-field"><div class="doc-label">Warranty Duration (if applicable)</div><input class="doc-input" name="warranty_dur" placeholder="30 days / 12 months…" /></div>
+          </div>
+        </div>
+        <div class="sig-grid" style="padding-bottom:20px;">
+          <div class="sig-block">
+            <div class="sig-line"></div>
+            <div class="doc-label">Buyer Signature & Date</div>
+          </div>
+          <div class="sig-block">
+            <div class="sig-line"></div>
+            <div class="doc-label">Dealer / Seller Authorized Signature</div>
+          </div>
+        </div>
+      </div>
+      ${docFooter()}`;
+    }
+  },
+
+  tx_oversize_permit: {
+    title: 'Texas Oversize/Overweight Permit Request',
+    docNum: () => 'TX-OS-' + Date.now().toString().slice(-6),
+    render(id) {
+      return `
+      ${docHeader('Texas Oversize / Overweight Load Permit Request', id)}
+      <div class="doc-body">
+        <div style="background:#fffbeb;border:1px solid #f59e0b;border-radius:4px;padding:12px 16px;margin-bottom:20px;font-size:11px;color:#92400e;line-height:1.6;">
+          ⚠️ <strong>TxDOT Notice:</strong> This form is for internal planning and reference. Official permits must be obtained through TxDOT at TxPermits.com or by calling (512) 483-3558. Texas Transportation Code §623. Escort requirements apply to loads exceeding legal limits.
+          <br/><strong>TX Legal Limits:</strong> Width: 8'6" | Height: 14' | Length: 65' (combo) | Weight: 80,000 lbs GVW
+        </div>
+        <div class="doc-section">
+          <div class="doc-section-title">Carrier Information</div>
+          <div class="doc-grid doc-grid-2">
+            <div class="doc-field"><div class="doc-label">Carrier / Company Name</div><input class="doc-input" name="carrier" /></div>
+            <div class="doc-field"><div class="doc-label">TxDMV OS/OW Permit #</div><input class="doc-input" name="permit_num" placeholder="For approved permits" /></div>
+            <div class="doc-field"><div class="doc-label">USDOT #</div><input class="doc-input" name="dot_num" /></div>
+            <div class="doc-field"><div class="doc-label">TxDOT Motor Carrier #</div><input class="doc-input" name="txdot_mc" /></div>
+            <div class="doc-field"><div class="doc-label">Driver Name</div><input class="doc-input" name="driver" /></div>
+            <div class="doc-field"><div class="doc-label">CDL #</div><input class="doc-input" name="cdl" /></div>
+            <div class="doc-field"><div class="doc-label">Contact Phone</div><input class="doc-input" name="contact_phone" /></div>
+            <div class="doc-field"><div class="doc-label">Insurance Policy #</div><input class="doc-input" name="insurance" /></div>
+          </div>
+        </div>
+        <div class="doc-section">
+          <div class="doc-section-title">Power Unit (Truck)</div>
+          <div class="doc-grid doc-grid-3">
+            <div class="doc-field"><div class="doc-label">Year / Make / Model</div><input class="doc-input" name="truck_ymm" /></div>
+            <div class="doc-field"><div class="doc-label">License Plate</div><input class="doc-input" name="truck_plate" /></div>
+            <div class="doc-field"><div class="doc-label">Plate State</div><input class="doc-input" name="truck_state" placeholder="TX" maxlength="2" /></div>
+            <div class="doc-field"><div class="doc-label">VIN</div><input class="doc-input" name="truck_vin" maxlength="17" /></div>
+            <div class="doc-field"><div class="doc-label">Unit #</div><input class="doc-input" name="unit" /></div>
+            <div class="doc-field"><div class="doc-label">Registered Weight</div><input class="doc-input" name="reg_weight" placeholder="lbs" /></div>
+          </div>
+        </div>
+        <div class="doc-section">
+          <div class="doc-section-title">Load / Cargo Dimensions</div>
+          <div class="doc-grid doc-grid-2">
+            <div class="doc-field"><div class="doc-label">Commodity Description</div><input class="doc-input" name="commodity" placeholder="What is being hauled?" /></div>
+            <div class="doc-field"><div class="doc-label">Divisible?</div>
+              <select class="doc-input" name="divisible"><option>No — Non-Divisible Load</option><option>Yes</option></select>
+            </div>
+          </div>
+          <div class="doc-grid doc-grid-4" style="margin-top:12px;">
+            <div class="doc-field"><div class="doc-label">Overall Width</div><input class="doc-input" name="width" placeholder='0" or 0\'' /></div>
+            <div class="doc-field"><div class="doc-label">Overall Height</div><input class="doc-input" name="height" placeholder='0" or 0\'' /></div>
+            <div class="doc-field"><div class="doc-label">Overall Length</div><input class="doc-input" name="length" placeholder='0 ft' /></div>
+            <div class="doc-field"><div class="doc-label">Front Overhang</div><input class="doc-input" name="front_oh" placeholder='0 ft' /></div>
+            <div class="doc-field"><div class="doc-label">Rear Overhang</div><input class="doc-input" name="rear_oh" placeholder='0 ft' /></div>
+            <div class="doc-field"><div class="doc-label">Gross Vehicle Weight</div><input class="doc-input" name="gvw" placeholder='0 lbs' /></div>
+            <div class="doc-field"><div class="doc-label">Steer Axle Weight</div><input class="doc-input" name="steer_ax" placeholder='0 lbs' /></div>
+            <div class="doc-field"><div class="doc-label">Drive Axle Weight</div><input class="doc-input" name="drive_ax" placeholder='0 lbs' /></div>
+          </div>
+        </div>
+        <div class="doc-section">
+          <div class="doc-section-title">Route Information</div>
+          <div class="doc-grid doc-grid-2">
+            <div class="doc-field"><div class="doc-label">Origin (City, TX)</div><input class="doc-input" name="route_origin" /></div>
+            <div class="doc-field"><div class="doc-label">Destination (City, TX)</div><input class="doc-input" name="route_dest" /></div>
+            <div class="doc-field"><div class="doc-label">Proposed Route / Highways</div><input class="doc-input" name="route_hwy" placeholder="I-10, US-59, TX-6…" /></div>
+            <div class="doc-field"><div class="doc-label">Move Date(s)</div><input class="doc-input" name="move_date" placeholder="MM/DD/YYYY" /></div>
+          </div>
+        </div>
+        <div class="doc-section">
+          <div class="doc-section-title">Escort Requirements (TxDOT Reference)</div>
+          <div class="checklist">
+            <div class="check-row"><input type="checkbox" id="esc1" /><label for="esc1">Front escort required (width over 14' or per route)</label></div>
+            <div class="check-row"><input type="checkbox" id="esc2" /><label for="esc2">Rear escort required (length over 100' or per route)</label></div>
+            <div class="check-row"><input type="checkbox" id="esc3" /><label for="esc3">Texas DPS escort required (width over 18')</label></div>
+            <div class="check-row"><input type="checkbox" id="esc4" /><label for="esc4">Daylight-only travel restriction applies</label></div>
+            <div class="check-row"><input type="checkbox" id="esc5" /><label for="esc5">Weekend / holiday travel restricted</label></div>
+            <div class="check-row"><input type="checkbox" id="esc6" /><label for="esc6">Oversize flags and signs on load</label></div>
+          </div>
+        </div>
+        <div class="doc-section">
+          <div class="doc-section-title">Notes / Special Conditions</div>
+          <textarea class="doc-input" name="notes" rows="3" placeholder="Bridge restrictions, utility line clearances, night moves, police escorts arranged, etc."></textarea>
+        </div>
+        <div class="sig-grid" style="padding-bottom:20px;">
+          <div class="sig-block">
+            <div class="sig-line"></div>
+            <div class="doc-label">Driver / Carrier Signature & Date</div>
+          </div>
+          <div class="sig-block">
+            <div class="sig-line"></div>
+            <div class="doc-label">Dispatcher / Manager</div>
+          </div>
+        </div>
+      </div>
+      ${docFooter()}`;
+    }
+  },
+
+  tx_motor_carrier: {
+    title: 'Texas Motor Carrier Certificate',
+    docNum: () => 'TX-MC-' + Date.now().toString().slice(-6),
+    render(id) {
+      return `
+      ${docHeader('Texas Motor Carrier Operating Certificate', id)}
+      <div class="doc-body">
+        <div style="background:#fffbeb;border:1px solid #f59e0b;border-radius:4px;padding:12px 16px;margin-bottom:20px;font-size:11px;color:#92400e;line-height:1.6;">
+          ⚠️ <strong>TxDOT Notice:</strong> This is an internal reference document. Official TxDOT Motor Carrier registration is completed at TxDMV.gov or TxPROS system. Texas Transportation Code §643. For-hire carriers operating in TX must register and maintain required insurance on file with TxDOT.
+        </div>
+        <div class="doc-section">
+          <div class="doc-section-title">Carrier Registration Info</div>
+          <div class="doc-grid doc-grid-2">
+            <div class="doc-field"><div class="doc-label">Legal Business Name</div><input class="doc-input" name="business_name" /></div>
+            <div class="doc-field"><div class="doc-label">DBA (if applicable)</div><input class="doc-input" name="dba" /></div>
+            <div class="doc-field"><div class="doc-label">Business Entity Type</div>
+              <select class="doc-input" name="entity_type">
+                <option>Sole Proprietor</option><option>LLC</option><option>Corporation</option>
+                <option>Partnership</option><option>Other</option>
+              </select>
+            </div>
+            <div class="doc-field"><div class="doc-label">Texas SOS Filing #</div><input class="doc-input" name="sos_num" /></div>
+            <div class="doc-field"><div class="doc-label">Federal EIN</div><input class="doc-input" name="ein" /></div>
+            <div class="doc-field"><div class="doc-label">USDOT #</div><input class="doc-input" name="dot_num" /></div>
+            <div class="doc-field"><div class="doc-label">TxDOT Motor Carrier #</div><input class="doc-input" name="txdot_mc" /></div>
+            <div class="doc-field"><div class="doc-label">FMCSA MC # (if applicable)</div><input class="doc-input" name="fmcsa_mc" /></div>
+          </div>
+        </div>
+        <div class="doc-section">
+          <div class="doc-section-title">Contact Information</div>
+          <div class="doc-grid doc-grid-2">
+            <div class="doc-field"><div class="doc-label">Principal Address</div><input class="doc-input" name="addr" /></div>
+            <div class="doc-field"><div class="doc-label">City / State / Zip</div><input class="doc-input" name="city" /></div>
+            <div class="doc-field"><div class="doc-label">Mailing Address (if different)</div><input class="doc-input" name="mail_addr" /></div>
+            <div class="doc-field"><div class="doc-label">Primary Phone</div><input class="doc-input" name="phone" /></div>
+            <div class="doc-field"><div class="doc-label">Safety Contact Name</div><input class="doc-input" name="safety_contact" /></div>
+            <div class="doc-field"><div class="doc-label">Safety Contact Phone</div><input class="doc-input" name="safety_phone" /></div>
+          </div>
+        </div>
+        <div class="doc-section">
+          <div class="doc-section-title">Operations Type</div>
+          <div class="checklist">
+            <div class="check-row"><input type="checkbox" id="mc1" /><label for="mc1">For-Hire Motor Carrier (intrastate Texas)</label></div>
+            <div class="check-row"><input type="checkbox" id="mc2" /><label for="mc2">Private Motor Carrier</label></div>
+            <div class="check-row"><input type="checkbox" id="mc3" /><label for="mc3">Interstate (FMCSA authority required separately)</label></div>
+            <div class="check-row"><input type="checkbox" id="mc4" /><label for="mc4">Hazardous Materials Carrier</label></div>
+            <div class="check-row"><input type="checkbox" id="mc5" /><label for="mc5">Passenger Carrier (not applicable to freight)</label></div>
+          </div>
+        </div>
+        <div class="doc-section">
+          <div class="doc-section-title">Insurance on File</div>
+          <div class="doc-grid doc-grid-2">
+            <div class="doc-field"><div class="doc-label">Insurance Company</div><input class="doc-input" name="ins_company" /></div>
+            <div class="doc-field"><div class="doc-label">Policy Number</div><input class="doc-input" name="ins_policy" /></div>
+            <div class="doc-field"><div class="doc-label">Coverage Amount</div><input class="doc-input" name="ins_coverage" placeholder="$1,000,000 min" /></div>
+            <div class="doc-field"><div class="doc-label">Policy Expiration</div><input class="doc-input" type="date" name="ins_exp" /></div>
+          </div>
+        </div>
+        <div class="doc-section">
+          <div class="doc-section-title">Fleet Summary</div>
+          <div class="doc-grid doc-grid-3">
+            <div class="doc-field"><div class="doc-label">Number of Power Units</div><input class="doc-input" name="num_trucks" placeholder="0" /></div>
+            <div class="doc-field"><div class="doc-label">Number of Trailers</div><input class="doc-input" name="num_trailers" placeholder="0" /></div>
+            <div class="doc-field"><div class="doc-label">Number of Drivers</div><input class="doc-input" name="num_drivers" placeholder="0" /></div>
+          </div>
+        </div>
+        <div class="doc-section">
+          <div class="doc-section-title">Certification</div>
+          <div style="font-size:11px;color:#555;line-height:1.7;margin-bottom:16px;">
+            I certify that the information provided is accurate and complete to the best of my knowledge. I understand that this carrier must comply with all applicable Texas and Federal motor carrier safety regulations, including Texas Transportation Code Chapter 643 and FMCSA regulations (49 CFR Parts 385–397).
+          </div>
+          <div class="sig-grid">
+            <div class="sig-block">
+              <div class="sig-line"></div>
+              <div class="doc-label">Authorized Representative Signature & Date</div>
+            </div>
+            <div class="sig-block">
+              <div class="sig-line"></div>
+              <div class="doc-label">Title / Position</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      ${docFooter()}`;
+    }
+  },
+
+  tx_release_lien: {
+    title: 'Texas Lien Release Letter',
+    docNum: () => 'TX-LR-' + Date.now().toString().slice(-6),
+    render(id) {
+      return `
+      ${docHeader('Texas Vehicle Lien Release', id)}
+      <div class="doc-body">
+        <div style="background:#fffbeb;border:1px solid #f59e0b;border-radius:4px;padding:12px 16px;margin-bottom:20px;font-size:11px;color:#92400e;line-height:1.6;">
+          ⚠️ <strong>Texas Legal Notice:</strong> Under Texas Transportation Code §501.114, lienholders must release a lien within 10 business days of payoff. This template is for reference. The official lien release must be signed by the lienholder and sent to TxDMV or noted on the title. Consult a Texas attorney if the lienholder is unresponsive.
+        </div>
+        <div style="text-align:right;margin-bottom:24px;">
+          <div class="doc-field" style="max-width:200px;margin-left:auto;">
+            <div class="doc-label">Date</div>
+            <input class="doc-input" type="date" name="release_date" />
+          </div>
+        </div>
+        <div class="doc-section">
+          <div class="doc-section-title">Lienholder (Releasing Party)</div>
+          <div class="doc-grid doc-grid-2">
+            <div class="doc-field"><div class="doc-label">Lender / Institution Name</div><input class="doc-input" name="lienholder_name" /></div>
+            <div class="doc-field"><div class="doc-label">Loan / Account #</div><input class="doc-input" name="loan_num" /></div>
+            <div class="doc-field"><div class="doc-label">Address</div><input class="doc-input" name="lh_addr" /></div>
+            <div class="doc-field"><div class="doc-label">City / State / Zip</div><input class="doc-input" name="lh_city" /></div>
+            <div class="doc-field"><div class="doc-label">Authorized Officer Name</div><input class="doc-input" name="lh_officer" /></div>
+            <div class="doc-field"><div class="doc-label">Title / Position</div><input class="doc-input" name="lh_title" /></div>
+          </div>
+        </div>
+        <div class="doc-section">
+          <div class="doc-section-title">Vehicle Information</div>
+          <div class="doc-grid doc-grid-2">
+            <div class="doc-field"><div class="doc-label">Year / Make / Model</div><input class="doc-input" name="veh_ymm" placeholder="2021 Peterbilt 389" /></div>
+            <div class="doc-field"><div class="doc-label">VIN (17-Digit)</div><input class="doc-input" name="vin" maxlength="17" /></div>
+            <div class="doc-field"><div class="doc-label">Texas Title Number</div><input class="doc-input" name="title_num" /></div>
+            <div class="doc-field"><div class="doc-label">License Plate</div><input class="doc-input" name="plate" /></div>
+          </div>
+        </div>
+        <div class="doc-section">
+          <div class="doc-section-title">Vehicle Owner (Borrower)</div>
+          <div class="doc-grid doc-grid-2">
+            <div class="doc-field"><div class="doc-label">Owner Full Name / Company</div><input class="doc-input" name="owner_name" /></div>
+            <div class="doc-field"><div class="doc-label">Owner Address</div><input class="doc-input" name="owner_addr" /></div>
+          </div>
+        </div>
+        <div class="doc-section">
+          <div class="doc-section-title">Payoff Details</div>
+          <div class="doc-grid doc-grid-2">
+            <div class="doc-field"><div class="doc-label">Payoff Amount</div><input class="doc-input" name="payoff_amt" placeholder="$0.00" /></div>
+            <div class="doc-field"><div class="doc-label">Date Paid in Full</div><input class="doc-input" type="date" name="paid_date" /></div>
+          </div>
+        </div>
+        <div class="doc-section">
+          <div class="doc-section-title">Lien Release Statement</div>
+          <div style="background:#f9f9f9;border:1px solid #e5e5e5;border-radius:4px;padding:16px;font-size:13px;color:#333;line-height:1.8;">
+            <p>This letter serves as official notice that <strong><input class="doc-input" name="lh_name_inline" placeholder="[Lender Name]" style="display:inline;width:200px;" /></strong> (Lienholder) hereby releases all lien interest in the above-described vehicle. The loan referenced above has been paid in full as of the date noted above.</p>
+            <br/>
+            <p>This release is made pursuant to <strong>Texas Transportation Code §501.114</strong>. The Lienholder authorizes TxDMV to remove the lien from the title record and issue a clear title to the owner.</p>
+          </div>
+        </div>
+        <div class="doc-section">
+          <div class="doc-section-title">Lienholder Signature (Required)</div>
+          <div class="sig-grid">
+            <div class="sig-block">
+              <div class="sig-line"></div>
+              <div class="doc-label">Authorized Lienholder Signature & Date</div>
+            </div>
+            <div class="sig-block">
+              <div class="sig-line"></div>
+              <div class="doc-label">Notary Public — State of Texas</div>
+            </div>
+          </div>
+          <div style="margin-top:20px;font-size:11px;color:#777;line-height:1.6;padding:12px;background:#f9f9f9;border-radius:4px;">
+            <strong>Submit to:</strong> Texas Department of Motor Vehicles, Motor Vehicle Division, P.O. Box 26415, Austin, TX 78755-0415 | TxDMV.gov | (888) 368-4689
+          </div>
+        </div>
+      </div>
+      ${docFooter()}`;
+    }
+  }
+};
+
+// ── Row generators ──────────────────────────────────────────
+function freightRow() {
+  return `<tr>
+    <td><input placeholder="1" /></td>
+    <td><input placeholder="Pallet / Box / Drum…" /></td>
+    <td><input placeholder="Item description" /></td>
+    <td><input placeholder="0" /></td>
+    <td><select style="border:none;font-size:12px;"><option>No</option><option>Yes</option></select></td>
+  </tr>`;
+}
+function stopRow() {
+  return `<tr>
+    <td><input placeholder="City, ST" /></td>
+    <td><input placeholder="HH:MM" style="width:60px;" /></td>
+    <td><input placeholder="HH:MM" style="width:60px;" /></td>
+    <td><select style="border:none;font-size:12px;"><option>Pickup</option><option>Delivery</option><option>Fuel</option><option>Rest</option><option>Other</option></select></td>
+    <td><input placeholder="0" style="width:60px;" /></td>
+  </tr>`;
+}
+function fuelRow() {
+  return `<tr>
+    <td><input type="date" style="font-size:11px;" /></td>
+    <td><input placeholder="City, ST" /></td>
+    <td><input placeholder="Station name" /></td>
+    <td><input placeholder="0.0" style="width:60px;" /></td>
+    <td><input placeholder="$0.00" style="width:60px;" /></td>
+    <td><input placeholder="$0.00" style="width:60px;" /></td>
+    <td><input placeholder="000000" style="width:70px;" /></td>
+  </tr>`;
+}
+function mileageRow(day) {
+  return `<tr>
+    <td style="color:#666;font-size:12px;white-space:nowrap;">${day}</td>
+    <td><input placeholder="Origin" /></td>
+    <td><input placeholder="Destination" /></td>
+    <td><input placeholder="0" style="width:60px;" /></td>
+    <td><input placeholder="0" style="width:60px;" /></td>
+    <td><input placeholder="0" style="width:50px;" /></td>
+    <td><select style="border:none;font-size:12px;"><option>Loaded</option><option>Empty</option></select></td>
+  </tr>`;
+}
+function manifestRow(n) {
+  return `<tr>
+    <td style="color:#aaa;font-size:12px;">${n}</td>
+    <td><input placeholder="Description" /></td>
+    <td><input placeholder="Pallet" style="width:70px;" /></td>
+    <td><input placeholder="0" style="width:40px;" /></td>
+    <td><input placeholder="0 lbs" style="width:60px;" /></td>
+    <td><input placeholder='0×0×0"' style="width:70px;" /></td>
+    <td><select style="border:none;font-size:12px;"><option>No</option><option>Yes</option></select></td>
+  </tr>`;
+}
+function expenseRow() {
+  return `<tr>
+    <td><input type="date" style="font-size:11px;" /></td>
+    <td><select style="border:none;font-size:12px;width:100%;">
+      <option>Fuel</option><option>Meal</option><option>Toll</option><option>Scale</option>
+      <option>Repair</option><option>Lodging</option><option>Permit</option><option>Other</option>
+    </select></td>
+    <td><input placeholder="Description" /></td>
+    <td><input placeholder="R-000" style="width:70px;" /></td>
+    <td><input placeholder="$0.00" style="width:70px;" /></td>
+  </tr>`;
+}
+let manifestCount = 6;
+function addManifestRow() {
+  document.getElementById('manifest-rows').insertAdjacentHTML('beforeend', manifestRow(manifestCount++));
+}
+
+function addRow(tbodyId, rowFn) {
+  document.getElementById(tbodyId).insertAdjacentHTML('beforeend', rowFn());
+}
+
+// ── Header / footer helpers ────────────────────────────────
+function docHeader(title, docId) {
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  return `
+  <div class="doc-header">
+    <div class="doc-header-logo">
+      <div class="doc-header-logo-icon"></div>
+      <div class="doc-header-brand">Paso Del <span>Norte</span></div>
+    </div>
+    <div class="doc-header-center">
+      <div class="doc-type-label">${title}</div>
+      <div class="doc-number-label" id="doc-num-display">${docId}</div>
+    </div>
+    <div class="doc-header-right doc-date-box">
+      <strong>${dateStr}</strong>
+      <span style="font-size:10px;">Truck & Equipment Sales</span>
+    </div>
+  </div>
+  <div class="doc-amber-bar"></div>`;
+}
+
+function docFooter() {
+  return `
+  <div class="doc-footer-strip">
+    <span>Paso Del Norte: Truck & Equipment Sales — Houston, TX — (832) 555-0180</span>
+    <span id="doc-footer-num" style="font-family:'JetBrains Mono',monospace;"></span>
+  </div>`;
+}
+
+// ── Active doc state ────────────────────────────────────────
+let activeDocType = 'bol';
+let activeDocId = '';
+
+function loadDoc(type) {
+  const tmpl = DOC_TEMPLATES[type];
+  if (!tmpl) return;
+  activeDocType = type;
+  activeDocId = tmpl.docNum();
+  document.getElementById('doc-paper').innerHTML = tmpl.render(activeDocId);
+  document.getElementById('toolbar-title').textContent = tmpl.title;
+  // Footer doc num
+  const fnum = document.getElementById('doc-footer-num');
+  if (fnum) fnum.textContent = activeDocId;
+  // Nav highlight
+  document.querySelectorAll('.doc-btn').forEach(b => b.classList.toggle('active', b.dataset.doc === type));
+  // Restore saved if exists
+  restoreIfSaved(type);
+}
+
+// ── Save / Load ────────────────────────────────────────────
+function collectFormData() {
+  const paper = document.getElementById('doc-paper');
+  const inputs = paper.querySelectorAll('input, select, textarea');
+  const data = {};
+  inputs.forEach(el => {
+    const key = el.name || el.id || `_unnamed_${Math.random()}`;
+    if (el.type === 'checkbox') data[key] = el.checked;
+    else data[key] = el.value;
+  });
+  return data;
+}
+
+function fillFormData(saved) {
+  const paper = document.getElementById('doc-paper');
+  const inputs = paper.querySelectorAll('input, select, textarea');
+  inputs.forEach(el => {
+    const key = el.name || el.id;
+    if (!key || !(key in saved)) return;
+    if (el.type === 'checkbox') el.checked = saved[key];
+    else el.value = saved[key];
+  });
+}
+
+function saveDoc() {
+  const data = {
+    type: activeDocType,
+    id: activeDocId,
+    savedAt: new Date().toISOString(),
+    fields: collectFormData()
+  };
+  const key = `ir_doc_${activeDocType}`;
+  localStorage.setItem(key, JSON.stringify(data));
+  document.getElementById('saved-indicator').style.display = 'flex';
+  // Mark sidebar button
+  document.querySelector(`[data-doc="${activeDocType}"]`)?.insertAdjacentHTML('beforeend',
+    `<span class="doc-saved" id="saved-dot-${activeDocType}"></span>`);
+  showToast('Document saved to browser');
+}
+
+function restoreIfSaved(type) {
+  const raw = localStorage.getItem(`ir_doc_${type}`);
+  if (!raw) { document.getElementById('saved-indicator').style.display = 'none'; return; }
+  const saved = JSON.parse(raw);
+  fillFormData(saved.fields || {});
+  document.getElementById('saved-indicator').style.display = 'flex';
+}
+
+function loadSaved() {
+  const keys = Object.keys(localStorage).filter(k => k.startsWith('ir_doc_'));
+  const modal = document.getElementById('load-modal');
+  const list = document.getElementById('saved-list');
+  if (!keys.length) {
+    list.innerHTML = '<div style="color:var(--text-2);font-size:13px;">No saved documents yet. Fill out a form and hit Save.</div>';
+  } else {
+    list.innerHTML = keys.map(k => {
+      const d = JSON.parse(localStorage.getItem(k));
+      const type = d.type;
+      const tmpl = DOC_TEMPLATES[type];
+      const savedAt = new Date(d.savedAt).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+      return `<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px;background:var(--surface-2);border-radius:6px;border:1px solid var(--border);">
+        <div>
+          <div style="font-size:13px;color:var(--chrome-bright);font-weight:600;">${tmpl?.title || type}</div>
+          <div style="font-size:11px;color:var(--text-3);font-family:var(--font-mono);">${d.id} · Saved ${savedAt}</div>
+        </div>
+        <div style="display:flex;gap:6px;">
+          <button class="toolbar-btn" onclick="openSaved('${type}')">Open</button>
+          <button class="toolbar-btn danger" onclick="deleteSaved('${k}', this)">🗑</button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+  modal.style.display = 'flex';
+}
+
+function openSaved(type) {
+  document.getElementById('load-modal').style.display = 'none';
+  loadDoc(type);
+}
+
+function deleteSaved(key, btn) {
+  localStorage.removeItem(key);
+  btn.closest('div[style]').remove();
+  showToast('Document deleted');
+}
+
+function exportDoc() {
+  const data = {
+    type: activeDocType,
+    id: activeDocId,
+    exportedAt: new Date().toISOString(),
+    fields: collectFormData()
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${activeDocId}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('Document exported as JSON');
+}
+
+// ── Toast ─────────────────────────────────────────────────
+function showToast(msg) {
+  let t = document.querySelector('.toast');
+  if (!t) { t = document.createElement('div'); t.className = 'toast'; document.body.appendChild(t); }
+  t.innerHTML = `<span class="toast-dot"></span><span>${msg}</span>`;
+  t.classList.add('show');
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ── Init ──────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  loadDoc('bol');
+
+  document.querySelectorAll('.doc-btn[data-doc]').forEach(btn => {
+    btn.addEventListener('click', () => loadDoc(btn.dataset.doc));
+    // Show saved dot if saved
+    if (localStorage.getItem(`ir_doc_${btn.dataset.doc}`)) {
+      btn.insertAdjacentHTML('beforeend', `<span class="doc-saved"></span>`);
+    }
+  });
+
+  document.getElementById('btn-save').addEventListener('click', saveDoc);
+  document.getElementById('btn-load').addEventListener('click', loadSaved);
+  document.getElementById('btn-export').addEventListener('click', exportDoc);
+  document.getElementById('btn-print').addEventListener('click', () => window.print());
+  document.getElementById('btn-new').addEventListener('click', () => {
+    if (confirm('Clear this document and start fresh?')) loadDoc(activeDocType);
+  });
+  document.getElementById('close-modal').addEventListener('click', () => {
+    document.getElementById('load-modal').style.display = 'none';
+  });
+  document.getElementById('load-modal').addEventListener('click', e => {
+    if (e.target === e.currentTarget) e.currentTarget.style.display = 'none';
+  });
+});
+</script>
+</body>
+</html>

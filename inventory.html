@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inventory — Paso Del Norte: Truck & Equipment Sales</title>
+  <meta name="description" content="Browse our full semi-truck inventory. Peterbilt, Kenworth, Freightliner, International. Sleepers, day cabs, oilfield spec." />
+  <link rel="stylesheet" href="css/main.css" />
+  <style>
+    .inv-hero {
+      background: var(--black-2);
+      border-bottom: 1px solid var(--border);
+      padding: calc(var(--nav-h) + 40px) 0 40px;
+    }
+    .inv-hero-inner {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+    .inv-hero-title {
+      font-family: var(--font-display);
+      font-size: clamp(32px, 6vw, 60px);
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: -0.01em;
+      color: var(--chrome-bright);
+    }
+    .inv-hero-title em { color: var(--amber); font-style: normal; }
+    .inv-count {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--text-2);
+      letter-spacing: 0.1em;
+    }
+
+    /* Layout */
+    .inv-layout {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 0;
+      min-height: 70vh;
+    }
+
+    /* Sidebar filters */
+    .inv-sidebar {
+      background: var(--black-2);
+      border-right: 1px solid var(--border);
+      padding: 28px 20px;
+      position: sticky;
+      top: var(--nav-h);
+      height: calc(100vh - var(--nav-h));
+      overflow-y: auto;
+    }
+    .filter-section { margin-bottom: 28px; }
+    .filter-section-title {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--amber);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    .filter-group { display: flex; flex-direction: column; gap: 6px; }
+    .filter-check {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      padding: 6px 8px;
+      border-radius: 4px;
+      transition: background 0.15s;
+      font-size: 13px;
+      color: var(--text-2);
+    }
+    .filter-check:hover { background: var(--surface-2); color: var(--text-1); }
+    .filter-check input[type="checkbox"] {
+      width: 14px; height: 14px;
+      accent-color: var(--amber);
+      cursor: pointer;
+    }
+    .filter-check input[type="radio"] {
+      width: 14px; height: 14px;
+      accent-color: var(--amber);
+      cursor: pointer;
+    }
+    .range-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .range-row .form-input { flex: 1; font-size: 13px; padding: 8px 10px; height: auto; }
+    .range-sep { font-size: 12px; color: var(--text-3); }
+
+    .filter-actions {
+      display: flex;
+      gap: 8px;
+      flex-direction: column;
+      margin-top: 24px;
+    }
+
+    /* Mobile filter toggle */
+    .filter-toggle-btn {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .sidebar-close {
+      display: none;
+      position: absolute;
+      top: 16px; right: 16px;
+      background: none;
+      color: var(--text-2);
+      font-size: 20px;
+      padding: 4px;
+    }
+
+    /* Results area */
+    .inv-main {
+      padding: 24px;
+      background: var(--black);
+    }
+    .inv-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .inv-search-wrap {
+      position: relative;
+      flex: 1;
+      min-width: 200px;
+      max-width: 360px;
+    }
+    .inv-search-wrap svg {
+      position: absolute;
+      left: 12px; top: 50%;
+      transform: translateY(-50%);
+      width: 16px; height: 16px;
+      color: var(--text-3);
+      pointer-events: none;
+    }
+    .inv-search-wrap .form-input {
+      padding-left: 40px;
+      height: 42px;
+    }
+    .sort-select { height: 42px; min-width: 180px; font-size: 13px; }
+    .view-btns {
+      display: flex;
+      gap: 4px;
+    }
+    .view-btn {
+      width: 36px; height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      color: var(--text-3);
+      transition: all 0.2s;
+      background: var(--surface);
+    }
+    .view-btn.active, .view-btn:hover {
+      border-color: var(--amber);
+      color: var(--amber);
+    }
+
+    /* Active filters */
+    .active-filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 16px;
+    }
+    .filter-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      background: var(--amber-trace);
+      border: 1px solid var(--border-glow);
+      border-radius: 100px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--amber);
+      letter-spacing: 0.08em;
+      cursor: pointer;
+    }
+    .filter-pill:hover { background: rgba(245,158,11,0.12); }
+    .filter-pill span { font-size: 12px; line-height: 1; }
+
+    /* Grid/List views */
+    .trucks-grid-main {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 18px;
+    }
+    .trucks-list { display: flex; flex-direction: column; gap: 14px; }
+
+    /* List card variant */
+    .truck-card-list {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      overflow: hidden;
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+    .truck-card-list:hover {
+      border-color: var(--border-glow);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    }
+    .truck-card-list-media {
+      position: relative;
+      overflow: hidden;
+      background: var(--black-3);
+    }
+    .truck-card-list-media img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s;
+    }
+    .truck-card-list:hover .truck-card-list-media img { transform: scale(1.04); }
+    .truck-card-list-body {
+      padding: 20px 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .truck-card-list-top .truck-card-name { font-size: 24px; margin-bottom: 10px; }
+    .truck-card-list-specs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 20px;
+      margin-bottom: 12px;
+    }
+    .truck-card-list-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+
+    /* Empty state */
+    .no-results {
+      text-align: center;
+      padding: 80px 24px;
+      color: var(--text-2);
+    }
+    .no-results-icon { font-size: 48px; margin-bottom: 16px; }
+    .no-results-title {
+      font-family: var(--font-display);
+      font-size: 24px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--chrome-bright);
+      margin-bottom: 8px;
+    }
+
+    /* Pagination */
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      margin-top: 32px;
+      flex-wrap: wrap;
+    }
+    .page-btn {
+      width: 36px; height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--text-2);
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+    .page-btn.active, .page-btn:hover {
+      border-color: var(--amber);
+      color: var(--amber);
+      background: var(--amber-trace);
+    }
+
+    @media (max-width: 900px) {
+      .inv-layout { grid-template-columns: 1fr; }
+      .inv-sidebar {
+        position: fixed;
+        top: 0; left: 0;
+        width: min(320px, 90vw);
+        height: 100vh;
+        z-index: 1100;
+        transform: translateX(-100%);
+        transition: transform 0.4s var(--ease);
+      }
+      .inv-sidebar.open { transform: translateX(0); }
+      .sidebar-close { display: flex; align-items: center; }
+      .filter-toggle-btn { display: flex; }
+      .truck-card-list { grid-template-columns: 1fr; }
+      .truck-card-list-media { aspect-ratio: 16/9; }
+    }
+    @media (max-width: 600px) {
+      .inv-main { padding: 16px; }
+      .trucks-grid-main { grid-template-columns: 1fr; }
+      .inv-toolbar { flex-direction: column; align-items: stretch; }
+      .inv-search-wrap { max-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav class="nav" role="navigation" aria-label="Main navigation">
+  <a href="index.html" class="nav-logo">
+    <div class="nav-logo-icon" aria-hidden="true"></div>
+    <div class="nav-logo-text">Paso Del <span>Norte</span></div>
+  </a>
+  <ul class="nav-links" role="list">
+    <li><a href="index.html" class="nav-link">Home</a></li>
+    <li><a href="inventory.html" class="nav-link active">Inventory</a></li>
+    <li><a href="inventory.html?featured=true" class="nav-link">Featured</a></li>
+    <li><a href="inventory.html?dotReady=true" class="nav-link">Road Ready</a></li>
+    <li><a href="financing.html" class="nav-link">Financing</a></li>
+    <li><a href="docs.html" class="nav-link">Documents</a></li>
+    <li><a href="post-generator.html" class="nav-link">Post Generator</a></li>
+    <li><a href="truck-search.html" class="nav-link">TX Truck Search</a></li>
+    <li><a href="index.html#contact" class="nav-link">Contact</a></li>
+  </ul>
+  <div class="nav-actions">
+    <div class="nav-phone">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 0110 1.18 2 2 0 0112 3.14V6.18a2 2 0 01-1.45 1.93l-1.18.39a16 16 0 006.61 6.61l.39-1.18A2 2 0 0118.82 12h3a2 2 0 012 2.18z"/></svg>
+      (832) 555-0180
+    </div>
+    <button class="nav-hamburger" aria-label="Open menu"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+<div class="nav-overlay" aria-hidden="true"></div>
+<div class="nav-drawer" role="dialog">
+  <a href="index.html" class="nav-link">Home</a>
+  <a href="inventory.html" class="nav-link">Inventory</a>
+  <a href="financing.html" class="nav-link">Financing</a>
+  <a href="index.html#contact" class="nav-link">Contact</a>
+</div>
+
+<!-- Page header -->
+<div class="inv-hero">
+  <div class="container inv-hero-inner">
+    <div>
+      <h1 class="inv-hero-title">Full <em>Inventory</em></h1>
+      <div class="inv-count" id="result-count">Loading trucks...</div>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-self:flex-end;">
+      <a href="financing.html" class="btn btn-ghost btn-sm">Get Financing</a>
+      <a href="index.html#contact" class="btn btn-primary btn-sm">Can't Find It? Ask Us</a>
+    </div>
+  </div>
+</div>
+
+<!-- Main layout -->
+<div class="inv-layout">
+
+  <!-- Sidebar -->
+  <aside class="inv-sidebar" id="inv-sidebar" role="complementary" aria-label="Filters">
+    <button class="sidebar-close" id="sidebar-close" aria-label="Close filters">✕</button>
+
+    <div style="margin-bottom:20px;">
+      <button class="btn btn-primary btn-full btn-sm" id="apply-filters">Apply Filters</button>
+    </div>
+
+    <!-- Make -->
+    <div class="filter-section">
+      <div class="filter-section-title">Make</div>
+      <div class="filter-group">
+        <label class="filter-check"><input type="checkbox" name="make" value="Peterbilt" /> Peterbilt</label>
+        <label class="filter-check"><input type="checkbox" name="make" value="Kenworth" /> Kenworth</label>
+        <label class="filter-check"><input type="checkbox" name="make" value="Freightliner" /> Freightliner</label>
+        <label class="filter-check"><input type="checkbox" name="make" value="International" /> International</label>
+        <label class="filter-check"><input type="checkbox" name="make" value="Mack" /> Mack</label>
+        <label class="filter-check"><input type="checkbox" name="make" value="Volvo" /> Volvo</label>
+      </div>
+    </div>
+
+    <!-- Cab Type -->
+    <div class="filter-section">
+      <div class="filter-section-title">Cab Type</div>
+      <div class="filter-group">
+        <label class="filter-check"><input type="radio" name="cabType" value="" checked /> All Types</label>
+        <label class="filter-check"><input type="radio" name="cabType" value="sleeper" /> Sleeper</label>
+        <label class="filter-check"><input type="radio" name="cabType" value="daycab" /> Day Cab</label>
+      </div>
+    </div>
+
+    <!-- Condition -->
+    <div class="filter-section">
+      <div class="filter-section-title">Condition</div>
+      <div class="filter-group">
+        <label class="filter-check"><input type="checkbox" name="condition" value="excellent" /> Excellent</label>
+        <label class="filter-check"><input type="checkbox" name="condition" value="good" /> Good</label>
+        <label class="filter-check"><input type="checkbox" name="condition" value="fair" /> Fair</label>
+      </div>
+    </div>
+
+    <!-- Year -->
+    <div class="filter-section">
+      <div class="filter-section-title">Year (Min)</div>
+      <select class="form-input" id="f-yearMin" style="font-size:13px;height:40px;">
+        <option value="">Any Year</option>
+        <option value="2022">2022+</option>
+        <option value="2020">2020+</option>
+        <option value="2018">2018+</option>
+        <option value="2015">2015+</option>
+      </select>
+    </div>
+
+    <!-- Price -->
+    <div class="filter-section">
+      <div class="filter-section-title">Price Range</div>
+      <div class="range-row">
+        <input class="form-input" type="number" id="f-minPrice" placeholder="Min" min="0" step="5000" />
+        <span class="range-sep">–</span>
+        <input class="form-input" type="number" id="f-maxPrice" placeholder="Max" min="0" step="5000" />
+      </div>
+    </div>
+
+    <!-- Max mileage -->
+    <div class="filter-section">
+      <div class="filter-section-title">Max Mileage</div>
+      <select class="form-input" id="f-maxMileage" style="font-size:13px;height:40px;">
+        <option value="">Any Mileage</option>
+        <option value="200000">Under 200k</option>
+        <option value="400000">Under 400k</option>
+        <option value="600000">Under 600k</option>
+        <option value="800000">Under 800k</option>
+      </select>
+    </div>
+
+    <!-- Extras -->
+    <div class="filter-section">
+      <div class="filter-section-title">Status</div>
+      <div class="filter-group">
+        <label class="filter-check"><input type="checkbox" id="f-dotReady" /> DOT Ready Only</label>
+        <label class="filter-check"><input type="checkbox" id="f-featured" /> Featured Only</label>
+        <label class="filter-check"><input type="checkbox" id="f-financing" /> Financing Available</label>
+      </div>
+    </div>
+
+    <div class="filter-actions">
+      <button id="clear-filters" class="btn btn-ghost btn-sm btn-full">Clear All Filters</button>
+    </div>
+  </aside>
+
+  <!-- Results -->
+  <main class="inv-main" id="inv-main">
+    <!-- Toolbar -->
+    <div class="inv-toolbar">
+      <button class="filter-toggle-btn btn btn-ghost btn-sm" id="filter-toggle">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
+        Filters
+      </button>
+      <div class="inv-search-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input class="form-input" type="search" id="inv-search" placeholder="Search make, model, engine…" aria-label="Search trucks" />
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <select class="form-input sort-select" id="inv-sort" aria-label="Sort trucks">
+          <option value="featured">Featured First</option>
+          <option value="price-asc">Price: Low to High</option>
+          <option value="price-desc">Price: High to Low</option>
+          <option value="year-desc">Newest First</option>
+          <option value="mileage-asc">Lowest Mileage</option>
+        </select>
+        <div class="view-btns" role="group" aria-label="View mode">
+          <button class="view-btn active" id="view-grid" aria-label="Grid view" title="Grid view">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          </button>
+          <button class="view-btn" id="view-list" aria-label="List view" title="List view">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Active filters display -->
+    <div class="active-filters" id="active-filters"></div>
+
+    <!-- Truck results -->
+    <div id="trucks-container" class="trucks-grid-main" aria-live="polite" aria-label="Truck listings"></div>
+
+    <!-- Pagination -->
+    <div class="pagination" id="pagination"></div>
+  </main>
+</div>
+
+<!-- Footer -->
+<footer class="footer" style="margin-top:0;" role="contentinfo">
+  <div class="container">
+    <div class="footer-bottom">
+      <div class="footer-copy">© 2024 Paso Del Norte: Truck & Equipment Sales LLC — Houston, TX</div>
+      <a href="index.html" style="color:var(--amber);font-family:var(--font-mono);font-size:11px;">← Back to Home</a>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="js/config.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/data.js"></script>
+<script src="js/share.js"></script>
+<script src="js/main.js"></script>
+<script src="js/inventory.js"></script>
+</body>
+</html>

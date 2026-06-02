@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title id="page-title">Truck Detail — Paso Del Norte: Truck & Equipment Sales</title>
+  <meta name="description" id="page-desc" content="View truck details, specs, financing, and contact." />
+  <link rel="stylesheet" href="css/main.css" />
+  <style>
+    .detail-wrap { padding-top: var(--nav-h); }
+
+    /* Gallery */
+    .gallery {
+      position: relative;
+      background: var(--black);
+      overflow: hidden;
+    }
+    .gallery-main {
+      position: relative;
+      aspect-ratio: 16/7;
+      overflow: hidden;
+      background: var(--black-3);
+    }
+    .gallery-main img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      transition: transform 0.6s var(--ease);
+      cursor: zoom-in;
+    }
+    .gallery-nav {
+      position: absolute;
+      top: 50%; transform: translateY(-50%);
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      padding: 0 20px;
+      pointer-events: none;
+    }
+    .gallery-arrow {
+      width: 48px; height: 48px;
+      background: rgba(6,6,8,0.8);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--border-glow);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--amber);
+      font-size: 18px;
+      cursor: pointer;
+      pointer-events: all;
+      transition: all 0.2s;
+    }
+    .gallery-arrow:hover { background: var(--amber); color: var(--black); }
+    .gallery-counter {
+      position: absolute;
+      bottom: 16px; right: 20px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--chrome-bright);
+      background: rgba(0,0,0,0.7);
+      padding: 4px 10px;
+      border-radius: 100px;
+    }
+    .gallery-thumbs {
+      display: flex;
+      gap: 8px;
+      padding: 12px 20px;
+      background: var(--black-2);
+      border-bottom: 1px solid var(--border);
+      overflow-x: auto;
+    }
+    .gallery-thumb {
+      width: 80px;
+      height: 54px;
+      border-radius: 4px;
+      overflow: hidden;
+      flex-shrink: 0;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: border-color 0.2s;
+      opacity: 0.6;
+    }
+    .gallery-thumb.active { border-color: var(--amber); opacity: 1; }
+    .gallery-thumb img { width: 100%; height: 100%; object-fit: cover; }
+
+    /* Detail layout */
+    .detail-layout {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 32px;
+      padding: 40px 0 80px;
+    }
+
+    /* Left column */
+    .detail-main {}
+    .detail-head {
+      margin-bottom: 28px;
+      padding-bottom: 28px;
+      border-bottom: 1px solid var(--border);
+    }
+    .detail-make {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--amber);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .detail-title {
+      font-family: var(--font-display);
+      font-size: clamp(32px, 5vw, 56px);
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: -0.01em;
+      line-height: 0.95;
+      color: var(--chrome-bright);
+      margin-bottom: 12px;
+    }
+    .detail-badges { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+    .detail-location {
+      font-size: 13px;
+      color: var(--text-2);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Specs table */
+    .specs-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      margin-bottom: 28px;
+    }
+    .spec-item {
+      background: var(--surface);
+      padding: 16px 18px;
+    }
+    .spec-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-3);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .spec-val {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--chrome-bright);
+    }
+
+    /* Features list */
+    .features-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 28px;
+    }
+    .feature-chip {
+      padding: 5px 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      font-size: 12px;
+      color: var(--text-2);
+    }
+
+    /* Repair notes */
+    .repair-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 28px;
+    }
+    .repair-card-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+      font-family: var(--font-display);
+      font-size: 14px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--chrome-bright);
+    }
+    .repair-card-head .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); }
+
+    /* Description */
+    .detail-desc {
+      font-size: 15px;
+      color: var(--text-2);
+      line-height: 1.8;
+      margin-bottom: 28px;
+    }
+
+    /* Video placeholder */
+    .video-section {
+      background: var(--black-3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      aspect-ratio: 16/9;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      cursor: pointer;
+      margin-bottom: 28px;
+      transition: border-color 0.3s;
+    }
+    .video-section:hover { border-color: var(--amber); }
+    .video-play {
+      width: 64px; height: 64px;
+      background: var(--amber);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      color: var(--black);
+    }
+    .video-label { font-family: var(--font-mono); font-size: 11px; color: var(--text-2); letter-spacing: 0.1em; text-transform: uppercase; }
+
+    /* Right sidebar / sticky card */
+    .detail-sidebar-card {
+      background: var(--surface);
+      border: 1px solid var(--border-glow);
+      border-radius: var(--radius-lg);
+      padding: 28px;
+      position: sticky;
+      top: calc(var(--nav-h) + 20px);
+      max-height: calc(100vh - var(--nav-h) - 40px);
+      overflow-y: auto;
+    }
+    .detail-price {
+      font-family: var(--font-display);
+      font-size: 48px;
+      font-weight: 900;
+      color: var(--chrome-bright);
+      letter-spacing: -0.02em;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+    .detail-monthly {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--amber);
+      letter-spacing: 0.1em;
+      margin-bottom: 24px;
+    }
+    .detail-actions { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
+    .detail-mini-specs {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 16px 0;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .detail-mini-spec {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+    }
+    .detail-mini-spec-label { color: var(--text-2); }
+    .detail-mini-spec-val { color: var(--chrome-bright); font-weight: 600; }
+    .share-row {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+    .share-label {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      margin-bottom: 8px;
+    }
+    .share-btns {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .share-btn {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 8px 12px;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      color: var(--text-2);
+      font-size: 11px;
+      font-family: var(--font-display);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .share-btn:hover { border-color: var(--amber); color: var(--amber); }
+    .share-btn.fb  { border-color: rgba(24,119,242,.4); color: #1877f2; }
+    .share-btn.fb:hover  { background: rgba(24,119,242,.1); border-color: #1877f2; }
+    .share-btn.wa  { border-color: rgba(37,211,102,.4); color: #25d366; }
+    .share-btn.wa:hover  { background: rgba(37,211,102,.1); border-color: #25d366; }
+    .share-btn.native { background: var(--amber); color: var(--black); border-color: var(--amber); }
+    .share-btn.native:hover { background: var(--amber-light); }
+
+    /* Lightbox */
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.95);
+      z-index: 2000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+    .lightbox.open { display: flex; }
+    .lightbox img { max-width: 90vw; max-height: 90vh; object-fit: contain; border-radius: 4px; }
+    .lightbox-close {
+      position: absolute;
+      top: 20px; right: 24px;
+      font-size: 28px;
+      color: var(--chrome-bright);
+      cursor: pointer;
+      background: none;
+      border: none;
+      line-height: 1;
+    }
+
+    /* Related trucks */
+    .related-trucks {
+      padding: 60px 0;
+      background: var(--black-2);
+      border-top: 1px solid var(--border);
+    }
+
+    @media (max-width: 900px) {
+      .detail-layout { grid-template-columns: 1fr; }
+      .detail-sidebar-card { position: static; max-height: none; }
+      .gallery-main { aspect-ratio: 16/9; }
+      .specs-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav class="nav" role="navigation" aria-label="Main navigation">
+  <a href="index.html" class="nav-logo">
+    <div class="nav-logo-icon" aria-hidden="true"></div>
+    <div class="nav-logo-text">Paso Del <span>Norte</span></div>
+  </a>
+  <ul class="nav-links" role="list">
+    <li><a href="index.html" class="nav-link">Home</a></li>
+    <li><a href="inventory.html" class="nav-link">Inventory</a></li>
+    <li><a href="financing.html" class="nav-link">Financing</a></li>
+    <li><a href="docs.html" class="nav-link">Documents</a></li>
+    <li><a href="post-generator.html" class="nav-link">Post Generator</a></li>
+    <li><a href="truck-search.html" class="nav-link">TX Truck Search</a></li>
+    <li><a href="index.html#contact" class="nav-link">Contact</a></li>
+  </ul>
+  <div class="nav-actions">
+    <div class="nav-phone">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 0110 1.18 2 2 0 0112 3.14V6.18a2 2 0 01-1.45 1.93l-1.18.39a16 16 0 006.61 6.61l.39-1.18A2 2 0 0118.82 12h3a2 2 0 012 2.18z"/></svg>
+      (832) 555-0180
+    </div>
+    <button class="nav-hamburger" aria-label="Open menu"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+<div class="nav-overlay" aria-hidden="true"></div>
+<div class="nav-drawer" role="dialog">
+  <a href="index.html" class="nav-link">Home</a>
+  <a href="inventory.html" class="nav-link">Inventory</a>
+  <a href="financing.html" class="nav-link">Financing</a>
+  <a href="index.html#contact" class="nav-link">Contact</a>
+</div>
+
+<!-- ─── Lightbox ──────────────────────────────────── -->
+<div class="lightbox" id="lightbox" role="dialog" aria-label="Image viewer" aria-modal="true">
+  <button class="lightbox-close" id="lightbox-close" aria-label="Close image">✕</button>
+  <img id="lightbox-img" src="" alt="" />
+</div>
+
+<div class="detail-wrap" id="detail-wrap">
+  <!-- Rendered by JS -->
+  <div style="display:flex;align-items:center;justify-content:center;height:60vh;">
+    <div style="text-align:center;color:var(--text-2);">
+      <div class="skeleton" style="width:200px;height:24px;margin:0 auto 12px;"></div>
+      <div class="skeleton" style="width:120px;height:14px;margin:0 auto;"></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="js/config.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/data.js"></script>
+<script src="js/share.js"></script>
+<script src="js/main.js"></script>
+<script>
+  let truck, imgIndex = 0;
+
+  function renderDetail(t) {
+    truck = t;
+    document.title = `${t.year} ${t.make} ${t.model} — Paso Del Norte`;
+    document.getElementById('page-title').textContent = `${t.year} ${t.make} ${t.model} — Paso Del Norte`;
+    document.getElementById('page-desc').content = t.description.substring(0, 155);
+
+    const fin = calcPayment({ price: t.price });
+    const badgeHTML = (t.badges||[]).map(b => `<span class="truck-card-badge badge-${b}">${b}</span>`).join('');
+
+    document.getElementById('detail-wrap').innerHTML = `
+      <!-- Gallery -->
+      <div class="gallery">
+        <div class="gallery-main">
+          <img id="gallery-main-img" src="${t.images[0]}" alt="${t.year} ${t.make} ${t.model} — image 1" />
+          <div class="gallery-nav" aria-label="Image navigation">
+            <button class="gallery-arrow" id="gallery-prev" aria-label="Previous image">‹</button>
+            <button class="gallery-arrow" id="gallery-next" aria-label="Next image">›</button>
+          </div>
+          <div class="gallery-counter" id="gallery-counter">1 / ${t.images.length}</div>
+        </div>
+        <div class="gallery-thumbs" role="list" aria-label="Gallery thumbnails">
+          ${t.images.map((img, i) => `
+            <button class="gallery-thumb${i===0?' active':''}" data-idx="${i}" role="listitem" aria-label="View image ${i+1}">
+              <img src="${img}" alt="Thumbnail ${i+1}" loading="lazy" />
+            </button>
+          `).join('')}
+        </div>
+      </div>
+
+      <!-- Detail content -->
+      <div class="container detail-layout">
+        <!-- Left -->
+        <div class="detail-main">
+          <div class="detail-head">
+            <div class="detail-make">${t.make} · ${t.year} · VIN: ${t.vin}</div>
+            <h1 class="detail-title">${t.model}<br><span style="color:var(--amber)">${t.trim || ''}</span></h1>
+            <div class="detail-badges">
+              ${badgeHTML}
+              ${t.dotReady ? '<span class="tag tag-green">DOT Ready</span>' : ''}
+              ${t.warranty ? '<span class="tag tag-amber">Warranty: ' + t.warranty + '</span>' : ''}
+              <span class="tag tag-chrome">${t.condition.charAt(0).toUpperCase()+t.condition.slice(1)} Condition</span>
+            </div>
+            <div class="detail-location">📍 ${t.location} &nbsp;·&nbsp; 🛣 ${formatMileage(t.mileage)}</div>
+          </div>
+
+          <!-- Quick specs -->
+          <h2 class="section-label" style="margin-bottom:14px;">Engine & Drivetrain</h2>
+          <div class="specs-grid" style="margin-bottom:28px;">
+            <div class="spec-item"><div class="spec-label">Engine</div><div class="spec-val">${t.engine}</div></div>
+            <div class="spec-item"><div class="spec-label">Transmission</div><div class="spec-val">${t.transmission}</div></div>
+            <div class="spec-item"><div class="spec-label">Sleeper</div><div class="spec-val">${t.sleeper}</div></div>
+            <div class="spec-item"><div class="spec-label">Mileage</div><div class="spec-val">${formatMileage(t.mileage)}</div></div>
+          </div>
+
+          <h2 class="section-label" style="margin-bottom:14px;">Full Specifications</h2>
+          <div class="specs-grid" style="margin-bottom:28px;">
+            <div class="spec-item"><div class="spec-label">GVWR</div><div class="spec-val">${t.specs.gvwr}</div></div>
+            <div class="spec-item"><div class="spec-label">Wheelbase</div><div class="spec-val">${t.specs.wheelbase}</div></div>
+            <div class="spec-item"><div class="spec-label">Axle Config</div><div class="spec-val">${t.specs.axles}</div></div>
+            <div class="spec-item"><div class="spec-label">Fuel</div><div class="spec-val">${t.specs.fuel}</div></div>
+            <div class="spec-item"><div class="spec-label">Fuel Tanks</div><div class="spec-val">${t.specs.tankCapacity}</div></div>
+            <div class="spec-item"><div class="spec-label">Suspension</div><div class="spec-val">${t.specs.suspension}</div></div>
+            <div class="spec-item"><div class="spec-label">Brakes</div><div class="spec-val">${t.specs.brakes}</div></div>
+            <div class="spec-item"><div class="spec-label">Color</div><div class="spec-val">${t.color}</div></div>
+          </div>
+
+          <!-- Features -->
+          <h2 class="section-label" style="margin-bottom:14px;">Features & Options</h2>
+          <div class="features-grid" style="margin-bottom:28px;">
+            ${(t.features || []).map(f => `<span class="feature-chip">✓ ${f}</span>`).join('')}
+          </div>
+
+          <!-- Repair notes -->
+          <h2 class="section-label" style="margin-bottom:14px;">Repair & Maintenance Notes</h2>
+          <div class="repair-card" style="margin-bottom:28px;">
+            <div class="repair-card-head">
+              <div class="dot"></div>
+              Inspection Report
+            </div>
+            <p style="font-size:14px;color:var(--text-2);line-height:1.7;">${t.repairNotes}</p>
+          </div>
+
+          <!-- Description -->
+          <h2 class="section-label" style="margin-bottom:14px;">About This Truck</h2>
+          <p class="detail-desc">${t.description}</p>
+
+          <!-- Walkaround video -->
+          <h2 class="section-label" style="margin-bottom:14px;">Walkaround Video</h2>
+          <div class="video-section" role="button" tabindex="0" aria-label="Watch truck walkaround video">
+            <div class="video-play" aria-hidden="true">▶</div>
+            <div class="video-label">Watch Walkaround — Contact us for video link</div>
+          </div>
+
+          <!-- Share -->
+          <div class="share-row">
+            <div class="share-label">Share This Truck</div>
+            <div class="share-btns">
+              <button class="share-btn native" id="share-native" onclick="doNativeShare()">📤 Share</button>
+              <button class="share-btn fb" onclick="doShareFacebook()">📘 Facebook</button>
+              <button class="share-btn wa" onclick="doShareWhatsApp()">📱 WhatsApp</button>
+              <button class="share-btn" onclick="doShareTwitter()">🐦 X</button>
+              <button class="share-btn" onclick="doShareSMS()">💬 SMS</button>
+              <button class="share-btn" id="copy-link-btn" onclick="doCopyLink(this)">🔗 Copy Link</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right sidebar -->
+        <aside class="detail-sidebar-card" aria-label="Purchase options">
+          <div class="detail-price">${formatPrice(t.price)}</div>
+          <div class="detail-monthly">Est. ${formatPrice(fin.monthly)}/month · ${fin.monthly > 0 ? '60-mo @ 8.9% APR' : ''}</div>
+
+          <div class="detail-actions">
+            <a href="tel:8325550180" class="btn btn-primary btn-full btn-lg">
+              📞 Call to Buy
+            </a>
+            <a href="sms:8325550180?body=Hi, I'm interested in the ${t.year} ${t.make} ${t.model} (ID: ${t.id})" class="btn btn-ghost btn-full">
+              💬 Text About This Truck
+            </a>
+            <a href="financing.html?truck=${t.id}" class="btn btn-outline-amber btn-full">
+              💵 Get Financing
+            </a>
+            <button class="btn btn-ghost btn-full" id="reserve-btn">
+              🔒 Reserve This Truck
+            </button>
+          </div>
+
+          <div class="detail-mini-specs">
+            <div class="detail-mini-spec">
+              <span class="detail-mini-spec-label">Make</span>
+              <span class="detail-mini-spec-val">${t.make}</span>
+            </div>
+            <div class="detail-mini-spec">
+              <span class="detail-mini-spec-label">Year</span>
+              <span class="detail-mini-spec-val">${t.year}</span>
+            </div>
+            <div class="detail-mini-spec">
+              <span class="detail-mini-spec-label">Mileage</span>
+              <span class="detail-mini-spec-val">${formatMileage(t.mileage)}</span>
+            </div>
+            <div class="detail-mini-spec">
+              <span class="detail-mini-spec-label">Engine</span>
+              <span class="detail-mini-spec-val">${t.engine.split(' ').slice(0,3).join(' ')}</span>
+            </div>
+            <div class="detail-mini-spec">
+              <span class="detail-mini-spec-label">Location</span>
+              <span class="detail-mini-spec-val">${t.location}</span>
+            </div>
+            <div class="detail-mini-spec">
+              <span class="detail-mini-spec-label">Financing</span>
+              <span class="detail-mini-spec-val" style="color:var(--green)">Available</span>
+            </div>
+          </div>
+
+          <div style="font-size:11px;color:var(--text-3);line-height:1.6;text-align:center;">
+            * Payment estimates for illustration only. Actual terms vary by credit profile and lender.
+          </div>
+        </aside>
+      </div>
+    `;
+
+    // Gallery init
+    initGallery(t.images);
+    initSaveButtons();
+    document.getElementById('reserve-btn')?.addEventListener('click', () => {
+      showToast('Message sent — we\'ll hold this truck for 24 hours pending payment.');
+    });
+  }
+
+  function initGallery(images) {
+    const mainImg = document.getElementById('gallery-main-img');
+    const counter = document.getElementById('gallery-counter');
+    const thumbs = document.querySelectorAll('.gallery-thumb');
+
+    function setImg(idx) {
+      imgIndex = (idx + images.length) % images.length;
+      mainImg.src = images[imgIndex];
+      mainImg.alt = `${truck.year} ${truck.make} ${truck.model} — image ${imgIndex + 1}`;
+      counter.textContent = `${imgIndex + 1} / ${images.length}`;
+      thumbs.forEach((t, i) => t.classList.toggle('active', i === imgIndex));
+    }
+
+    document.getElementById('gallery-prev')?.addEventListener('click', () => setImg(imgIndex - 1));
+    document.getElementById('gallery-next')?.addEventListener('click', () => setImg(imgIndex + 1));
+    thumbs.forEach((thumb, i) => thumb.addEventListener('click', () => setImg(i)));
+
+    // Lightbox
+    mainImg?.addEventListener('click', () => {
+      const lb = document.getElementById('lightbox');
+      document.getElementById('lightbox-img').src = images[imgIndex];
+      lb.classList.add('open');
+    });
+    document.getElementById('lightbox-close')?.addEventListener('click', () => {
+      document.getElementById('lightbox').classList.remove('open');
+    });
+    document.getElementById('lightbox')?.addEventListener('click', e => {
+      if (e.target === e.currentTarget) e.currentTarget.classList.remove('open');
+    });
+
+    // Keyboard swipe
+    document.addEventListener('keydown', e => {
+      if (e.key === 'ArrowLeft') setImg(imgIndex - 1);
+      if (e.key === 'ArrowRight') setImg(imgIndex + 1);
+      if (e.key === 'Escape') document.getElementById('lightbox').classList.remove('open');
+    });
+  }
+
+  function _shareMsg() {
+    return `🚛 ${truck.year} ${truck.make} ${truck.model} — ${formatPrice(truck.price)} | ${formatMileage(truck.mileage)} | Financing available! Paso Del Norte, Houston TX`;
+  }
+  async function doNativeShare() {
+    const shared = await pdnNativeShare(`${truck.year} ${truck.make} ${truck.model}`, _shareMsg(), location.href);
+    if (!shared) doShareFacebook(); // fallback
+  }
+  function doShareFacebook()  { shareToFacebook(location.href); }
+  function doShareWhatsApp()  { shareToWhatsApp(_shareMsg(), location.href); }
+  function doShareTwitter()   { shareToTwitter(_shareMsg(), location.href); }
+  function doShareSMS()       { shareViaSMS(_shareMsg(), location.href); }
+  function doCopyLink(btn)    { pdnCopyLink(location.href, btn).then(() => showToast('Link copied!')); }
+
+  // Hide native share btn on desktop if not supported
+  if (!navigator.share) {
+    const nb = document.getElementById('share-native');
+    if (nb) nb.style.display = 'none';
+  }
+
+  // Init on load
+  document.addEventListener('DOMContentLoaded', () => {
+    const id = new URLSearchParams(location.search).get('id') || 'T001';
+    const t = getTruck(id);
+    if (t) {
+      renderDetail(t);
+    } else {
+      document.getElementById('detail-wrap').innerHTML = `
+        <div style="text-align:center;padding:120px 24px;color:var(--text-2);">
+          <div style="font-size:48px;margin-bottom:16px;">🚛</div>
+          <h1 style="font-family:var(--font-display);font-size:32px;text-transform:uppercase;margin-bottom:12px;">Truck Not Found</h1>
+          <p style="margin-bottom:24px;">This listing may have been sold or removed.</p>
+          <a href="inventory.html" class="btn btn-primary">Browse All Trucks</a>
+        </div>`;
+    }
+  });
+</script>
+</body>
+</html>

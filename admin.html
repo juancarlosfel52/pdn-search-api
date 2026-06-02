@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard — Paso Del Norte: Truck & Equipment Sales</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="stylesheet" href="css/main.css" />
+  <style>
+    body { background: var(--black); }
+
+    /* Login gate */
+    .login-gate {
+      position: fixed;
+      inset: 0;
+      background: var(--black);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .login-card {
+      background: var(--surface);
+      border: 1px solid var(--border-glow);
+      border-radius: var(--radius-lg);
+      padding: 48px 40px;
+      width: 100%;
+      max-width: 420px;
+      text-align: center;
+    }
+    .login-card .nav-logo { justify-content: center; margin-bottom: 32px; }
+    .login-error {
+      background: var(--red-glow);
+      border: 1px solid rgba(220,38,38,0.4);
+      border-radius: 4px;
+      padding: 10px 14px;
+      font-size: 13px;
+      color: var(--red);
+      margin-bottom: 16px;
+      display: none;
+    }
+
+    /* Admin layout */
+    .admin-shell { display: flex; min-height: 100vh; }
+    .admin-sidebar {
+      width: 220px;
+      background: var(--black-2);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      position: fixed;
+      top: 0; left: 0;
+      height: 100vh;
+      z-index: 100;
+    }
+    .admin-sidebar-logo {
+      padding: 20px 16px;
+      border-bottom: 1px solid var(--border);
+      font-family: var(--font-display);
+      font-size: 16px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--chrome-bright);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .admin-sidebar-logo .nav-logo-icon { width: 24px; height: 24px; }
+    .admin-sidebar-logo span { color: var(--amber); }
+
+    .admin-nav { flex: 1; padding: 16px 8px; overflow-y: auto; }
+    .admin-nav-section {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      padding: 12px 8px 6px;
+    }
+    .admin-nav-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      color: var(--text-2);
+      cursor: pointer;
+      transition: all 0.15s;
+      margin-bottom: 2px;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+    }
+    .admin-nav-link:hover { background: var(--surface); color: var(--chrome-bright); }
+    .admin-nav-link.active { background: var(--amber-trace); color: var(--amber); }
+    .admin-nav-link .badge {
+      margin-left: auto;
+      background: var(--amber);
+      color: var(--black);
+      border-radius: 100px;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 1px 6px;
+      min-width: 18px;
+      text-align: center;
+    }
+
+    .admin-logout {
+      padding: 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    /* Main area */
+    .admin-main {
+      margin-left: 220px;
+      flex: 1;
+      min-height: 100vh;
+      background: var(--black);
+    }
+    .admin-topbar {
+      background: var(--black-2);
+      border-bottom: 1px solid var(--border);
+      padding: 0 28px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    .admin-page-title {
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--chrome-bright);
+    }
+    .admin-user {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      color: var(--text-2);
+    }
+    .admin-avatar {
+      width: 32px; height: 32px;
+      background: var(--amber);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 13px;
+      color: var(--black);
+    }
+
+    .admin-content { padding: 28px; }
+
+    /* Panels */
+    .admin-panel { display: none; }
+    .admin-panel.active { display: block; }
+
+    /* Stats row */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+    .stat-card::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 2px;
+      background: var(--amber);
+    }
+    .stat-card-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-2);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .stat-card-val {
+      font-family: var(--font-display);
+      font-size: 36px;
+      font-weight: 900;
+      color: var(--chrome-bright);
+      line-height: 1;
+    }
+    .stat-card-sub { font-size: 11px; color: var(--text-3); margin-top: 4px; }
+
+    /* Table */
+    .admin-table-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .admin-table-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .admin-table-title {
+      font-family: var(--font-display);
+      font-size: 16px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--chrome-bright);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    thead { background: var(--surface-2); }
+    th {
+      text-align: left;
+      padding: 10px 16px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-2);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+    td {
+      padding: 12px 16px;
+      border-top: 1px solid var(--border);
+      color: var(--text-1);
+      vertical-align: middle;
+    }
+    tr:hover td { background: rgba(255,255,255,0.02); }
+    .truck-thumb {
+      width: 60px; height: 40px;
+      border-radius: 4px;
+      object-fit: cover;
+      display: block;
+    }
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 10px;
+      border-radius: 100px;
+      font-size: 11px;
+      font-weight: 600;
+      border: 1px solid;
+    }
+    .status-available { color: var(--green); border-color: rgba(34,197,94,0.3); background: rgba(34,197,94,0.08); }
+    .status-sold { color: var(--red); border-color: rgba(220,38,38,0.3); background: rgba(220,38,38,0.06); }
+    .status-featured { color: var(--amber); border-color: var(--amber-dim); background: var(--amber-trace); }
+    .action-btn {
+      padding: 4px 10px;
+      border-radius: 3px;
+      border: 1px solid var(--border);
+      background: none;
+      color: var(--text-2);
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .action-btn:hover { border-color: var(--amber); color: var(--amber); }
+    .action-btn.danger:hover { border-color: var(--red); color: var(--red); }
+
+    /* Export card */
+    .export-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 16px;
+    }
+    .export-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+    }
+    .export-platform {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--chrome-bright);
+      margin-bottom: 8px;
+    }
+    .export-desc { font-size: 12px; color: var(--text-2); margin-bottom: 16px; line-height: 1.6; }
+
+    /* Lead table */
+    .lead-row { cursor: pointer; }
+    .lead-row:hover td { background: var(--amber-trace); }
+
+    /* Add truck modal */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.8);
+      z-index: 2000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border-glow);
+      border-radius: var(--radius-lg);
+      padding: 36px;
+      width: 100%;
+      max-width: 640px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .modal-title {
+      font-family: var(--font-display);
+      font-size: 24px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--chrome-bright);
+      margin-bottom: 24px;
+    }
+    .modal-close {
+      position: absolute;
+      top: 16px; right: 20px;
+      font-size: 22px;
+      color: var(--text-2);
+      cursor: pointer;
+    }
+
+    @media (max-width: 900px) {
+      .admin-sidebar { display: none; }
+      .admin-main { margin-left: 0; }
+      .stats-row { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 600px) {
+      .stats-row { grid-template-columns: 1fr; }
+      .admin-content { padding: 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ─── Login Gate ────────────────────────────────────── -->
+<div class="login-gate" id="login-gate" role="dialog" aria-label="Admin login" aria-modal="true">
+  <div class="login-card">
+    <div class="nav-logo">
+      <div class="nav-logo-icon" aria-hidden="true"></div>
+      <div class="nav-logo-text">Paso Del <span>Norte</span></div>
+    </div>
+    <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-2);letter-spacing:0.2em;text-transform:uppercase;margin-bottom:24px;">Admin Panel</div>
+    <div class="login-error" id="login-error">Incorrect PIN. Try again.</div>
+    <form id="login-form">
+      <div class="form-group" style="margin-bottom:16px;text-align:left;">
+        <label class="form-label" for="pin-input">Access PIN</label>
+        <input class="form-input" type="password" id="pin-input" name="pin" maxlength="10" placeholder="Enter PIN" autocomplete="current-password" required />
+      </div>
+      <button type="submit" class="btn btn-primary btn-full">Enter Dashboard</button>
+    </form>
+    <div style="margin-top:16px;"><a href="index.html" style="font-size:12px;color:var(--text-3);">← Back to site</a></div>
+  </div>
+</div>
+
+<!-- ─── Add/Edit Truck Modal ──────────────────────────── -->
+<div class="modal-backdrop" id="truck-modal" role="dialog" aria-label="Add Truck" aria-modal="true">
+  <div class="modal" style="position:relative;">
+    <button class="modal-close" id="modal-close" aria-label="Close modal">✕</button>
+    <div class="modal-title" id="modal-title">Add New Truck</div>
+    <form id="truck-form">
+      <input type="hidden" id="tf-id" name="id" />
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+        <div class="form-group">
+          <label class="form-label" for="tf-make">Make *</label>
+          <select class="form-input" id="tf-make" name="make" required>
+            <option>Peterbilt</option><option>Kenworth</option><option>Freightliner</option>
+            <option>International</option><option>Mack</option><option>Volvo</option><option>Western Star</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="tf-model">Model *</label>
+          <input class="form-input" type="text" id="tf-model" name="model" required placeholder="389, W900…" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="tf-year">Year *</label>
+          <input class="form-input" type="number" id="tf-year" name="year" required min="1995" max="2026" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="tf-price">Price ($) *</label>
+          <input class="form-input" type="number" id="tf-price" name="price" required min="0" step="500" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="tf-mileage">Mileage *</label>
+          <input class="form-input" type="number" id="tf-mileage" name="mileage" required min="0" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="tf-condition">Condition</label>
+          <select class="form-input" id="tf-condition" name="condition">
+            <option value="excellent">Excellent</option>
+            <option value="good">Good</option>
+            <option value="fair">Fair</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group" style="margin-bottom:14px;">
+        <label class="form-label" for="tf-engine">Engine</label>
+        <input class="form-input" type="text" id="tf-engine" name="engine" placeholder="Cummins X15 565HP" />
+      </div>
+      <div class="form-group" style="margin-bottom:14px;">
+        <label class="form-label" for="tf-desc">Description</label>
+        <textarea class="form-input" id="tf-desc" name="description" rows="4" style="resize:vertical;"></textarea>
+      </div>
+      <div style="display:flex;gap:12px;margin-bottom:14px;">
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text-2);cursor:pointer;">
+          <input type="checkbox" id="tf-featured" name="featured" style="accent-color:var(--amber);" /> Featured
+        </label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text-2);cursor:pointer;">
+          <input type="checkbox" id="tf-dot" name="dotReady" style="accent-color:var(--amber);" /> DOT Ready
+        </label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text-2);cursor:pointer;">
+          <input type="checkbox" id="tf-fin" name="financing" checked style="accent-color:var(--amber);" /> Financing Available
+        </label>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:20px;">
+        <button type="submit" class="btn btn-primary">Save Truck</button>
+        <button type="button" id="cancel-modal" class="btn btn-ghost">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ─── Admin Shell ───────────────────────────────────── -->
+<div class="admin-shell">
+  <!-- Sidebar -->
+  <aside class="admin-sidebar" role="navigation" aria-label="Admin navigation">
+    <div class="admin-sidebar-logo">
+      <div class="nav-logo-icon" aria-hidden="true"></div>
+      Paso Del <span>Norte</span>
+    </div>
+    <nav class="admin-nav">
+      <div class="admin-nav-section">Main</div>
+      <button class="admin-nav-link active" data-panel="dashboard">📊 Dashboard</button>
+      <button class="admin-nav-link" data-panel="inventory">🚛 Inventory</button>
+      <button class="admin-nav-link" data-panel="leads">📬 Leads <span class="badge" id="lead-badge">0</span></button>
+      <div class="admin-nav-section">Tools</div>
+      <button class="admin-nav-link" data-panel="export">📤 Export Listings</button>
+      <button class="admin-nav-link" data-panel="ai">🤖 AI Descriptions</button>
+      <div class="admin-nav-section">Site</div>
+      <a href="index.html" class="admin-nav-link" target="_blank">🔗 View Site</a>
+      <a href="inventory.html" class="admin-nav-link" target="_blank">🔗 View Inventory</a>
+      <a href="marketing.html" class="admin-nav-link" target="_blank">🎯 Marketing Hub</a>
+    </nav>
+    <div class="admin-logout">
+      <button class="admin-nav-link" id="logout-btn" style="color:var(--red);">🚪 Logout</button>
+    </div>
+  </aside>
+
+  <!-- Main content -->
+  <main class="admin-main">
+    <div class="admin-topbar">
+      <div class="admin-page-title" id="admin-page-title">Dashboard</div>
+      <div class="admin-user">
+        <span id="admin-time" style="font-family:var(--font-mono);font-size:11px;"></span>
+        <div class="admin-avatar" aria-hidden="true">A</div>
+        <span>Admin</span>
+      </div>
+    </div>
+
+    <div class="admin-content">
+
+      <!-- ─── Dashboard ─────────────────────────────── -->
+      <div class="admin-panel active" id="panel-dashboard">
+        <div class="stats-row">
+          <div class="stat-card">
+            <div class="stat-card-label">Available Trucks</div>
+            <div class="stat-card-val" id="stat-available">—</div>
+            <div class="stat-card-sub">In current inventory</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-label">Featured</div>
+            <div class="stat-card-val" id="stat-featured">—</div>
+            <div class="stat-card-sub">Boosted listings</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-label">Total Leads</div>
+            <div class="stat-card-val" id="stat-leads">—</div>
+            <div class="stat-card-sub">All time</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-label">Inventory Value</div>
+            <div class="stat-card-val" id="stat-value">—</div>
+            <div class="stat-card-sub">Combined price</div>
+          </div>
+        </div>
+
+        <div class="admin-table-wrap">
+          <div class="admin-table-header">
+            <div class="admin-table-title">Quick Overview</div>
+            <button class="btn btn-primary btn-sm" id="quick-add-btn">+ Add Truck</button>
+          </div>
+          <div style="overflow-x:auto;">
+            <table aria-label="Inventory overview">
+              <thead>
+                <tr>
+                  <th>Truck</th>
+                  <th>Year</th>
+                  <th>Engine</th>
+                  <th>Mileage</th>
+                  <th>Price</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="overview-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── Inventory ─────────────────────────────── -->
+      <div class="admin-panel" id="panel-inventory">
+        <div class="admin-table-wrap">
+          <div class="admin-table-header">
+            <div class="admin-table-title">All Trucks</div>
+            <div style="display:flex;gap:8px;">
+              <input class="form-input" type="search" id="admin-search" placeholder="Search…" style="width:200px;height:36px;font-size:12px;" />
+              <button class="btn btn-primary btn-sm" id="add-truck-btn">+ Add Truck</button>
+            </div>
+          </div>
+          <div style="overflow-x:auto;">
+            <table aria-label="Full inventory">
+              <thead>
+                <tr>
+                  <th>Photo</th>
+                  <th>Truck</th>
+                  <th>Mileage</th>
+                  <th>Engine</th>
+                  <th>Price</th>
+                  <th>Status</th>
+                  <th>Featured</th>
+                  <th>DOT</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="inv-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── Leads ──────────────────────────────────── -->
+      <div class="admin-panel" id="panel-leads">
+        <div class="admin-table-wrap">
+          <div class="admin-table-header">
+            <div class="admin-table-title">Lead Inquiries</div>
+            <button class="btn btn-ghost btn-sm" onclick="exportLeads()">⬇ Export CSV</button>
+          </div>
+          <div style="overflow-x:auto;">
+            <table aria-label="Lead inquiries">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Name</th>
+                  <th>Phone</th>
+                  <th>Type</th>
+                  <th>Interest</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="leads-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── Export ────────────────────────────────── -->
+      <div class="admin-panel" id="panel-export">
+        <div style="margin-bottom:24px;">
+          <div class="section-label" style="margin-bottom:12px;">Select Truck to Export</div>
+          <select class="form-input" id="export-truck-select" style="max-width:400px;height:44px;">
+            <option value="">Select a truck…</option>
+          </select>
+        </div>
+        <div class="export-grid" id="export-grid"></div>
+        <div id="export-preview" style="margin-top:24px;display:none;">
+          <div class="admin-table-wrap">
+            <div class="admin-table-header">
+              <div class="admin-table-title" id="export-preview-title">Listing Preview</div>
+              <button class="btn btn-ghost btn-sm" id="copy-listing">📋 Copy</button>
+            </div>
+            <pre id="export-text" style="padding:20px;font-family:var(--font-mono);font-size:12px;color:var(--text-2);white-space:pre-wrap;line-height:1.7;max-height:400px;overflow-y:auto;"></pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── AI Descriptions ──────────────────────── -->
+      <div class="admin-panel" id="panel-ai">
+        <div class="fin-form-card" style="max-width:700px;">
+          <h2 style="font-size:22px;">AI Listing Generator</h2>
+          <p>Select a truck to generate a premium AI-written listing description, title, and social media captions.</p>
+          <div class="form-group" style="margin-bottom:16px;">
+            <label class="form-label" for="ai-truck">Select Truck</label>
+            <select class="form-input" id="ai-truck" style="height:44px;">
+              <option value="">Select a truck…</option>
+            </select>
+          </div>
+          <div style="display:flex;gap:10px;margin-bottom:24px;">
+            <button class="btn btn-primary" id="gen-ai-btn">Generate AI Content</button>
+            <button class="btn btn-ghost" id="copy-ai-btn" style="display:none;">📋 Copy All</button>
+          </div>
+          <div id="ai-output" style="display:none;">
+            <div style="display:flex;flex-direction:column;gap:16px;">
+              <div>
+                <div class="form-label" style="margin-bottom:6px;">Listing Title</div>
+                <div id="ai-title" style="background:var(--black);border:1px solid var(--border);border-radius:4px;padding:12px 14px;font-size:14px;color:var(--chrome-bright);"></div>
+              </div>
+              <div>
+                <div class="form-label" style="margin-bottom:6px;">Description</div>
+                <div id="ai-desc" style="background:var(--black);border:1px solid var(--border);border-radius:4px;padding:12px 14px;font-size:13px;color:var(--text-2);line-height:1.7;white-space:pre-wrap;"></div>
+              </div>
+              <div>
+                <div class="form-label" style="margin-bottom:6px;">Social Caption</div>
+                <div id="ai-social" style="background:var(--black);border:1px solid var(--border);border-radius:4px;padding:12px 14px;font-size:13px;color:var(--text-2);line-height:1.7;"></div>
+              </div>
+              <div>
+                <div class="form-label" style="margin-bottom:6px;">Hashtags</div>
+                <div id="ai-tags" style="background:var(--black);border:1px solid var(--border);border-radius:4px;padding:12px 14px;font-size:12px;color:var(--amber);font-family:var(--font-mono);"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/data.js"></script>
+<script>
+  // ── PIN Auth ───────────────────────────────────────
+  const ADMIN_PIN = '1025';
+
+  document.getElementById('login-form').addEventListener('submit', e => {
+    e.preventDefault();
+    const pin = document.getElementById('pin-input').value;
+    if (pin === ADMIN_PIN) {
+      document.getElementById('login-gate').style.display = 'none';
+      sessionStorage.setItem('ir_admin', '1');
+      initAdmin();
+    } else {
+      document.getElementById('login-error').style.display = 'block';
+      document.getElementById('pin-input').value = '';
+    }
+  });
+
+  if (sessionStorage.getItem('ir_admin') === '1') {
+    document.getElementById('login-gate').style.display = 'none';
+    document.addEventListener('DOMContentLoaded', initAdmin);
+  }
+
+  document.getElementById('logout-btn').addEventListener('click', () => {
+    sessionStorage.removeItem('ir_admin');
+    location.reload();
+  });
+
+  // ── Admin clock ────────────────────────────────────
+  function updateClock() {
+    document.getElementById('admin-time').textContent = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+  }
+  setInterval(updateClock, 1000);
+  updateClock();
+
+  // ── Panel navigation ───────────────────────────────
+  document.querySelectorAll('[data-panel]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.panel;
+      document.querySelectorAll('.admin-panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.admin-nav-link').forEach(l => l.classList.remove('active'));
+      document.getElementById(`panel-${id}`)?.classList.add('active');
+      btn.classList.add('active');
+      document.getElementById('admin-page-title').textContent = btn.textContent.trim().replace(/^[^\w]+/, '').trim();
+    });
+  });
+
+  // ── Truck modal ────────────────────────────────────
+  function openModal(truckId) {
+    const modal = document.getElementById('truck-modal');
+    const t = truckId ? getTruck(truckId) : null;
+    document.getElementById('modal-title').textContent = t ? `Edit: ${t.year} ${t.make} ${t.model}` : 'Add New Truck';
+    if (t) {
+      document.getElementById('tf-id').value = t.id;
+      document.getElementById('tf-make').value = t.make;
+      document.getElementById('tf-model').value = t.model;
+      document.getElementById('tf-year').value = t.year;
+      document.getElementById('tf-price').value = t.price;
+      document.getElementById('tf-mileage').value = t.mileage;
+      document.getElementById('tf-condition').value = t.condition;
+      document.getElementById('tf-engine').value = t.engine;
+      document.getElementById('tf-desc').value = t.description;
+      document.getElementById('tf-featured').checked = t.featured;
+      document.getElementById('tf-dot').checked = t.dotReady;
+    } else {
+      document.getElementById('truck-form').reset();
+    }
+    modal.classList.add('open');
+  }
+  function closeModal() {
+    document.getElementById('truck-modal').classList.remove('open');
+  }
+  document.getElementById('modal-close').addEventListener('click', closeModal);
+  document.getElementById('cancel-modal').addEventListener('click', closeModal);
+  document.getElementById('truck-modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
+  document.getElementById('quick-add-btn').addEventListener('click', () => openModal());
+  document.getElementById('add-truck-btn').addEventListener('click', () => openModal());
+
+  document.getElementById('truck-form').addEventListener('submit', e => {
+    e.preventDefault();
+    showToast('Truck saved! (Connect Firebase to persist.)');
+    closeModal();
+    renderInventory();
+  });
+
+  function showToast(msg) {
+    let t = document.querySelector('.toast');
+    if (!t) { t = document.createElement('div'); t.className = 'toast'; document.body.appendChild(t); }
+    t.innerHTML = `<span class="toast-dot"></span><span>${msg}</span>`;
+    t.classList.add('show');
+    clearTimeout(t._t);
+    t._t = setTimeout(() => t.classList.remove('show'), 3200);
+  }
+
+  // ── Render overview ────────────────────────────────
+  function renderOverview() {
+    const available = TRUCKS.filter(t => t.status === 'available');
+    const featured = TRUCKS.filter(t => t.featured);
+    const value = available.reduce((s, t) => s + t.price, 0);
+    const leads = getLeads();
+    document.getElementById('stat-available').textContent = available.length;
+    document.getElementById('stat-featured').textContent = featured.length;
+    document.getElementById('stat-leads').textContent = leads.length;
+    document.getElementById('stat-value').textContent = '$' + (value/1000).toFixed(0) + 'k';
+    document.getElementById('lead-badge').textContent = leads.length;
+
+    const tbody = document.getElementById('overview-tbody');
+    tbody.innerHTML = TRUCKS.slice(0, 6).map(t => `
+      <tr>
+        <td style="font-weight:600;">${t.year} ${t.make} ${t.model}</td>
+        <td>${t.year}</td>
+        <td style="font-size:12px;">${t.engine.split(' ').slice(0,3).join(' ')}</td>
+        <td>${formatMileage(t.mileage)}</td>
+        <td style="color:var(--amber);font-weight:700;">${formatPrice(t.price)}</td>
+        <td><span class="status-pill status-${t.status}">${t.status}</span></td>
+        <td style="display:flex;gap:4px;">
+          <button class="action-btn" onclick="location.href='detail.html?id=${t.id}'">View</button>
+          <button class="action-btn" onclick="openModal('${t.id}')">Edit</button>
+        </td>
+      </tr>`).join('');
+  }
+
+  // ── Render inventory table ─────────────────────────
+  function renderInventory(filter = '') {
+    const tbody = document.getElementById('inv-tbody');
+    const trucks = filter
+      ? TRUCKS.filter(t => `${t.make} ${t.model} ${t.year}`.toLowerCase().includes(filter.toLowerCase()))
+      : TRUCKS;
+    tbody.innerHTML = trucks.map(t => `
+      <tr>
+        <td><img class="truck-thumb" src="${t.images[0]}" alt="${t.make} ${t.model}" loading="lazy" /></td>
+        <td>
+          <div style="font-weight:600;">${t.year} ${t.make} ${t.model}</div>
+          <div style="font-size:11px;color:var(--text-3);">${t.location}</div>
+        </td>
+        <td>${formatMileage(t.mileage)}</td>
+        <td style="font-size:12px;">${t.engine.split(' ').slice(0,2).join(' ')}</td>
+        <td style="color:var(--amber);font-weight:700;">${formatPrice(t.price)}</td>
+        <td>
+          <span class="status-pill status-${t.status}">${t.status}</span>
+        </td>
+        <td>${t.featured ? '<span style="color:var(--amber)">★ Yes</span>' : '<span style="color:var(--text-3)">No</span>'}</td>
+        <td>${t.dotReady ? '<span style="color:var(--green)">✓</span>' : '<span style="color:var(--text-3)">—</span>'}</td>
+        <td>
+          <div style="display:flex;gap:4px;flex-wrap:wrap;">
+            <button class="action-btn" onclick="location.href='detail.html?id=${t.id}'" title="View listing">👁</button>
+            <button class="action-btn" onclick="openModal('${t.id}')" title="Edit">✏</button>
+            <button class="action-btn" onclick="toggleSold('${t.id}')" title="Toggle sold">${t.status==='sold'?'↩':'✅'}</button>
+            <button class="action-btn danger" onclick="confirmDelete('${t.id}')" title="Delete">🗑</button>
+          </div>
+        </td>
+      </tr>`).join('');
+  }
+
+  function toggleSold(id) {
+    showToast('Status updated! (Wire to Firebase to persist.)');
+    renderInventory();
+    renderOverview();
+  }
+  function confirmDelete(id) {
+    if (confirm('Are you sure you want to remove this truck listing?')) {
+      showToast('Truck removed. (Wire to Firebase to persist.)');
+    }
+  }
+
+  // ── Leads ─────────────────────────────────────────
+  const MOCK_LEADS = [
+    { date: '2024-05-27', name: 'Marcus D.', phone: '(832) 555-1234', type: 'Purchase', interest: 'Peterbilt 389', status: 'new' },
+    { date: '2024-05-27', name: 'Ray T.', phone: '(432) 555-5678', type: 'Financing', interest: 'Fleet purchase', status: 'contacted' },
+    { date: '2024-05-26', name: 'Jesse L.', phone: '(915) 555-9101', type: 'Trade-In', interest: '2018 W900', status: 'new' },
+    { date: '2024-05-25', name: 'Diana C.', phone: '(713) 555-2233', type: 'Purchase', interest: 'Cascadia 2022', status: 'closed' },
+  ];
+
+  function getLeads() { return MOCK_LEADS; }
+
+  function renderLeads() {
+    const tbody = document.getElementById('leads-tbody');
+    tbody.innerHTML = MOCK_LEADS.map(l => `
+      <tr class="lead-row">
+        <td style="font-family:var(--font-mono);font-size:11px;">${l.date}</td>
+        <td style="font-weight:600;">${l.name}</td>
+        <td><a href="tel:${l.phone.replace(/\D/g,'')}" style="color:var(--amber);">${l.phone}</a></td>
+        <td><span class="tag tag-chrome">${l.type}</span></td>
+        <td style="font-size:12px;color:var(--text-2);">${l.interest}</td>
+        <td><span class="status-pill status-${l.status === 'new' ? 'featured' : l.status === 'closed' ? 'sold' : 'available'}">${l.status}</span></td>
+        <td>
+          <a href="tel:${l.phone.replace(/\D/g,'')}" class="action-btn">📞 Call</a>
+          <a href="sms:${l.phone.replace(/\D/g,'')}" class="action-btn">💬 SMS</a>
+        </td>
+      </tr>`).join('');
+  }
+
+  function exportLeads() {
+    const rows = [['Date','Name','Phone','Type','Interest','Status']];
+    MOCK_LEADS.forEach(l => rows.push([l.date, l.name, l.phone, l.type, l.interest, l.status]));
+    const csv = rows.map(r => r.join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'ironroad-leads.csv'; a.click();
+  }
+
+  // ── Export panel ────────────────────────────────────
+  const PLATFORMS = [
+    { id: 'facebook', name: 'Facebook Marketplace', icon: '📘', desc: 'Optimized title + body for FB Marketplace listings.' },
+    { id: 'craigslist', name: 'Craigslist', icon: '📋', desc: 'Plain text format with contact CTA for CL posts.' },
+    { id: 'truckpaper', name: 'TruckPaper', icon: '📰', desc: 'Full spec format for TruckPaper.com listings.' },
+    { id: 'eBay', name: 'eBay Motors', icon: '🛒', desc: 'Structured listing with all specs for eBay Motors.' },
+    { id: 'ctt', name: 'Commercial Truck Trader', icon: '🚛', desc: 'Formatted for CommercialTruckTrader.com.' },
+  ];
+
+  function initExport() {
+    const sel = document.getElementById('export-truck-select');
+    TRUCKS.forEach(t => {
+      const opt = document.createElement('option');
+      opt.value = t.id;
+      opt.textContent = `${t.year} ${t.make} ${t.model}`;
+      sel.appendChild(opt);
+    });
+
+    const grid = document.getElementById('export-grid');
+    grid.innerHTML = PLATFORMS.map(p => `
+      <div class="export-card">
+        <div class="export-platform">${p.icon} ${p.name}</div>
+        <div class="export-desc">${p.desc}</div>
+        <button class="btn btn-ghost btn-sm btn-full" data-platform="${p.id}">Generate Listing</button>
+      </div>`).join('');
+
+    grid.querySelectorAll('[data-platform]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const truckId = sel.value;
+        if (!truckId) { showToast('Please select a truck first.'); return; }
+        const t = getTruck(truckId);
+        const listing = generateListing(t, btn.dataset.platform);
+        document.getElementById('export-text').textContent = listing;
+        document.getElementById('export-preview-title').textContent = `${btn.dataset.platform.charAt(0).toUpperCase() + btn.dataset.platform.slice(1)} Listing`;
+        document.getElementById('export-preview').style.display = 'block';
+      });
+    });
+
+    document.getElementById('copy-listing')?.addEventListener('click', () => {
+      const text = document.getElementById('export-text').textContent;
+      navigator.clipboard.writeText(text).then(() => showToast('Listing copied to clipboard!'));
+    });
+  }
+
+  // ── AI panel ────────────────────────────────────────
+  function initAI() {
+    const sel = document.getElementById('ai-truck');
+    TRUCKS.forEach(t => {
+      const opt = document.createElement('option');
+      opt.value = t.id;
+      opt.textContent = `${t.year} ${t.make} ${t.model}`;
+      sel.appendChild(opt);
+    });
+
+    document.getElementById('gen-ai-btn').addEventListener('click', async () => {
+      const truckId = sel.value;
+      if (!truckId) { showToast('Select a truck first.'); return; }
+      const t = getTruck(truckId);
+      const btn = document.getElementById('gen-ai-btn');
+      btn.textContent = 'Generating…';
+      btn.disabled = true;
+
+      let title, desc, social, tags;
+      try {
+        const raw = await pdnClaude(
+          `You are a professional truck sales copywriter for ${PDN_CONFIG.BIZ}, ${PDN_CONFIG.LOCATION}. Write premium, human-sounding content. Never sound robotic. Know your buyers: owner-operators, fleet managers, oilfield workers.`,
+          `Generate a complete listing package for this truck:
+
+${t.year} ${t.make} ${t.model} ${t.trim || ''}
+Engine: ${t.engine} | Trans: ${t.transmission}
+Mileage: ${formatMileage(t.mileage)} | Price: ${formatPrice(t.price)}
+Sleeper: ${t.sleeper || 'Day Cab'} | Color: ${t.color || ''}
+Condition: ${t.condition} | Location: ${t.location}
+Specs: ${Object.entries(t.specs||{}).map(([k,v])=>k+': '+v).join(', ')}
+Features: ${(t.features||[]).join(', ')}
+Notes: ${t.repairNotes || ''}
+${t.dotReady ? 'DOT Ready: YES' : ''} ${t.financing ? 'Financing: Available' : ''}
+
+Return JSON only:
+{
+  "title": "SEO listing title under 100 chars",
+  "description": "3-4 paragraph listing description, spec-rich, no fluff",
+  "social": "Facebook Marketplace caption with emojis, phone ${PDN_CONFIG.PHONE}",
+  "hashtags": "20 relevant hashtags space-separated"
+}`,
+          800
+        );
+        const match = raw.match(/\{[\s\S]*\}/);
+        if (!match) throw new Error('No JSON');
+        const parsed = JSON.parse(match[0]);
+        title = parsed.title;
+        desc = parsed.description;
+        social = parsed.social;
+        tags = parsed.hashtags;
+      } catch(e) {
+        // Fallback
+        title = `${t.year} ${t.make} ${t.model} | ${t.engine.split(' ').slice(0,3).join(' ')} | ${formatMileage(t.mileage)} | ${formatPrice(t.price)}`;
+        desc = t.description || 'Contact us for full details on this truck.';
+        social = `🚛 ${t.year} ${t.make} ${t.model} — ${formatPrice(t.price)}\n${t.engine} · ${formatMileage(t.mileage)} · ${t.location}\nFinancing available — call ${PDN_CONFIG.PHONE}`;
+        tags = `#semitruck #${t.make.toLowerCase()} #owneroperator #diesel #trucking #truckforsale #texastrucks #heavyduty`;
+        showToast(`AI error — showing template: ${e.message}`);
+      }
+
+      document.getElementById('ai-title').textContent = title;
+      document.getElementById('ai-desc').textContent = desc;
+      document.getElementById('ai-social').textContent = social;
+      document.getElementById('ai-tags').textContent = tags;
+      document.getElementById('ai-output').style.display = 'block';
+      document.getElementById('copy-ai-btn').style.display = 'flex';
+      btn.textContent = 'Regenerate';
+      btn.disabled = false;
+    });
+
+    document.getElementById('copy-ai-btn').addEventListener('click', () => {
+      const all = [
+        document.getElementById('ai-title').textContent,
+        document.getElementById('ai-desc').textContent,
+        document.getElementById('ai-social').textContent,
+        document.getElementById('ai-tags').textContent
+      ].join('\n\n---\n\n');
+      navigator.clipboard.writeText(all).then(() => showToast('All content copied!'));
+    });
+  }
+
+  // ── Search in inventory table ──────────────────────
+  document.getElementById('admin-search')?.addEventListener('input', function() {
+    renderInventory(this.value);
+  });
+
+  // ── Main init ──────────────────────────────────────
+  function initAdmin() {
+    renderOverview();
+    renderInventory();
+    renderLeads();
+    initExport();
+    initAI();
+  }
+</script>
+</body>
+</html>

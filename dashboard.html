@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Dashboard — Paso Del Norte</title>
+  <link rel="stylesheet" href="css/main.css" />
+  <style>
+    .dash-shell { padding-top:var(--nav-h); min-height:100vh; background:var(--black); }
+
+    /* Hero */
+    .dash-hero {
+      background:var(--black-2); border-bottom:1px solid var(--border); padding:28px 0;
+    }
+    .dash-hero-inner { display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; }
+    .dash-user { display:flex; align-items:center; gap:14px; }
+    .dash-avatar {
+      width:52px; height:52px; border-radius:50%;
+      background:var(--amber); color:var(--black);
+      display:flex; align-items:center; justify-content:center;
+      font-family:var(--font-display); font-size:20px; font-weight:900;
+      flex-shrink:0;
+    }
+    .dash-name { font-family:var(--font-display); font-size:22px; font-weight:900; text-transform:uppercase; color:var(--chrome-bright); }
+    .dash-meta { font-size:11px; color:var(--text-2); margin-top:2px; }
+    .tier-pill {
+      display:inline-block; font-size:9px; padding:2px 8px; border-radius:8px;
+      font-family:var(--font-mono); letter-spacing:.08em; margin-left:6px;
+      text-transform:uppercase;
+    }
+    .tier-free     { background:rgba(148,163,184,.1); color:var(--text-2); border:1px solid var(--border); }
+    .tier-pro      { background:rgba(245,158,11,.12); color:var(--amber); border:1px solid rgba(245,158,11,.3); }
+    .tier-business { background:rgba(34,197,94,.12); color:#22c55e; border:1px solid rgba(34,197,94,.3); }
+    .dash-hero-actions { display:flex; gap:8px; flex-wrap:wrap; }
+
+    /* Stats */
+    .dash-stats { display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:12px; margin:24px 0; }
+    .dash-stat {
+      background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
+      padding:16px; text-align:center;
+    }
+    .dash-stat-val { font-family:var(--font-mono); font-size:28px; font-weight:700; color:var(--amber); }
+    .dash-stat-lbl { font-size:10px; color:var(--text-3); text-transform:uppercase; letter-spacing:.1em; margin-top:4px; }
+
+    /* Usage bar */
+    .usage-bar-wrap { margin-top:6px; }
+    .usage-bar-bg { height:4px; background:var(--black-3); border-radius:2px; overflow:hidden; }
+    .usage-bar-fill { height:100%; background:var(--amber); border-radius:2px; transition:width .4s; }
+
+    /* Tabs */
+    .dash-tabs { display:flex; gap:0; border:1px solid var(--border); border-radius:var(--radius-sm); overflow:hidden; margin-bottom:24px; }
+    .dash-tab {
+      flex:1; padding:11px 8px; text-align:center;
+      font-family:var(--font-display); font-size:11px; font-weight:700;
+      text-transform:uppercase; letter-spacing:.06em;
+      color:var(--text-2); background:var(--surface); border:none; cursor:pointer;
+      transition:all .15s;
+    }
+    .dash-tab:not(:last-child) { border-right:1px solid var(--border); }
+    .dash-tab.active { background:var(--amber); color:var(--black); }
+    .dash-panel { display:none; }
+    .dash-panel.active { display:block; }
+
+    /* Trucks panel */
+    .truck-list { display:flex; flex-direction:column; gap:10px; }
+    .my-truck-card {
+      background:var(--surface); border:1px solid var(--border);
+      border-radius:var(--radius); padding:14px 16px;
+      display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+    }
+    .my-truck-info { flex:1; min-width:200px; }
+    .my-truck-name { font-family:var(--font-display); font-size:15px; font-weight:800; text-transform:uppercase; color:var(--chrome-bright); }
+    .my-truck-meta { font-size:11px; color:var(--text-2); margin-top:3px; }
+    .my-truck-price { font-family:var(--font-mono); font-size:16px; font-weight:700; color:var(--amber); }
+    .my-truck-actions { display:flex; gap:6px; }
+    .status-chip {
+      font-size:9px; padding:2px 7px; border-radius:8px;
+      font-family:var(--font-mono); letter-spacing:.05em;
+    }
+    .status-available { background:rgba(34,197,94,.1); color:#22c55e; border:1px solid rgba(34,197,94,.25); }
+    .status-sold      { background:rgba(239,68,68,.1); color:#ef4444; border:1px solid rgba(239,68,68,.25); }
+
+    /* Add truck form */
+    .add-truck-card {
+      background:var(--surface); border:1px dashed var(--border);
+      border-radius:var(--radius); padding:20px;
+      margin-bottom:16px; display:none;
+    }
+    .add-truck-card.open { display:block; }
+    .add-truck-title { font-family:var(--font-display); font-size:15px; font-weight:800; text-transform:uppercase; color:var(--chrome-bright); margin-bottom:16px; }
+    .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .form-grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; }
+    .dash-input {
+      width:100%; background:var(--black); border:1px solid var(--border);
+      border-radius:var(--radius-sm); padding:9px 12px;
+      color:var(--text-1); font-family:var(--font-body); font-size:12px;
+    }
+    .dash-input:focus { outline:none; border-color:var(--amber); }
+    .dash-label { display:block; font-family:var(--font-mono); font-size:9px; letter-spacing:.15em; text-transform:uppercase; color:var(--amber); margin-bottom:4px; }
+    .dash-field { margin-bottom:10px; }
+    .form-actions { display:flex; gap:8px; margin-top:16px; }
+
+    /* Settings panel */
+    .settings-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:20px; max-width:500px; }
+    .settings-title { font-family:var(--font-display); font-size:15px; font-weight:800; text-transform:uppercase; color:var(--chrome-bright); margin-bottom:16px; }
+
+    /* Empty state */
+    .empty-state { text-align:center; padding:48px 20px; color:var(--text-3); }
+    .empty-icon { font-size:48px; margin-bottom:12px; opacity:.3; }
+    .empty-text { font-family:var(--font-display); font-size:18px; text-transform:uppercase; font-weight:700; color:var(--text-2); margin-bottom:8px; }
+
+    /* Upgrade banner */
+    .upgrade-banner {
+      background:linear-gradient(135deg, rgba(245,158,11,.08), rgba(245,158,11,.03));
+      border:1px solid rgba(245,158,11,.3); border-radius:var(--radius);
+      padding:16px 20px; display:flex; align-items:center; gap:16px; flex-wrap:wrap; margin-bottom:20px;
+    }
+    .upgrade-text { flex:1; }
+    .upgrade-title { font-family:var(--font-display); font-size:14px; font-weight:800; text-transform:uppercase; color:var(--amber); }
+    .upgrade-sub { font-size:11px; color:var(--text-2); margin-top:2px; }
+
+    /* ── Sidebar layout ───────────────────────────────────── */
+    .dash-layout {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 24px;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 28px 24px 80px;
+      align-items: start;
+    }
+
+    /* ── Profile Sidebar ──────────────────────────────────── */
+    .profile-sidebar {
+      position: sticky;
+      top: calc(var(--nav-h, 64px) + 16px);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .sidebar-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    /* Avatar block */
+    .sb-avatar-wrap {
+      background: var(--surface-2, #111116);
+      padding: 28px 20px 20px;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+      position: relative;
+    }
+    .sb-avatar {
+      width: 72px; height: 72px;
+      border-radius: 50%;
+      background: var(--amber);
+      color: var(--black);
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-display);
+      font-size: 26px; font-weight: 900;
+      margin: 0 auto 12px;
+      box-shadow: 0 0 0 3px rgba(245,158,11,.2), 0 8px 24px rgba(0,0,0,.4);
+    }
+    .sb-avatar img {
+      width: 100%; height: 100%;
+      border-radius: 50%; object-fit: cover;
+    }
+    .sb-name {
+      font-family: var(--font-display);
+      font-size: 16px; font-weight: 900;
+      text-transform: uppercase;
+      color: var(--chrome-bright);
+      line-height: 1.1;
+      margin-bottom: 4px;
+    }
+    .sb-email {
+      font-size: 10px;
+      color: var(--text-3);
+      font-family: var(--font-mono);
+      margin-bottom: 8px;
+      word-break: break-all;
+    }
+
+    /* Tier badge */
+    .sb-tier {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-family: var(--font-mono);
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 20px;
+    }
+    .sb-tier.tier-free     { background: rgba(148,163,184,.08); color: var(--text-2); border: 1px solid var(--border); }
+    .sb-tier.tier-pro      { background: rgba(245,158,11,.12); color: var(--amber); border: 1px solid rgba(245,158,11,.3); }
+    .sb-tier.tier-business { background: rgba(34,197,94,.10); color: #22c55e; border: 1px solid rgba(34,197,94,.3); }
+
+    /* Info rows */
+    .sb-info { padding: 16px 20px; display: flex; flex-direction: column; gap: 10px; border-bottom: 1px solid var(--border); }
+    .sb-row {
+      display: flex; align-items: center; gap: 10px;
+    }
+    .sb-row-icon {
+      width: 28px; height: 28px;
+      border-radius: 6px;
+      background: rgba(245,158,11,.06);
+      border: 1px solid rgba(245,158,11,.12);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; flex-shrink: 0;
+    }
+    .sb-row-text { flex: 1; }
+    .sb-row-label {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--text-3);
+    }
+    .sb-row-value {
+      font-size: 12px;
+      color: var(--text-1);
+      margin-top: 1px;
+    }
+    .sb-row-value.empty { color: var(--text-3); font-style: italic; }
+
+    /* Seller Trust Bar */
+    .sb-trust { padding: 14px 20px; border-bottom: 1px solid var(--border); }
+    .sb-trust-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .sb-trust-title {
+      font-family: var(--font-mono);
+      font-size: 9px; letter-spacing: .14em;
+      text-transform: uppercase; color: var(--text-3);
+    }
+    .sb-trust-badge {
+      font-family: var(--font-display);
+      font-size: 10px; font-weight: 800;
+      letter-spacing: .06em; text-transform: uppercase;
+      padding: 2px 8px; border-radius: 10px;
+    }
+    .sb-trust-badge.trust-neutral  { background: rgba(148,163,184,.1); color: #71717a; border: 1px solid rgba(255,255,255,.06); }
+    .sb-trust-badge.trust-good     { background: rgba(34,197,94,.1); color: #22c55e; border: 1px solid rgba(34,197,94,.25); }
+    .sb-trust-badge.trust-moderate { background: rgba(245,158,11,.1); color: var(--amber); border: 1px solid rgba(245,158,11,.25); }
+    .sb-trust-badge.trust-poor     { background: rgba(239,68,68,.08); color: #ef4444; border: 1px solid rgba(239,68,68,.2); }
+
+    /* 3-segment bar */
+    .sb-trust-bar {
+      display: flex; gap: 4px; height: 8px; margin-bottom: 7px;
+    }
+    .sb-seg {
+      flex: 1; border-radius: 3px;
+      background: rgba(255,255,255,.06);
+      transition: background .35s;
+    }
+    .sb-seg.seg-red.lit    { background: #ef4444; box-shadow: 0 0 6px rgba(239,68,68,.4); }
+    .sb-seg.seg-orange.lit { background: #f59e0b; box-shadow: 0 0 6px rgba(245,158,11,.4); }
+    .sb-seg.seg-green.lit  { background: #22c55e; box-shadow: 0 0 6px rgba(34,197,94,.4); }
+    .sb-trust-note {
+      font-family: var(--font-mono); font-size: 9px;
+      color: var(--text-3); line-height: 1.5;
+    }
+
+    /* Sidebar nav */
+    .sb-nav { padding: 8px 10px; display: flex; flex-direction: column; gap: 2px; }
+    .sb-nav-btn {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 12px; border-radius: 6px;
+      font-family: var(--font-display); font-size: 11px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .06em;
+      color: var(--text-2); background: transparent;
+      border: none; cursor: pointer; text-align: left;
+      transition: all .15s; width: 100%;
+    }
+    .sb-nav-btn:hover { background: rgba(255,255,255,.04); color: var(--chrome-bright); }
+    .sb-nav-btn.active { background: rgba(245,158,11,.08); color: var(--amber); }
+    .sb-nav-icon { font-size: 14px; width: 18px; text-align: center; flex-shrink: 0; }
+
+    /* Sidebar sign-out + upgrade */
+    .sb-footer { padding: 12px 16px; display: flex; flex-direction: column; gap: 8px; }
+    .sb-upgrade {
+      background: linear-gradient(135deg, rgba(245,158,11,.1), rgba(245,158,11,.04));
+      border: 1px solid rgba(245,158,11,.25);
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+    }
+    .sb-upgrade-title {
+      font-family: var(--font-display);
+      font-size: 11px; font-weight: 800;
+      text-transform: uppercase; color: var(--amber);
+      margin-bottom: 3px;
+    }
+    .sb-upgrade-sub { font-size: 10px; color: var(--text-3); margin-bottom: 8px; line-height: 1.4; }
+
+    /* Main content area */
+    .dash-main { min-width: 0; }
+
+    /* Hide old hero on sidebar layout */
+    .dash-hero { display: none; }
+
+    /* Stats row inside main */
+    .dash-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 10px; margin-bottom: 20px;
+    }
+
+    /* Mobile: stack sidebar above */
+    @media(max-width: 900px) {
+      .dash-layout { grid-template-columns: 1fr; }
+      .profile-sidebar { position: static; }
+      .sb-nav { flex-direction: row; flex-wrap: wrap; }
+      .sb-nav-btn { flex: 1; min-width: 100px; justify-content: center; }
+      .sb-nav-icon { display: none; }
+    }
+
+    @media(max-width:600px){
+      .form-grid,.form-grid-3{ grid-template-columns:1fr; }
+      .dash-layout { padding: 16px 14px 60px; gap: 16px; }
+      .dash-tabs .dash-tab { font-size:9px; padding:9px 4px; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="nav" role="navigation">
+  <a href="index.html" class="nav-logo">
+    <div class="nav-logo-icon" aria-hidden="true"></div>
+    <div class="nav-logo-text">Paso Del <span>Norte</span></div>
+  </a>
+  <ul class="nav-links" role="list">
+    <li><a href="inventory.html" class="nav-link">Inventory</a></li>
+    <li><a href="post-generator.html" class="nav-link">Post Generator</a></li>
+    <li><a href="marketing.html" class="nav-link">Marketing</a></li>
+    <li><a href="docs.html" class="nav-link">Documents</a></li>
+  </ul>
+  <div class="nav-actions">
+    <button class="btn btn-sm btn-ghost" id="signout-btn">Sign Out</button>
+    <button class="nav-hamburger" aria-label="Open menu"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+<div class="nav-overlay"></div>
+<div class="nav-drawer">
+  <a href="inventory.html" class="nav-link">Inventory</a>
+  <a href="post-generator.html" class="nav-link">Post Generator</a>
+  <a href="marketing.html" class="nav-link">Marketing</a>
+  <a href="docs.html" class="nav-link">Documents</a>
+</div>
+
+<div class="dash-shell">
+
+  <div class="dash-layout">
+
+    <!-- ── PROFILE SIDEBAR ──────────────────────────────── -->
+    <aside class="profile-sidebar">
+
+      <!-- Avatar + name + tier -->
+      <div class="sidebar-card">
+        <div class="sb-avatar-wrap">
+          <div class="sb-avatar" id="sb-avatar">?</div>
+          <div class="sb-name" id="sb-name">Loading…</div>
+          <div class="sb-email" id="sb-email"></div>
+          <span class="sb-tier tier-free" id="sb-tier">Free</span>
+        </div>
+
+        <!-- Info rows -->
+        <div class="sb-info" id="sb-info">
+          <div class="sb-row">
+            <div class="sb-row-icon">🏢</div>
+            <div class="sb-row-text">
+              <div class="sb-row-label">Company</div>
+              <div class="sb-row-value empty" id="sb-company">Not set</div>
+            </div>
+          </div>
+          <div class="sb-row">
+            <div class="sb-row-icon">📍</div>
+            <div class="sb-row-text">
+              <div class="sb-row-label">Location</div>
+              <div class="sb-row-value empty" id="sb-location">Not set</div>
+            </div>
+          </div>
+          <div class="sb-row">
+            <div class="sb-row-icon">📞</div>
+            <div class="sb-row-text">
+              <div class="sb-row-label">Phone</div>
+              <div class="sb-row-value empty" id="sb-phone">Not set</div>
+            </div>
+          </div>
+          <div class="sb-row">
+            <div class="sb-row-icon">🚛</div>
+            <div class="sb-row-text">
+              <div class="sb-row-label">Active Listings</div>
+              <div class="sb-row-value" id="sb-listing-count">0 trucks</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Seller Trust Bar -->
+        <div class="sb-trust">
+          <div class="sb-trust-header">
+            <span class="sb-trust-title">Seller Reputation</span>
+            <span class="sb-trust-badge trust-neutral" id="sb-trust-badge">Neutral</span>
+          </div>
+          <div class="sb-trust-bar" id="sb-trust-bar">
+            <div class="sb-seg seg-red"    id="sb-seg-red"></div>
+            <div class="sb-seg seg-orange" id="sb-seg-orange"></div>
+            <div class="sb-seg seg-green"  id="sb-seg-green"></div>
+          </div>
+          <div class="sb-trust-note" id="sb-trust-note">New account — no sales history yet</div>
+        </div>
+
+        <!-- Sidebar navigation -->
+        <nav class="sb-nav" id="sb-nav">
+          <button class="sb-nav-btn active" data-tab="trucks">
+            <span class="sb-nav-icon">🚛</span> My Trucks
+          </button>
+          <button class="sb-nav-btn" data-tab="posts">
+            <span class="sb-nav-icon">📣</span> Post Generator
+          </button>
+          <button class="sb-nav-btn" data-tab="docs">
+            <span class="sb-nav-icon">📄</span> Documents
+          </button>
+          <button class="sb-nav-btn" data-tab="settings">
+            <span class="sb-nav-icon">⚙️</span> Settings
+          </button>
+        </nav>
+
+        <!-- Footer: upgrade + sign out -->
+        <div class="sb-footer">
+          <div class="sb-upgrade" id="sb-upgrade" style="display:none">
+            <div class="sb-upgrade-title">Go Pro — Unlimited</div>
+            <div class="sb-upgrade-sub">Unlimited trucks, posts &amp; docs. $39/mo.</div>
+            <a href="index.html#contact" class="btn btn-primary btn-sm" style="width:100%;text-align:center;">Upgrade Now</a>
+          </div>
+          <button class="btn btn-ghost btn-sm" id="signout-btn" style="color:#ef4444;border-color:rgba(239,68,68,.25);width:100%;">Sign Out</button>
+        </div>
+      </div>
+
+    </aside>
+
+    <!-- ── MAIN CONTENT ──────────────────────────────────── -->
+    <div class="dash-main">
+      <div style="padding-top:0;">
+
+    <div class="dash-stats" id="dash-stats">
+      <div class="dash-stat">
+        <div class="dash-stat-val" id="st-trucks">0</div>
+        <div class="dash-stat-lbl">My Trucks</div>
+      </div>
+      <div class="dash-stat">
+        <div class="dash-stat-val" id="st-posts">0</div>
+        <div class="dash-stat-lbl">Posts Today</div>
+        <div class="usage-bar-wrap">
+          <div class="usage-bar-bg"><div class="usage-bar-fill" id="posts-bar" style="width:0%"></div></div>
+        </div>
+      </div>
+      <div class="dash-stat">
+        <div class="dash-stat-val" id="st-docs">0</div>
+        <div class="dash-stat-lbl">Docs Today</div>
+      </div>
+      <div class="dash-stat">
+        <div class="dash-stat-val" id="st-tier" style="font-size:18px;">Free</div>
+        <div class="dash-stat-lbl">Current Plan</div>
+      </div>
+    </div>
+
+    <div id="upgrade-banner" style="display:none;" class="upgrade-banner">
+      <div class="upgrade-text">
+        <div class="upgrade-title">Upgrade to Pro — Unlimited Everything</div>
+        <div class="upgrade-sub">Unlimited posts, unlimited trucks, unlimited docs. $39/mo or $390/yr.</div>
+      </div>
+      <a href="index.html#contact" class="btn btn-primary btn-sm">Upgrade Now</a>
+    </div>
+
+    <div class="dash-tabs" style="display:none">
+      <button class="dash-tab active" data-tab="trucks">🚛 My Trucks</button>
+      <button class="dash-tab" data-tab="posts">📣 Post Generator</button>
+      <button class="dash-tab" data-tab="docs">📄 Documents</button>
+      <button class="dash-tab" data-tab="settings">⚙️ Settings</button>
+    </div>
+
+    <!-- My Trucks -->
+    <div class="dash-panel active" id="panel-trucks">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px;">
+        <div style="font-family:var(--font-display);font-size:13px;font-weight:700;text-transform:uppercase;color:var(--chrome-bright);">Your Listings</div>
+        <button class="btn btn-primary btn-sm" id="add-truck-btn">+ Add Truck</button>
+      </div>
+
+      <!-- Add Truck Form -->
+      <div class="add-truck-card" id="add-truck-form">
+        <div class="add-truck-title">Add New Truck</div>
+        <div class="form-grid">
+          <div class="dash-field">
+            <label class="dash-label">Year</label>
+            <input class="dash-input" type="number" id="at-year" placeholder="2021" />
+          </div>
+          <div class="dash-field">
+            <label class="dash-label">Make</label>
+            <select class="dash-input" id="at-make">
+              <option value="">Select…</option>
+              <option>Peterbilt</option><option>Kenworth</option><option>Freightliner</option>
+              <option>International</option><option>Mack</option><option>Volvo</option><option>Western Star</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-grid">
+          <div class="dash-field">
+            <label class="dash-label">Model</label>
+            <input class="dash-input" id="at-model" placeholder="389, W900, Cascadia…" />
+          </div>
+          <div class="dash-field">
+            <label class="dash-label">Price ($)</label>
+            <input class="dash-input" type="number" id="at-price" placeholder="150000" />
+          </div>
+        </div>
+        <div class="form-grid">
+          <div class="dash-field">
+            <label class="dash-label">Mileage</label>
+            <input class="dash-input" type="number" id="at-mileage" placeholder="350000" />
+          </div>
+          <div class="dash-field">
+            <label class="dash-label">Engine</label>
+            <input class="dash-input" id="at-engine" placeholder="Cummins X15 565HP" />
+          </div>
+        </div>
+        <div class="form-grid">
+          <div class="dash-field">
+            <label class="dash-label">Transmission</label>
+            <input class="dash-input" id="at-trans" placeholder="Eaton Fuller 18-Speed" />
+          </div>
+          <div class="dash-field">
+            <label class="dash-label">Location</label>
+            <input class="dash-input" id="at-location" placeholder="Houston, TX" />
+          </div>
+        </div>
+        <div class="dash-field">
+          <label class="dash-label">Key Selling Points</label>
+          <textarea class="dash-input" id="at-notes" rows="3" placeholder="APU, fresh tires, DOT ready, one owner…"></textarea>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary" id="save-truck-btn">Save Truck</button>
+          <button class="btn btn-ghost" id="cancel-truck-btn">Cancel</button>
+        </div>
+      </div>
+
+      <div class="truck-list" id="my-truck-list">
+        <div class="empty-state">
+          <div class="empty-icon">🚛</div>
+          <div class="empty-text">No Trucks Yet</div>
+          <div style="font-size:12px;margin-bottom:16px;">Add your first truck to start generating posts and documents.</div>
+          <button class="btn btn-primary btn-sm" onclick="document.getElementById('add-truck-btn').click()">+ Add Your First Truck</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Post Generator -->
+    <div class="dash-panel" id="panel-posts">
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;text-align:center;">
+        <div style="font-size:36px;margin-bottom:12px;">📣</div>
+        <div style="font-family:var(--font-display);font-size:18px;text-transform:uppercase;font-weight:800;color:var(--chrome-bright);margin-bottom:8px;">AI Post Generator</div>
+        <div style="font-size:13px;color:var(--text-2);margin-bottom:20px;">Generate platform-ready posts for Facebook, TikTok, Instagram, Craigslist and more. Your trucks are pre-loaded.</div>
+        <a href="post-generator.html" class="btn btn-primary">Open Post Generator →</a>
+        <div style="margin-top:12px;">
+          <a href="marketing.html" class="btn btn-ghost btn-sm">Marketing Command Center</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Documents -->
+    <div class="dash-panel" id="panel-docs">
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;text-align:center;">
+        <div style="font-size:36px;margin-bottom:12px;">📄</div>
+        <div style="font-family:var(--font-display);font-size:18px;text-transform:uppercase;font-weight:800;color:var(--chrome-bright);margin-bottom:8px;">Document Generator</div>
+        <div style="font-size:13px;color:var(--text-2);margin-bottom:20px;">Bills of sale, title transfers, truck inspection reports, Texas DOT forms and more. All pre-filled with your info.</div>
+        <a href="docs.html" class="btn btn-primary">Open Document Center →</a>
+      </div>
+    </div>
+
+    <!-- Settings -->
+    <div class="dash-panel" id="panel-settings">
+      <div class="settings-card">
+        <div class="settings-title">Account Settings</div>
+        <div class="dash-field">
+          <label class="dash-label">Full Name</label>
+          <input class="dash-input" id="set-name" placeholder="Your name" />
+        </div>
+        <div class="form-grid">
+          <div class="dash-field">
+            <label class="dash-label">Company</label>
+            <input class="dash-input" id="set-company" placeholder="ABC Trucking" />
+          </div>
+          <div class="dash-field">
+            <label class="dash-label">Phone</label>
+            <input class="dash-input" id="set-phone" placeholder="(555) 000-0000" />
+          </div>
+        </div>
+        <div class="dash-field">
+          <label class="dash-label">Location</label>
+          <input class="dash-input" id="set-location" placeholder="Houston, TX" />
+        </div>
+        <button class="btn btn-primary" id="save-settings-btn">Save Settings</button>
+      </div>
+
+      <div style="margin-top:20px;max-width:500px;">
+        <div class="settings-card" style="border-color:rgba(239,68,68,.2);">
+          <div class="settings-title" style="color:#ef4444;">Danger Zone</div>
+          <button class="btn btn-ghost" id="signout-btn2" style="color:#ef4444;border-color:rgba(239,68,68,.3);">Sign Out</button>
+        </div>
+      </div>
+    </div>
+
+      </div><!-- /.dash-main inner -->
+    </div><!-- /.dash-main -->
+
+  </div><!-- /.dash-layout -->
+</div><!-- /.dash-shell -->
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="js/config.js"></script>
+<script src="js/data.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/main.js"></script>
+<script>
+
+let currentUser = null;
+let userData = null;
+let userTrucks = [];
+
+// Gate: must be logged in
+pdnOnAuthChange(async user => {
+  if (!user) { location.href = 'login.html'; return; }
+  currentUser = user;
+  await loadDashboard(user);
+});
+
+/* ── Trust bar logic ─────────────────────────────────── */
+function computeUserTrust(trucks) {
+  const sold = trucks.filter(t => t.status === 'sold').length;
+  const total = trucks.length;
+  if (sold === 0 && total <= 1) return 'neutral';
+  if (sold >= 5) return 'good';
+  if (sold >= 2) return 'moderate';
+  return 'neutral';
+}
+
+function renderSidebarTrust(trust, trucks) {
+  const badge   = document.getElementById('sb-trust-badge');
+  const segR    = document.getElementById('sb-seg-red');
+  const segO    = document.getElementById('sb-seg-orange');
+  const segG    = document.getElementById('sb-seg-green');
+  const note    = document.getElementById('sb-trust-note');
+  const sold    = trucks.filter(t => t.status === 'sold').length;
+  const total   = trucks.length;
+
+  // Reset all
+  [segR, segO, segG].forEach(s => s.classList.remove('lit'));
+  badge.className = 'sb-trust-badge';
+
+  if (trust === 'good') {
+    segG.classList.add('lit');
+    badge.classList.add('trust-good');
+    badge.textContent = '▲ Trusted';
+    note.textContent  = `${sold} truck${sold !== 1 ? 's' : ''} sold · Active seller`;
+  } else if (trust === 'moderate') {
+    segO.classList.add('lit');
+    badge.classList.add('trust-moderate');
+    badge.textContent = '◆ Building';
+    note.textContent  = `${sold} sold of ${total} listed · Building reputation`;
+  } else if (trust === 'poor') {
+    segR.classList.add('lit');
+    badge.classList.add('trust-poor');
+    badge.textContent = '▼ Low Trust';
+    note.textContent  = 'Issues flagged on account';
+  } else {
+    badge.classList.add('trust-neutral');
+    badge.textContent = '● Neutral';
+    note.textContent  = total === 0
+      ? 'New account — add your first truck to start building reputation'
+      : `${total} listing${total !== 1 ? 's' : ''} · No completed sales yet`;
+  }
+}
+
+/* ── Sidebar population ──────────────────────────────── */
+function loadSidebar(user, data) {
+  // Avatar + name
+  const initials = (user.displayName || user.email || 'U').slice(0,2).toUpperCase();
+  document.getElementById('sb-avatar').textContent = initials;
+  if (user.photoURL) {
+    document.getElementById('sb-avatar').innerHTML = `<img src="${user.photoURL}" alt="avatar">`;
+  }
+  document.getElementById('sb-name').textContent  = user.displayName || 'My Account';
+  document.getElementById('sb-email').textContent = user.email || '';
+
+  if (!data) return;
+
+  // Tier badge
+  const tierEl = document.getElementById('sb-tier');
+  tierEl.className = `sb-tier tier-${data.tier}`;
+  tierEl.textContent = data.tier.charAt(0).toUpperCase() + data.tier.slice(1);
+
+  // Info rows
+  const setRow = (id, val) => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.textContent = val || 'Not set';
+      el.classList.toggle('empty', !val);
+    }
+  };
+  setRow('sb-company',  data.company);
+  setRow('sb-location', data.location);
+  setRow('sb-phone',    data.phone);
+
+  // Upgrade block
+  if (data.tier === 'free') {
+    document.getElementById('sb-upgrade').style.display = 'block';
+  }
+}
+
+async function loadDashboard(user) {
+  // User data from Firestore
+  try {
+    userData = await pdnGetUserData(user.uid);
+  } catch(e) { console.warn('Could not load user data:', e); }
+
+  // Populate sidebar
+  loadSidebar(user, userData);
+
+  if (userData) {
+    // Stats
+    document.getElementById('st-tier').textContent = userData.tier.charAt(0).toUpperCase() + userData.tier.slice(1);
+    const today = new Date().toDateString();
+    const usage = userData.usage || {};
+    const postsToday = usage.date === today ? (usage.posts_today || 0) : 0;
+    const docsToday  = usage.date === today ? (usage.docs_today  || 0) : 0;
+    document.getElementById('st-posts').textContent = postsToday;
+    document.getElementById('st-docs').textContent  = docsToday;
+    const limits = { free: 3, pro: 999, business: 999 };
+    const limit = limits[userData.tier] || 3;
+    document.getElementById('posts-bar').style.width = Math.min(100, (postsToday / limit) * 100) + '%';
+
+    // Pre-fill settings
+    document.getElementById('set-name').value     = userData.name     || '';
+    document.getElementById('set-company').value  = userData.company  || '';
+    document.getElementById('set-phone').value    = userData.phone    || '';
+    document.getElementById('set-location').value = userData.location || '';
+
+    // Old upgrade banner (hidden by sidebar now)
+    if (userData.tier === 'free') document.getElementById('upgrade-banner').style.display = 'flex';
+  }
+
+  // Load trucks (trust bar updates after)
+  await loadMyTrucks(user.uid);
+}
+
+async function loadMyTrucks(uid) {
+  try {
+    userTrucks = await pdnGetUserTrucks(uid);
+    document.getElementById('st-trucks').textContent = userTrucks.length;
+
+    // Sidebar listing count + trust
+    const activeCount = userTrucks.filter(t => t.status !== 'sold').length;
+    const sbCount = document.getElementById('sb-listing-count');
+    if (sbCount) sbCount.textContent = activeCount + ' truck' + (activeCount !== 1 ? 's' : '');
+
+    const trust = computeUserTrust(userTrucks);
+    renderSidebarTrust(trust, userTrucks);
+
+    renderMyTrucks();
+  } catch(e) {
+    console.warn('Could not load trucks:', e);
+    renderSidebarTrust('neutral', []);
+    renderMyTrucks();
+  }
+}
+
+function renderMyTrucks() {
+  const list = document.getElementById('my-truck-list');
+  if (!userTrucks.length) {
+    list.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">🚛</div>
+        <div class="empty-text">No Trucks Yet</div>
+        <div style="font-size:12px;margin-bottom:16px;">Add your first truck to generate posts and documents.</div>
+        <button class="btn btn-primary btn-sm" onclick="document.getElementById('add-truck-btn').click()">+ Add Your First Truck</button>
+      </div>`;
+    return;
+  }
+  list.innerHTML = userTrucks.map(t => `
+    <div class="my-truck-card">
+      <div class="my-truck-info">
+        <div class="my-truck-name">${t.year} ${t.make} ${t.model}</div>
+        <div class="my-truck-meta">${t.engine || ''} ${t.mileage ? '· ' + Number(t.mileage).toLocaleString() + ' mi' : ''} · ${t.location || ''}</div>
+      </div>
+      <div class="my-truck-price">$${Number(t.price).toLocaleString()}</div>
+      <span class="status-chip status-${t.status}">${t.status}</span>
+      <div class="my-truck-actions">
+        <button class="btn btn-sm btn-primary" onclick="generatePostForTruck('${t.id}')">Generate Post</button>
+        <button class="btn btn-sm btn-ghost" onclick="markSold('${t.id}')" ${t.status==='sold'?'disabled':''}>Mark Sold</button>
+        <button class="btn btn-sm" style="color:#ef4444;border-color:rgba(239,68,68,.3);background:rgba(239,68,68,.05);" onclick="deleteTruck('${t.id}')">✕</button>
+      </div>
+    </div>`).join('');
+}
+
+// Add truck
+document.getElementById('add-truck-btn').addEventListener('click', () => {
+  document.getElementById('add-truck-form').classList.toggle('open');
+});
+document.getElementById('cancel-truck-btn').addEventListener('click', () => {
+  document.getElementById('add-truck-form').classList.remove('open');
+});
+
+document.getElementById('save-truck-btn').addEventListener('click', async () => {
+  const year  = document.getElementById('at-year').value;
+  const make  = document.getElementById('at-make').value;
+  const model = document.getElementById('at-model').value;
+  const price = document.getElementById('at-price').value;
+  if (!year || !make || !model || !price) { showToast('Year, make, model and price required.'); return; }
+
+  const truck = {
+    year:  parseInt(year), make, model,
+    price: parseInt(price),
+    mileage: parseInt(document.getElementById('at-mileage').value) || 0,
+    engine:  document.getElementById('at-engine').value,
+    transmission: document.getElementById('at-trans').value,
+    location: document.getElementById('at-location').value || (userData?.location || ''),
+    description: document.getElementById('at-notes').value,
+    features: [],
+    dotReady: false,
+    financing: true,
+    condition: 'good'
+  };
+
+  const btn = document.getElementById('save-truck-btn');
+  btn.textContent = 'Saving…'; btn.disabled = true;
+  try {
+    await pdnAddUserTruck(currentUser.uid, truck);
+    await loadMyTrucks(currentUser.uid);
+    document.getElementById('add-truck-form').classList.remove('open');
+    showToast('Truck added! Ready to generate posts.');
+    // Clear form
+    ['at-year','at-model','at-price','at-mileage','at-engine','at-trans','at-location','at-notes'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('at-make').value = '';
+  } catch(e) { showToast('Error saving truck: ' + e.message); }
+  btn.textContent = 'Save Truck'; btn.disabled = false;
+});
+
+async function markSold(truckId) {
+  try {
+    await pdnUpdateUserTruck(currentUser.uid, truckId, { status: 'sold' });
+    await loadMyTrucks(currentUser.uid);
+    showToast('Marked as sold.');
+  } catch(e) { showToast('Error: ' + e.message); }
+}
+
+async function deleteTruck(truckId) {
+  if (!confirm('Remove this truck from your listings?')) return;
+  try {
+    await pdnDeleteUserTruck(currentUser.uid, truckId);
+    await loadMyTrucks(currentUser.uid);
+    showToast('Truck removed.');
+  } catch(e) { showToast('Error: ' + e.message); }
+}
+
+function generatePostForTruck(truckId) {
+  location.href = `post-generator.html?uid=${currentUser.uid}&tid=${truckId}`;
+}
+
+// Settings save
+document.getElementById('save-settings-btn').addEventListener('click', async () => {
+  try {
+    await pdnUpdateUserData(currentUser.uid, {
+      name:     document.getElementById('set-name').value,
+      company:  document.getElementById('set-company').value,
+      phone:    document.getElementById('set-phone').value,
+      location: document.getElementById('set-location').value
+    });
+    showToast('Settings saved.');
+  } catch(e) { showToast('Error: ' + e.message); }
+});
+
+// Sign out
+document.getElementById('signout-btn').addEventListener('click', pdnSignOut);
+
+// Sidebar nav
+document.querySelectorAll('.sb-nav-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.sb-nav-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.dash-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
+  });
+});
+
+// Old tabs (hidden but kept for compatibility)
+document.querySelectorAll('.dash-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.dash-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.dash-panel').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
+  });
+});
+
+// Also add sign-out to old button if it exists
+const signoutBtn2 = document.getElementById('signout-btn2');
+if (signoutBtn2) signoutBtn2.addEventListener('click', pdnSignOut);
+
+</script>
+</body>
+</html>

@@ -1,0 +1,1322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Marketing Hub — Paso Del Norte</title>
+  <link rel="stylesheet" href="css/main.css" />
+  <style>
+    .mkt-shell { padding-top: var(--nav-h); min-height: 100vh; background: var(--black); }
+
+    /* ── Hero ── */
+    .mkt-hero {
+      background: var(--black-2);
+      border-bottom: 1px solid var(--border);
+      padding: 32px 0 24px;
+    }
+    .mkt-hero-inner { display:flex; align-items:flex-end; justify-content:space-between; gap:16px; flex-wrap:wrap; }
+    .mkt-hero-title { font-family:var(--font-display); font-size:clamp(24px,4vw,46px); font-weight:900; text-transform:uppercase; color:var(--chrome-bright); line-height:1; }
+    .mkt-hero-title em { color:var(--amber); font-style:normal; }
+    .mkt-hero-sub { font-size:12px; color:var(--text-2); margin-top:6px; }
+    .mkt-stats { display:flex; gap:20px; flex-wrap:wrap; }
+    .mkt-stat { text-align:right; }
+    .mkt-stat-val { font-family:var(--font-mono); font-size:22px; font-weight:700; color:var(--amber); }
+    .mkt-stat-lbl { font-size:10px; color:var(--text-3); text-transform:uppercase; letter-spacing:.1em; }
+
+    /* ── Layout ── */
+    .mkt-body { padding:28px 0 80px; }
+    .mkt-grid { display:grid; grid-template-columns:360px 1fr; gap:24px; align-items:start; }
+
+    /* ── Cards ── */
+    .cfg-card {
+      background:var(--surface); border:1px solid var(--border);
+      border-radius:var(--radius-lg); overflow:hidden; margin-bottom:16px;
+    }
+    .cfg-head {
+      display:flex; align-items:center; gap:10px;
+      padding:14px 18px; border-bottom:1px solid var(--border);
+      background:var(--surface-2);
+    }
+    .cfg-num {
+      width:24px; height:24px; background:var(--amber); color:var(--black);
+      border-radius:50%; display:flex; align-items:center; justify-content:center;
+      font-family:var(--font-display); font-size:12px; font-weight:900; flex-shrink:0;
+    }
+    .cfg-title { font-family:var(--font-display); font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--chrome-bright); }
+    .cfg-body { padding:16px 18px; }
+
+    /* ── Truck selector ── */
+    .truck-sel {
+      width:100%; background:var(--black); border:1px solid var(--border);
+      border-radius:var(--radius-sm); padding:10px 12px; color:var(--text-1);
+      font-family:var(--font-body); font-size:13px;
+    }
+    .truck-sel:focus { outline:none; border-color:var(--amber); }
+    .truck-info-strip {
+      margin-top:10px; padding:10px 12px; background:var(--black-3);
+      border-radius:var(--radius-sm); border:1px solid var(--border);
+      font-size:11px; color:var(--text-2); display:none;
+    }
+    .truck-info-strip.show { display:block; }
+    .truck-info-strip strong { color:var(--amber); }
+
+    /* ── Fatigue indicator ── */
+    .fatigue-badge {
+      display:inline-flex; align-items:center; gap:6px;
+      padding:4px 10px; border-radius:12px; font-size:10px;
+      font-family:var(--font-mono); letter-spacing:.05em; margin-top:8px;
+    }
+    .fatigue-ok { background:rgba(34,197,94,.12); color:#22c55e; border:1px solid rgba(34,197,94,.3); }
+    .fatigue-warn { background:rgba(245,158,11,.12); color:var(--amber); border:1px solid rgba(245,158,11,.3); }
+    .fatigue-stop { background:rgba(239,68,68,.12); color:#ef4444; border:1px solid rgba(239,68,68,.3); }
+
+    /* ── Angle selector ── */
+    .angle-grid { display:grid; grid-template-columns:1fr 1fr; gap:6px; }
+    .angle-btn {
+      padding:10px 10px; border-radius:var(--radius-sm);
+      border:1px solid var(--border); background:var(--surface-2);
+      color:var(--text-2); cursor:pointer; transition:all .15s; text-align:left;
+    }
+    .angle-btn:hover { border-color:var(--border-glow); }
+    .angle-btn.active { border-color:var(--amber); background:var(--amber-trace); color:var(--chrome-bright); }
+    .angle-icon { font-size:18px; display:block; margin-bottom:4px; }
+    .angle-label { font-family:var(--font-display); font-size:12px; font-weight:700; text-transform:uppercase; display:block; }
+    .angle-desc { font-size:10px; color:var(--text-3); display:block; margin-top:2px; line-height:1.3; }
+    .angle-btn.active .angle-desc { color:var(--text-2); }
+    .angle-auto-hint { font-size:10px; color:var(--text-3); margin-top:8px; font-family:var(--font-mono); }
+
+    /* ── Platform toggles ── */
+    .plat-grid { display:grid; grid-template-columns:1fr 1fr; gap:6px; }
+    .plat-check {
+      display:flex; align-items:center; gap:8px; padding:8px 10px;
+      border:1px solid var(--border); border-radius:var(--radius-sm);
+      cursor:pointer; transition:all .15s; background:var(--surface-2);
+    }
+    .plat-check:hover { border-color:var(--border-glow); }
+    .plat-check input { display:none; }
+    .plat-check.checked { border-color:var(--amber); background:var(--amber-trace); }
+    .plat-icon { font-size:16px; flex-shrink:0; }
+    .plat-name { font-family:var(--font-display); font-size:11px; font-weight:700; text-transform:uppercase; color:var(--chrome-bright); }
+    .plat-sub { font-size:9px; color:var(--text-2); }
+
+    /* ── Variations ── */
+    .var-btns { display:flex; gap:6px; }
+    .var-btn {
+      flex:1; padding:8px 0; border-radius:var(--radius-sm);
+      border:1px solid var(--border); background:var(--surface-2);
+      color:var(--text-2); cursor:pointer; transition:all .15s;
+      font-family:var(--font-display); font-size:13px; font-weight:700;
+    }
+    .var-btn.active { border-color:var(--amber); background:var(--amber-trace); color:var(--amber); }
+
+    /* ── API Key ── */
+    .api-toggle {
+      display:flex; align-items:center; justify-content:space-between;
+      cursor:pointer; padding:10px 0;
+    }
+    .api-toggle-label { font-size:12px; color:var(--text-2); font-family:var(--font-mono); }
+    .api-mode-pill {
+      font-size:9px; padding:2px 8px; border-radius:10px;
+      font-family:var(--font-mono); letter-spacing:.05em;
+    }
+    .api-mode-ai { background:rgba(34,197,94,.12); color:#22c55e; border:1px solid rgba(34,197,94,.3); }
+    .api-mode-template { background:rgba(245,158,11,.12); color:var(--amber); border:1px solid rgba(245,158,11,.3); }
+    .api-field { display:none; margin-top:10px; }
+    .api-field.open { display:block; }
+    .api-input {
+      width:100%; background:var(--black); border:1px solid var(--border);
+      border-radius:var(--radius-sm); padding:8px 12px; color:var(--text-1);
+      font-family:var(--font-mono); font-size:11px;
+    }
+    .api-input:focus { outline:none; border-color:var(--amber); }
+    .api-save-btn {
+      margin-top:6px; padding:6px 14px;
+      background:var(--amber); color:var(--black);
+      border:none; border-radius:var(--radius-sm); cursor:pointer;
+      font-family:var(--font-display); font-size:11px; font-weight:700; text-transform:uppercase;
+    }
+    .api-note { font-size:9px; color:var(--text-3); margin-top:6px; line-height:1.4; }
+
+    /* ── Generate ── */
+    #gen-btn {
+      width:100%; padding:14px; font-size:15px; letter-spacing:.1em;
+      position:relative; overflow:hidden;
+    }
+    #gen-btn::after {
+      content:''; position:absolute; left:-100%; top:0; bottom:0; width:60%;
+      background:linear-gradient(90deg,transparent,rgba(255,255,255,.15),transparent);
+      animation:none;
+    }
+    #gen-btn.loading::after { animation:shimmer-btn .8s infinite; }
+    @keyframes shimmer-btn { 0%{left:-100%} 100%{left:200%} }
+    .gen-spinner { display:inline-block; width:13px; height:13px; border:2px solid rgba(0,0,0,.3); border-top-color:var(--black); border-radius:50%; animation:spin .6s linear infinite; }
+    @keyframes spin { to{transform:rotate(360deg)} }
+
+    /* ── Right column tabs ── */
+    .tab-bar {
+      display:flex; gap:0; border:1px solid var(--border);
+      border-radius:var(--radius-sm); overflow:hidden; margin-bottom:20px;
+    }
+    .tab-btn {
+      flex:1; padding:10px 8px;
+      font-family:var(--font-display); font-size:11px; font-weight:700;
+      text-transform:uppercase; letter-spacing:.06em;
+      color:var(--text-2); background:var(--surface); border:none; cursor:pointer;
+      transition:all .15s; position:relative;
+    }
+    .tab-btn:not(:last-child) { border-right:1px solid var(--border); }
+    .tab-btn.active { background:var(--amber); color:var(--black); }
+    .tab-badge {
+      position:absolute; top:4px; right:6px;
+      background:var(--amber); color:var(--black);
+      font-size:8px; font-weight:900; border-radius:8px;
+      padding:1px 4px; font-family:var(--font-mono);
+    }
+    .tab-btn.active .tab-badge { background:var(--black); color:var(--amber); }
+    .tab-panel { display:none; }
+    .tab-panel.active { display:block; }
+
+    /* ── Post cards ── */
+    .post-cards { display:flex; flex-direction:column; gap:18px; }
+    .post-card {
+      background:var(--surface); border:1px solid var(--border);
+      border-radius:var(--radius-lg); overflow:hidden;
+      animation:fadeUp .4s ease forwards; opacity:0;
+    }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:none} }
+    .post-card:nth-child(2){animation-delay:.08s}
+    .post-card:nth-child(3){animation-delay:.16s}
+    .post-card:nth-child(4){animation-delay:.24s}
+    .post-card:nth-child(5){animation-delay:.32s}
+    .post-card:nth-child(6){animation-delay:.4s}
+
+    .post-card-head {
+      display:flex; align-items:center; gap:10px;
+      padding:12px 16px; border-bottom:1px solid var(--border);
+      background:var(--surface-2);
+    }
+    .post-plat-icon { font-size:20px; }
+    .post-plat-name { font-family:var(--font-display); font-size:14px; font-weight:800; text-transform:uppercase; color:var(--chrome-bright); flex:1; }
+    .post-badges { display:flex; gap:6px; flex-wrap:wrap; }
+    .post-badge {
+      font-size:9px; padding:2px 7px; border-radius:8px;
+      font-family:var(--font-mono); letter-spacing:.05em;
+    }
+    .badge-angle { background:rgba(245,158,11,.15); color:var(--amber); border:1px solid rgba(245,158,11,.3); }
+    .badge-var { background:rgba(148,163,184,.1); color:var(--text-2); border:1px solid var(--border); }
+    .badge-ai { background:rgba(34,197,94,.1); color:#22c55e; border:1px solid rgba(34,197,94,.25); }
+    .badge-tpl { background:rgba(148,163,184,.1); color:var(--text-3); border:1px solid var(--border); }
+    .post-actions { display:flex; gap:5px; }
+    .post-act-btn {
+      padding:4px 10px; border-radius:4px; border:1px solid var(--border);
+      background:var(--surface); color:var(--text-2);
+      font-family:var(--font-display); font-size:10px; font-weight:700;
+      letter-spacing:.05em; text-transform:uppercase; cursor:pointer; transition:all .15s;
+    }
+    .post-act-btn:hover { border-color:var(--amber); color:var(--amber); }
+    .post-act-btn.amber { background:var(--amber); color:var(--black); border-color:var(--amber); }
+    .post-act-btn.amber:hover { background:var(--amber-light); }
+    .post-act-btn.posted { background:#22c55e; color:#fff; border-color:#22c55e; cursor:default; }
+
+    .post-card-body { padding:16px; }
+    .post-field { margin-bottom:10px; }
+    .post-field-lbl {
+      font-family:var(--font-mono); font-size:9px; color:var(--amber);
+      letter-spacing:.2em; text-transform:uppercase; margin-bottom:4px;
+      display:flex; align-items:center; justify-content:space-between;
+    }
+    .char-count { font-size:9px; font-family:var(--font-mono); }
+    .char-ok { color:#22c55e; }
+    .char-warn { color:var(--amber); }
+    .char-over { color:#ef4444; }
+    .post-editable {
+      width:100%; background:var(--black); border:1px solid var(--border);
+      border-radius:4px; padding:8px 10px; color:var(--text-1);
+      font-size:12px; line-height:1.6; resize:vertical; min-height:32px;
+      font-family:var(--font-body); transition:border-color .2s;
+    }
+    .post-editable:focus { outline:none; border-color:var(--amber); }
+    .post-hashtags {
+      font-family:var(--font-mono); font-size:11px; color:var(--amber);
+      line-height:1.8; background:var(--black); border:1px solid var(--border);
+      border-radius:4px; padding:8px 10px;
+    }
+    .post-hashtags[contenteditable]:focus { outline:none; border-color:var(--amber); }
+    .post-tip {
+      margin-top:8px; padding:7px 10px;
+      background:var(--amber-trace); border:1px solid var(--border-glow);
+      border-radius:4px; font-size:10px; color:var(--amber);
+    }
+    .platform-score {
+      display:flex; gap:4px; flex-wrap:wrap; margin-top:8px;
+    }
+    .score-check {
+      font-size:9px; padding:2px 6px; border-radius:4px;
+      font-family:var(--font-mono);
+    }
+    .score-pass { background:rgba(34,197,94,.1); color:#22c55e; }
+    .score-fail { background:rgba(239,68,68,.1); color:#ef4444; }
+
+    /* ── Placeholder ── */
+    .output-placeholder {
+      background:var(--surface); border:1px dashed var(--border);
+      border-radius:var(--radius-lg); padding:60px 32px; text-align:center; color:var(--text-3);
+    }
+    .output-placeholder-icon { font-size:48px; margin-bottom:14px; opacity:.3; }
+    .output-placeholder-text { font-family:var(--font-display); font-size:18px; text-transform:uppercase; font-weight:700; margin-bottom:8px; color:var(--text-2); }
+
+    /* ── Schedule Tab ── */
+    .schedule-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:14px; }
+    .sched-card {
+      background:var(--surface); border:1px solid var(--border);
+      border-radius:var(--radius); padding:16px;
+    }
+    .sched-head { display:flex; align-items:center; gap:8px; margin-bottom:12px; }
+    .sched-icon { font-size:20px; }
+    .sched-name { font-family:var(--font-display); font-size:13px; font-weight:800; text-transform:uppercase; color:var(--chrome-bright); }
+    .sched-rule { font-size:11px; color:var(--text-2); margin-bottom:4px; display:flex; gap:6px; align-items:baseline; }
+    .sched-rule strong { color:var(--amber); font-family:var(--font-mono); font-size:12px; }
+    .sched-times { margin-top:8px; }
+    .sched-time-lbl { font-size:9px; color:var(--text-3); text-transform:uppercase; letter-spacing:.1em; font-family:var(--font-mono); margin-bottom:4px; }
+    .sched-time-chip {
+      display:inline-block; font-size:10px; font-family:var(--font-mono);
+      padding:2px 7px; border-radius:4px; margin:2px 2px 0 0;
+      background:var(--surface-2); border:1px solid var(--border); color:var(--text-2);
+    }
+    .sched-anti { margin-top:10px; padding:8px; background:var(--black-3); border-radius:4px; }
+    .sched-anti-lbl { font-size:9px; color:#ef4444; text-transform:uppercase; letter-spacing:.1em; font-family:var(--font-mono); margin-bottom:3px; }
+    .sched-anti-text { font-size:10px; color:var(--text-2); }
+
+    /* ── Post Log Tab ── */
+    .log-empty { text-align:center; padding:40px; color:var(--text-3); font-size:13px; }
+    .log-table { width:100%; border-collapse:collapse; }
+    .log-table th {
+      text-align:left; padding:8px 12px;
+      font-family:var(--font-mono); font-size:9px; letter-spacing:.1em;
+      text-transform:uppercase; color:var(--amber); border-bottom:1px solid var(--border);
+    }
+    .log-table td { padding:8px 12px; font-size:11px; color:var(--text-2); border-bottom:1px solid rgba(255,255,255,.04); }
+    .log-table tr:hover td { background:var(--surface-2); }
+    .log-plat-badge {
+      display:inline-block; font-size:9px; padding:2px 6px; border-radius:4px;
+      font-family:var(--font-mono); background:var(--surface-2); border:1px solid var(--border);
+      color:var(--text-2);
+    }
+    .log-days { font-family:var(--font-mono); font-size:10px; }
+    .days-fresh { color:#22c55e; }
+    .days-ok { color:var(--amber); }
+    .days-stale { color:var(--text-3); }
+    .log-clear-btn {
+      float:right; margin-bottom:12px; padding:5px 12px;
+      background:none; border:1px solid rgba(239,68,68,.4); color:#ef4444;
+      border-radius:4px; cursor:pointer; font-size:10px;
+      font-family:var(--font-display); text-transform:uppercase; letter-spacing:.05em;
+    }
+
+    /* ── Hashtag Lab ── */
+    .hash-platform { margin-bottom:24px; }
+    .hash-plat-head { display:flex; align-items:center; gap:8px; margin-bottom:10px; }
+    .hash-plat-name { font-family:var(--font-display); font-size:14px; font-weight:800; text-transform:uppercase; color:var(--chrome-bright); }
+    .hash-pool-row { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+    .hash-pool {
+      background:var(--surface); border:1px solid var(--border);
+      border-radius:var(--radius-sm); padding:10px 12px;
+    }
+    .hash-pool-lbl { font-family:var(--font-mono); font-size:9px; color:var(--amber); letter-spacing:.1em; text-transform:uppercase; margin-bottom:6px; display:flex; align-items:center; justify-content:space-between; }
+    .hash-active-dot { width:6px; height:6px; border-radius:50%; background:#22c55e; display:inline-block; }
+    .hash-tags { font-size:10px; font-family:var(--font-mono); color:var(--text-2); line-height:1.9; }
+    .hash-copy-btn {
+      margin-top:8px; width:100%; padding:5px;
+      background:none; border:1px solid var(--border); color:var(--text-2);
+      border-radius:4px; cursor:pointer; font-size:9px;
+      font-family:var(--font-display); text-transform:uppercase; letter-spacing:.05em;
+      transition:all .15s;
+    }
+    .hash-copy-btn:hover { border-color:var(--amber); color:var(--amber); }
+    .hash-rotate-btn {
+      padding:5px 12px; background:none; border:1px solid var(--border);
+      color:var(--text-2); border-radius:4px; cursor:pointer;
+      font-size:10px; font-family:var(--font-display); text-transform:uppercase;
+      letter-spacing:.05em; transition:all .15s; margin-left:auto; display:block;
+      margin-bottom:8px;
+    }
+    .hash-rotate-btn:hover { border-color:var(--amber); color:var(--amber); }
+
+    @media(max-width:960px){ .mkt-grid{grid-template-columns:1fr} }
+    @media(max-width:560px){ .angle-grid,.plat-grid{grid-template-columns:1fr} }
+  </style>
+</head>
+<body>
+
+<nav class="nav" role="navigation">
+  <a href="index.html" class="nav-logo">
+    <div class="nav-logo-icon" aria-hidden="true"></div>
+    <div class="nav-logo-text">Paso Del <span>Norte</span></div>
+  </a>
+  <ul class="nav-links" role="list">
+    <li><a href="index.html" class="nav-link">Home</a></li>
+    <li><a href="inventory.html" class="nav-link">Inventory</a></li>
+    <li><a href="post-generator.html" class="nav-link">Post Generator</a></li>
+    <li><a href="marketing.html" class="nav-link active">Marketing Hub</a></li>
+    <li><a href="admin.html" class="nav-link">Admin</a></li>
+  </ul>
+  <div class="nav-actions">
+    <div class="nav-phone">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 0110 1.18 2 2 0 0112 3.14V6.18a2 2 0 01-1.45 1.93l-1.18.39a16 16 0 006.61 6.61l.39-1.18A2 2 0 0118.82 12h3a2 2 0 012 2.18z"/></svg>
+      (832) 555-0180
+    </div>
+    <button class="nav-hamburger" aria-label="Open menu"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+<div class="nav-overlay"></div>
+<div class="nav-drawer">
+  <a href="index.html" class="nav-link">Home</a>
+  <a href="inventory.html" class="nav-link">Inventory</a>
+  <a href="post-generator.html" class="nav-link">Post Generator</a>
+  <a href="marketing.html" class="nav-link">Marketing Hub</a>
+  <a href="admin.html" class="nav-link">Admin</a>
+</div>
+
+<div class="mkt-shell">
+  <div class="mkt-hero">
+    <div class="container mkt-hero-inner">
+      <div>
+        <h1 class="mkt-hero-title">Marketing <em>Command</em></h1>
+        <p class="mkt-hero-sub">AI-powered posts · Anti-repeat engine · Schedule intelligence · Hashtag rotation</p>
+      </div>
+      <div class="mkt-stats">
+        <div class="mkt-stat">
+          <div class="mkt-stat-val" id="stat-posts-today">0</div>
+          <div class="mkt-stat-lbl">Posts Today</div>
+        </div>
+        <div class="mkt-stat">
+          <div class="mkt-stat-val" id="stat-total">0</div>
+          <div class="mkt-stat-lbl">Total Generated</div>
+        </div>
+        <div class="mkt-stat">
+          <div class="mkt-stat-val" id="stat-trucks">0</div>
+          <div class="mkt-stat-lbl">Trucks Listed</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mkt-body">
+    <div class="container mkt-grid">
+
+      <!-- ── LEFT CONFIG ── -->
+      <div id="config-col">
+
+        <!-- Step 1: Truck -->
+        <div class="cfg-card">
+          <div class="cfg-head">
+            <div class="cfg-num">1</div>
+            <div class="cfg-title">Select Truck</div>
+          </div>
+          <div class="cfg-body">
+            <select class="truck-sel" id="truck-sel">
+              <option value="">— Choose from inventory —</option>
+            </select>
+            <div class="truck-info-strip" id="truck-strip"></div>
+            <div id="fatigue-display"></div>
+          </div>
+        </div>
+
+        <!-- Step 2: Angle -->
+        <div class="cfg-card">
+          <div class="cfg-head">
+            <div class="cfg-num">2</div>
+            <div class="cfg-title">Copy Angle</div>
+          </div>
+          <div class="cfg-body">
+            <div class="angle-grid" id="angle-grid">
+              <button class="angle-btn active" data-angle="price">
+                <span class="angle-icon">💰</span>
+                <span class="angle-label">Price First</span>
+                <span class="angle-desc">Lead with the deal — value, savings, price</span>
+              </button>
+              <button class="angle-btn" data-angle="spec">
+                <span class="angle-icon">⚙️</span>
+                <span class="angle-label">Spec Flex</span>
+                <span class="angle-desc">Engine, powertrain, GVWR — let the specs talk</span>
+              </button>
+              <button class="angle-btn" data-angle="story">
+                <span class="angle-icon">🛣️</span>
+                <span class="angle-label">Driver Story</span>
+                <span class="angle-desc">Lifestyle angle — life on the road, ownership pride</span>
+              </button>
+              <button class="angle-btn" data-angle="urgency">
+                <span class="angle-icon">🔥</span>
+                <span class="angle-label">Move Fast</span>
+                <span class="angle-desc">Won't last — urgency, scarcity, act now</span>
+              </button>
+              <button class="angle-btn" data-angle="finance">
+                <span class="angle-icon">📊</span>
+                <span class="angle-label">Payment Play</span>
+                <span class="angle-desc">Monthly payments, easy approval, get approved</span>
+              </button>
+            </div>
+            <div class="angle-auto-hint" id="angle-auto-hint"></div>
+          </div>
+        </div>
+
+        <!-- Step 3: Platforms -->
+        <div class="cfg-card">
+          <div class="cfg-head">
+            <div class="cfg-num">3</div>
+            <div class="cfg-title">Platforms</div>
+          </div>
+          <div class="cfg-body">
+            <div class="plat-grid" id="plat-grid">
+              <div class="plat-check checked" data-platform="facebook">
+                <input type="checkbox" checked /><span class="plat-icon">📘</span>
+                <div><div class="plat-name">Facebook</div><div class="plat-sub">Marketplace + Groups</div></div>
+              </div>
+              <div class="plat-check checked" data-platform="craigslist">
+                <input type="checkbox" checked /><span class="plat-icon">📋</span>
+                <div><div class="plat-name">Craigslist</div><div class="plat-sub">For Sale by Dealer</div></div>
+              </div>
+              <div class="plat-check checked" data-platform="tiktok">
+                <input type="checkbox" checked /><span class="plat-icon">🎵</span>
+                <div><div class="plat-name">TikTok</div><div class="plat-sub">Video caption + tags</div></div>
+              </div>
+              <div class="plat-check" data-platform="instagram">
+                <input type="checkbox" /><span class="plat-icon">📸</span>
+                <div><div class="plat-name">Instagram</div><div class="plat-sub">Feed + Reels</div></div>
+              </div>
+              <div class="plat-check" data-platform="truckpaper">
+                <input type="checkbox" /><span class="plat-icon">🚛</span>
+                <div><div class="plat-name">TruckPaper</div><div class="plat-sub">Full spec listing</div></div>
+              </div>
+              <div class="plat-check" data-platform="ebay">
+                <input type="checkbox" /><span class="plat-icon">🛒</span>
+                <div><div class="plat-name">eBay Motors</div><div class="plat-sub">Auction / BIN</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 4: Variations -->
+        <div class="cfg-card">
+          <div class="cfg-head">
+            <div class="cfg-num">4</div>
+            <div class="cfg-title">Variations</div>
+          </div>
+          <div class="cfg-body">
+            <div class="var-btns" id="var-btns">
+              <button class="var-btn active" data-n="1">1</button>
+              <button class="var-btn" data-n="2">2</button>
+              <button class="var-btn" data-n="3">3</button>
+            </div>
+            <div style="font-size:10px;color:var(--text-3);margin-top:8px;font-family:var(--font-mono);">
+              Generate N unique versions per platform — each with different hooks &amp; structure
+            </div>
+          </div>
+        </div>
+
+        <!-- API Key -->
+        <div class="cfg-card">
+          <div class="cfg-head" style="border-bottom:none;">
+            <div class="cfg-title" style="font-size:11px;">AI Engine</div>
+            <div style="margin-left:auto;" id="api-mode-pill">
+              <span class="api-mode-pill api-mode-template">Smart Templates</span>
+            </div>
+          </div>
+          <div class="cfg-body" style="padding-top:0;">
+            <div class="api-toggle" id="api-toggle">
+              <span class="api-toggle-label">⚡ Use Claude AI (better results)</span>
+              <span style="font-size:10px;color:var(--text-3);">▼</span>
+            </div>
+            <div class="api-field" id="api-field">
+              <input class="api-input" type="password" id="api-key-input" placeholder="sk-ant-api03-..." autocomplete="off" />
+              <button class="api-save-btn" id="api-save-btn">Save Key</button>
+              <div class="api-note">Key stored in your browser only. Never leaves your device. Get yours at console.anthropic.com</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Generate -->
+        <button class="btn btn-primary btn-lg" id="gen-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          Generate Posts
+        </button>
+
+      </div>
+
+      <!-- ── RIGHT OUTPUT ── -->
+      <div id="output-col">
+        <div class="tab-bar">
+          <button class="tab-btn active" data-tab="posts">Posts</button>
+          <button class="tab-btn" data-tab="schedule">Schedule</button>
+          <button class="tab-btn" data-tab="log">Post Log <span class="tab-badge" id="log-badge">0</span></button>
+          <button class="tab-btn" data-tab="hashtags">Hashtag Lab</button>
+        </div>
+
+        <!-- Posts Tab -->
+        <div class="tab-panel active" id="tab-posts">
+          <div class="output-placeholder" id="output-placeholder">
+            <div class="output-placeholder-icon">🎯</div>
+            <div class="output-placeholder-text">Ready to Generate</div>
+            <div style="font-size:12px;color:var(--text-3);">Select truck → angle → platforms → hit Generate</div>
+          </div>
+          <div class="post-cards" id="post-cards" style="display:none;"></div>
+        </div>
+
+        <!-- Schedule Tab -->
+        <div class="tab-panel" id="tab-schedule">
+          <div class="schedule-grid" id="schedule-grid"></div>
+        </div>
+
+        <!-- Post Log Tab -->
+        <div class="tab-panel" id="tab-log">
+          <div id="log-container"></div>
+        </div>
+
+        <!-- Hashtag Lab Tab -->
+        <div class="tab-panel" id="tab-hashtags">
+          <div id="hashtag-lab"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="js/config.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/data.js"></script>
+<script src="js/main.js"></script>
+<script>
+/* ================================================================
+   PASO DEL NORTE — MARKETING COMMAND CENTER
+   ================================================================ */
+
+// ── Constants ─────────────────────────────────────────────────────
+
+const ANGLES = {
+  price:   { label:'Price First',    icon:'💰', desc:'Lead with the deal — value & savings' },
+  spec:    { label:'Spec Flex',      icon:'⚙️', desc:'Engine, powertrain, GVWR — specs talk' },
+  story:   { label:'Driver Story',   icon:'🛣️', desc:'Lifestyle — life on the road, ownership' },
+  urgency: { label:'Move Fast',      icon:'🔥', desc:"Won't last — urgency, scarcity" },
+  finance: { label:'Payment Play',   icon:'📊', desc:'Monthly payments, easy approval' }
+};
+
+const ANGLE_ORDER = ['price','spec','story','urgency','finance'];
+
+const PLATFORM_META = {
+  facebook:   { name:'Facebook Marketplace', icon:'📘', charLimit:500,  hashLimit:5,  url:'https://www.facebook.com/marketplace/create/vehicle' },
+  craigslist: { name:'Craigslist',           icon:'📋', charLimit:600,  hashLimit:0,  url:'https://post.craigslist.org/k/for-sale' },
+  tiktok:     { name:'TikTok',               icon:'🎵', charLimit:150,  hashLimit:7,  url:'https://www.tiktok.com/upload' },
+  instagram:  { name:'Instagram',            icon:'📸', charLimit:220,  hashLimit:25, url:'https://www.instagram.com' },
+  truckpaper: { name:'TruckPaper',           icon:'🚛', charLimit:800,  hashLimit:0,  url:'https://www.truckpaper.com/sell' },
+  ebay:       { name:'eBay Motors',          icon:'🛒', charLimit:1000, hashLimit:0,  url:'https://www.ebay.com/sell' }
+};
+
+// Hashtag pools — 3 rotation sets per platform
+const HASHTAG_SETS = {
+  facebook: [
+    ['#semitruck','#truckforsale','#owneroperator','#diesel','#houstontrucks'],
+    ['#bigrig','#18wheeler','#trucklife','#freightliner','#pasodelNorte'],
+    ['#commercialtruck','#heavyduty','#texastrucks','#truckdriver','#cdllife']
+  ],
+  tiktok: [
+    ['#semitruck','#trucktok','#diesel','#fyp','#owneroperator','#bigrig','#trucklife'],
+    ['#18wheeler','#cdllife','#trucksoftiktok','#fyp','#heavyduty','#truckforsale','#diesel'],
+    ['#truckdriver','#freightliner','#fyp','#peterbilt','#kenworth','#trucking','#bigrig']
+  ],
+  instagram: [
+    ['#semitruck','#truckforsale','#owneroperator','#diesel','#bigrig','#18wheeler','#trucklife',
+     '#commercialtruck','#heavyduty','#texastrucks','#houstontrucks','#cdllife',
+     '#truckdriver','#freightliner','#peterbilt','#kenworth','#mack','#volvotrucks',
+     '#trucklovers','#truckporn','#diesellife','#truckstagram','#americantrucker',
+     '#pasodelNorte','#trucksforsale'],
+    ['#semitruck','#trucktok','#bigrig','#18wheeler','#diesel','#owneroperator','#trucklife',
+     '#heavyduty','#cdldriver','#truckersofinstagram','#longhaul','#trucker',
+     '#peterbilt389','#kenworth','#freightlinercascadia','#trucks','#trucking',
+     '#dieselpowered','#americantruck','#texastrucking','#truckloving','#truckdeal',
+     '#commercialtrucks','#truckbusiness','#fleettrucks'],
+    ['#semi','#semitrucks','#rig','#dieseltruck','#workingtrucks','#trucksforsale',
+     '#usedtrucks','#buyatruck','#truckmarket','#truckdeals','#truckequipment',
+     '#owneroperatorlife','#motorcarrier','#truckfleet','#dotready','#aptruck',
+     '#texascommercial','#southtexas','#houstonbusiness','#truckboss',
+     '#truckpreneur','#comercialtruck','#trucktrader','#bigtrucks','#diesel18']
+  ],
+  craigslist: [[], [], []],
+  truckpaper: [[], [], []],
+  ebay: [[], [], []]
+};
+
+// Schedule intelligence
+const SCHEDULE_GUIDE = {
+  facebook:   { freq:'3x per week max per listing', bestTimes:['Tue–Thu 8–10am','12–3pm CST'], gap:48, tip:'Post in Marketplace AND 3 local trucking Facebook groups for 4x reach.' },
+  craigslist: { freq:'Refresh every 48 hrs', bestTimes:['Any time — refresh matters more than timing'], gap:48, tip:'Delete and re-post instead of refreshing — new post ranks higher.' },
+  tiktok:     { freq:'1x per truck per week', bestTimes:['6–10am CST','7–11pm CST'], gap:168, tip:'Film a 15–30s walkaround video. Pin your phone number in comments. #fyp is mandatory.' },
+  instagram:  { freq:'1x per truck per week', bestTimes:['11am–2pm CST','5–7pm CST'], gap:168, tip:'Reel outperforms feed post 3x. Shoot a quick walkaround clip.' },
+  truckpaper: { freq:'Refresh monthly', bestTimes:['Anytime — buyers search don\'t scroll'], gap:720, tip:'TruckPaper buyers are serious — more spec detail = more quality leads.' },
+  ebay:       { freq:'1 active listing per truck', bestTimes:['Sunday 6–9pm CST endings'], gap:240, tip:'End auctions Sunday evening for maximum bidder traffic.' }
+};
+
+// Anti-repeat rules per platform
+const ANTI_REPEAT = {
+  facebook:   'Same angle on same truck = audience blinds to it. Rotate through all 5 angles before repeating any.',
+  craigslist: 'Craigslist users are spec-first buyers. Vary the headline formula, not just the copy.',
+  tiktok:     'TikTok algorithm penalizes duplicate content. Each post MUST have a different hook word.',
+  instagram:  'Instagram users follow vibe. Mix product posts with lifestyle/driver content.',
+  truckpaper: 'Buyers search specs — freshness matters less than accuracy. Update specs if condition changes.',
+  ebay:       'One listing per truck. Revise the title after 7 days if no bids.'
+};
+
+// ── State ──────────────────────────────────────────────────────────
+let selectedTruck = null;
+let selectedAngle = 'price';
+let variationCount = 1;
+let apiKey = PDN_CONFIG.API_KEY || localStorage.getItem('pdn_api_key') || '';
+let hashPoolIndexes = JSON.parse(localStorage.getItem('pdn_hash_idx') || '{}');
+
+// ── Post Log ───────────────────────────────────────────────────────
+const PostLog = {
+  _key: 'pdn_post_log',
+  get() { try { return JSON.parse(localStorage.getItem(this._key) || '[]'); } catch { return []; } },
+  add(entry) {
+    const log = this.get();
+    log.unshift({ ...entry, id: Date.now(), ts: new Date().toISOString() });
+    localStorage.setItem(this._key, JSON.stringify(log.slice(0, 200)));
+    updateStats();
+    renderPostLog();
+  },
+  clear() { localStorage.removeItem(this._key); updateStats(); renderPostLog(); },
+  daysSince(truckId, platform) {
+    const log = this.get();
+    const last = log.find(e => e.truckId === truckId && e.platform === platform);
+    if (!last) return null;
+    return Math.floor((Date.now() - new Date(last.ts).getTime()) / 86400000);
+  },
+  lastAngle(truckId, platform) {
+    const log = this.get();
+    const last = log.find(e => e.truckId === truckId && e.platform === platform);
+    return last?.angle || null;
+  },
+  angleHistory(truckId, platform) {
+    return this.get().filter(e => e.truckId === truckId && e.platform === platform).map(e => e.angle);
+  }
+};
+
+// ── Stats ──────────────────────────────────────────────────────────
+function updateStats() {
+  const log = PostLog.get();
+  const today = new Date().toDateString();
+  const postsToday = log.filter(e => new Date(e.ts).toDateString() === today).length;
+  document.getElementById('stat-posts-today').textContent = postsToday;
+  document.getElementById('stat-total').textContent = log.length;
+  document.getElementById('stat-trucks').textContent = (typeof TRUCKS !== 'undefined' ? TRUCKS.filter(t=>t.status==='available').length : 0);
+  const badge = document.getElementById('log-badge');
+  if (badge) badge.textContent = log.length;
+}
+
+// ── Populate truck selector ────────────────────────────────────────
+function populateTrucks() {
+  const sel = document.getElementById('truck-sel');
+  if (typeof TRUCKS === 'undefined') return;
+  TRUCKS.filter(t => t.status === 'available').forEach(t => {
+    const opt = document.createElement('option');
+    opt.value = t.id;
+    opt.textContent = `${t.year} ${t.make} ${t.model} — ${formatPrice(t.price)} · ${formatMileage(t.mileage)}`;
+    sel.appendChild(opt);
+  });
+}
+
+document.getElementById('truck-sel').addEventListener('change', function() {
+  if (!this.value) { selectedTruck = null; document.getElementById('truck-strip').classList.remove('show'); document.getElementById('fatigue-display').innerHTML = ''; return; }
+  selectedTruck = (typeof getTruck === 'function') ? getTruck(this.value) : TRUCKS.find(t => t.id === this.value);
+  renderTruckStrip();
+  renderFatigue();
+  suggestAngle();
+});
+
+function renderTruckStrip() {
+  if (!selectedTruck) return;
+  const t = selectedTruck;
+  const strip = document.getElementById('truck-strip');
+  strip.innerHTML = `
+    <strong>${t.year} ${t.make} ${t.model}</strong> &nbsp;|&nbsp;
+    ${t.engine} &nbsp;|&nbsp; ${formatMileage(t.mileage)} &nbsp;|&nbsp; <strong style="color:var(--amber)">${formatPrice(t.price)}</strong>
+    ${t.dotReady ? ' &nbsp;✅ DOT Ready' : ''} ${t.financing ? ' &nbsp;💳 Financing' : ''}
+  `;
+  strip.classList.add('show');
+}
+
+// ── Fatigue checker ────────────────────────────────────────────────
+function renderFatigue() {
+  if (!selectedTruck) return;
+  const platforms = ['facebook','craigslist','tiktok','instagram','truckpaper','ebay'];
+  const lines = platforms.map(p => {
+    const days = PostLog.daysSince(selectedTruck.id, p);
+    const gap = SCHEDULE_GUIDE[p].gap / 24;
+    if (days === null) return `<span class="fatigue-badge fatigue-ok">${PLATFORM_META[p].icon} ${PLATFORM_META[p].name} — Never posted</span>`;
+    if (days < 1) return `<span class="fatigue-badge fatigue-stop">${PLATFORM_META[p].icon} ${PLATFORM_META[p].name} — Posted today ⛔</span>`;
+    if (days < gap) return `<span class="fatigue-badge fatigue-warn">${PLATFORM_META[p].icon} ${PLATFORM_META[p].name} — ${days}d ago (wait ${gap-days}d)</span>`;
+    return `<span class="fatigue-badge fatigue-ok">${PLATFORM_META[p].icon} ${PLATFORM_META[p].name} — ${days}d ago ✓</span>`;
+  }).join('');
+  document.getElementById('fatigue-display').innerHTML = `<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:8px;">${lines}</div>`;
+}
+
+// ── Auto-suggest next angle ────────────────────────────────────────
+function suggestAngle() {
+  if (!selectedTruck) return;
+  const hint = document.getElementById('angle-auto-hint');
+  const platforms = [...document.querySelectorAll('.plat-check.checked')].map(c => c.dataset.platform);
+  if (!platforms.length) return;
+  const history = PostLog.angleHistory(selectedTruck.id, platforms[0]);
+  if (!history.length) { hint.textContent = ''; return; }
+  const usedRecently = history.slice(0, 3);
+  const next = ANGLE_ORDER.find(a => !usedRecently.includes(a)) || ANGLE_ORDER[0];
+  hint.textContent = `💡 Auto-suggest: "${ANGLES[next].label}" — avoids last 3 angles used`;
+  // Auto-select
+  setAngle(next);
+}
+
+// ── Angle UI ──────────────────────────────────────────────────────
+function setAngle(id) {
+  selectedAngle = id;
+  document.querySelectorAll('.angle-btn').forEach(b => b.classList.toggle('active', b.dataset.angle === id));
+}
+document.querySelectorAll('.angle-btn').forEach(b => b.addEventListener('click', () => setAngle(b.dataset.angle)));
+
+// ── Platform toggles ───────────────────────────────────────────────
+document.querySelectorAll('.plat-check').forEach(c => {
+  c.addEventListener('click', () => {
+    c.classList.toggle('checked');
+    c.querySelector('input').checked = c.classList.contains('checked');
+  });
+});
+
+// ── Variation count ────────────────────────────────────────────────
+document.querySelectorAll('.var-btn').forEach(b => {
+  b.addEventListener('click', () => {
+    variationCount = parseInt(b.dataset.n);
+    document.querySelectorAll('.var-btn').forEach(v => v.classList.toggle('active', v === b));
+  });
+});
+
+// ── API Key ────────────────────────────────────────────────────────
+document.getElementById('api-toggle').addEventListener('click', () => {
+  document.getElementById('api-field').classList.toggle('open');
+});
+// Auto-wired from config — show AI active immediately
+document.getElementById('api-mode-pill').innerHTML = '<span class="api-mode-pill api-mode-ai">Claude AI ✓</span>';
+document.getElementById('api-key-input').value = apiKey;
+// Hide the manual key section since it's pre-configured
+document.getElementById('api-toggle').style.display = 'none';
+document.getElementById('api-field').style.display = 'none';
+document.getElementById('api-save-btn').addEventListener('click', () => {
+  const val = document.getElementById('api-key-input').value.trim();
+  if (!val.startsWith('sk-ant-')) { showToast('Invalid key — must start with sk-ant-'); return; }
+  apiKey = val;
+  localStorage.setItem('pdn_api_key', val);
+  document.getElementById('api-mode-pill').innerHTML = '<span class="api-mode-pill api-mode-ai">Claude AI ✓</span>';
+  document.getElementById('api-field').classList.remove('open');
+  showToast('API key saved — AI mode active');
+});
+
+// ── Tab switching ──────────────────────────────────────────────────
+document.querySelectorAll('.tab-btn').forEach(b => {
+  b.addEventListener('click', () => {
+    const t = b.dataset.tab;
+    document.querySelectorAll('.tab-btn').forEach(x => x.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    document.getElementById('tab-' + t).classList.add('active');
+  });
+});
+
+// ── Claude API call ────────────────────────────────────────────────
+// Uses shared pdnClaude from js/config.js
+async function callClaude(systemPrompt, userMsg) {
+  return pdnClaude(systemPrompt, userMsg, 600);
+}
+
+function buildSystemPrompt() {
+  return `You are a professional truck sales copywriter for Paso Del Norte: Truck & Equipment Sales, Houston TX.
+Write compelling social media posts for commercial trucks.
+Rules:
+- Sound human and authentic — NEVER robotic or template-like
+- Know the audience: owner-operators, fleet buyers, oilfield workers, diesel enthusiasts
+- Each variation must have a different opening word/hook — never start two variations the same
+- Use only facts provided — never invent specs
+- Keep platform character limits strictly
+- Texas-based seller — local pride is a hook
+- Contact always: (832) 555-0180`;
+}
+
+function buildUserPrompt(truck, platform, angle, variationNum, totalVariations) {
+  const t = truck;
+  const specs = Object.entries(t.specs || {}).map(([k,v]) => `${k}: ${v}`).join(', ');
+  const features = (t.features || []).join(', ');
+  const angleInstructions = {
+    price:   'Lead with the price. Make it feel like a deal they cannot pass up. Justify value with condition.',
+    spec:    'Lead with the engine or key spec. Let the powertrain numbers do the heavy lifting.',
+    story:   'Write from the driver perspective — the life this truck enables, the miles ahead, the freedom.',
+    urgency: "Create urgency — trucks like this go fast, priced to move, won't be here long.",
+    finance: `Lead with monthly payment angle (~$${Math.round(t.price*0.02/1).toLocaleString()}/mo estimated). Make it accessible.`
+  };
+
+  const platformRules = {
+    facebook:   `Facebook Marketplace post. Max 500 chars for body. Conversational, friendly, local. 3-5 emojis max. End with phone.`,
+    craigslist: `Craigslist ad. NO emojis. Plain text only. ALL CAPS headline. Formal, spec-heavy. End with price, location, phone.`,
+    tiktok:     `TikTok video caption. Hook MUST be first 3-5 words, punchy. Max 150 chars total. 5-7 hashtags including #fyp.`,
+    instagram:  `Instagram post. Visual language. Short caption (150-200 chars) then line break before hashtags. 25 hashtags.`,
+    truckpaper: `TruckPaper.com listing. Professional dealer tone. Full spec breakdown. Condition notes. No emojis.`,
+    ebay:       `eBay Motors listing. SEO-optimized title max 80 chars. Full spec body. Include pickup/transport terms.`
+  };
+
+  return `Write a ${platform} post for this truck.
+
+TRUCK: ${t.year} ${t.make} ${t.model} ${t.trim || ''}
+Engine: ${t.engine} | Trans: ${t.transmission}
+Mileage: ${formatMileage(t.mileage)} | Price: ${formatPrice(t.price)}
+Sleeper: ${t.sleeper || 'Day Cab'} | Location: ${t.location}
+Condition: ${t.condition} | Color: ${t.color || 'N/A'}
+Specs: ${specs}
+Features: ${features}
+Notes: ${t.repairNotes || ''}
+${t.dotReady ? 'DOT Ready: YES' : ''} ${t.financing ? 'Financing: Available' : ''}
+
+ANGLE: ${angleInstructions[angle]}
+
+VARIATION: #${variationNum} of ${totalVariations}${totalVariations > 1 ? ' — this MUST feel distinctly different from variation #1 in structure and opening' : ''}
+
+PLATFORM RULES: ${platformRules[platform]}
+
+Respond with JSON only:
+{
+  "title": "headline or title",
+  "caption": "post body",
+  "hashtags": "space-separated hashtags or empty string"
+}`;
+}
+
+// ── Smart Template Fallback (angle-aware, variation-aware) ─────────
+function generateTemplate(truck, platform, angle, varNum) {
+  const t = truck;
+  const price = formatPrice(t.price);
+  const miles = formatMileage(t.mileage);
+  const eng = t.engine || 'Diesel Engine';
+  const loc = t.location || 'Texas';
+  const features = (t.features || []).slice(0, 4).join(' · ') || '';
+  const pay = Math.round(t.price * 0.02 / 1).toLocaleString();
+
+  const hooks = {
+    price: [
+      `🚛 ${price} and it won't last.`,
+      `Priced to move — ${price} for this ${t.year} ${t.make}.`,
+      `Best deal in ${loc.split(',')[0]} right now → ${price}`
+    ],
+    spec: [
+      `${eng} — this ${t.make} means business.`,
+      `${miles} on a ${eng}. Numbers don't lie.`,
+      `${t.year} ${t.make} ${t.model} — ${eng} | ${miles}`
+    ],
+    story: [
+      `Every mile tells a story. This ${t.year} ${t.make} is ready for yours.`,
+      `Built for the long haul. ${t.make} ${t.model} — ${loc}.`,
+      `Owner-operators know: a clean ${t.make} runs forever.`
+    ],
+    urgency: [
+      `⚠️ Won't be here long — ${t.year} ${t.make} ${t.model}`,
+      `🔥 Trucks like this move fast. Act now.`,
+      `Last chance — ${price}. ${t.year} ${t.make}.`
+    ],
+    finance: [
+      `~$${pay}/mo* — ${t.year} ${t.make} ${t.model}`,
+      `Get in this ${t.make} for less than you think.`,
+      `💳 Financing available — all credit considered. ${price}`
+    ]
+  };
+
+  const hook = (hooks[angle] || hooks.price)[Math.min(varNum - 1, 2)];
+
+  const body = `${hook}
+
+${t.year} ${t.make} ${t.model}${t.trim ? ' ' + t.trim : ''}
+Engine: ${eng}
+${t.transmission ? 'Trans: ' + t.transmission : ''}
+Mileage: ${miles}
+${t.sleeper ? 'Sleeper: ' + t.sleeper : ''}
+${features ? 'Features: ' + features : ''}
+Condition: ${t.condition}
+${t.dotReady ? '✅ DOT Ready' : ''}
+Location: ${loc}
+Price: ${price}
+${t.financing ? 'Financing available — all credit considered.' : ''}
+
+📞 (832) 555-0180
+Paso Del Norte: Truck & Equipment Sales`;
+
+  const platforms = {
+    facebook: {
+      title: `${t.year} ${t.make} ${t.model} — ${price}`,
+      caption: body,
+      hashtags: getHashtags('facebook')
+    },
+    craigslist: {
+      title: `FOR SALE: ${t.year.toString().toUpperCase()} ${t.make.toUpperCase()} ${t.model.toUpperCase()} - ${price}`,
+      caption: body.replace(/[📞✅💳⚠️🔥🚛]/g,'').trim(),
+      hashtags: ''
+    },
+    tiktok: {
+      title: `${t.year} ${t.make} ${t.model} FOR SALE ${price}`,
+      caption: `${hook.slice(0,80)}\n${eng} · ${miles} · ${loc}\n📞 (832) 555-0180`,
+      hashtags: getHashtags('tiktok')
+    },
+    instagram: {
+      title: `${t.year} ${t.make} ${t.model}`,
+      caption: `${hook}\n\n${eng} · ${miles}\n📍 ${loc}\n💵 ${price}\n☎️ (832) 555-0180`,
+      hashtags: getHashtags('instagram')
+    },
+    truckpaper: {
+      title: `${t.year} ${t.make} ${t.model} ${eng.split(' ').slice(0,3).join(' ')} | ${miles}`,
+      caption: body.replace(/[📞✅💳⚠️🔥🚛]/g,'').trim(),
+      hashtags: ''
+    },
+    ebay: {
+      title: `${t.year} ${t.make} ${t.model} ${eng.split(' ').slice(0,2).join(' ')} ${miles} DIESEL SEMI TRUCK`.slice(0,80),
+      caption: body.replace(/[📞✅💳⚠️🔥🚛]/g,'').trim() + '\n\nSeller accepts wire transfer or cash. Vehicle in ' + loc + '. Buyer responsible for transport.',
+      hashtags: ''
+    }
+  };
+
+  return platforms[platform] || platforms.facebook;
+}
+
+// ── Hashtag rotation ───────────────────────────────────────────────
+function getHashtags(platform) {
+  const sets = HASHTAG_SETS[platform];
+  if (!sets || !sets[0].length) return '';
+  const idx = hashPoolIndexes[platform] || 0;
+  return sets[idx % sets.length].join(' ');
+}
+
+function rotateHashtags(platform) {
+  const sets = HASHTAG_SETS[platform];
+  if (!sets || !sets[0].length) return;
+  hashPoolIndexes[platform] = ((hashPoolIndexes[platform] || 0) + 1) % sets.length;
+  localStorage.setItem('pdn_hash_idx', JSON.stringify(hashPoolIndexes));
+  renderHashtagLab();
+  showToast(`${PLATFORM_META[platform].icon} ${PLATFORM_META[platform].name} rotated to Pool ${(hashPoolIndexes[platform]||0)+1}`);
+}
+
+// ── Char counter ───────────────────────────────────────────────────
+function charCountClass(len, limit) {
+  if (!limit) return 'char-ok';
+  const ratio = len / limit;
+  if (ratio > 1) return 'char-over';
+  if (ratio > 0.85) return 'char-warn';
+  return 'char-ok';
+}
+
+function attachCharCounter(textareaId, countId, limit) {
+  const ta = document.getElementById(textareaId);
+  const ct = document.getElementById(countId);
+  if (!ta || !ct) return;
+  function update() {
+    const len = ta.value.length;
+    ct.textContent = limit ? `${len}/${limit}` : len;
+    ct.className = 'char-count ' + charCountClass(len, limit);
+  }
+  ta.addEventListener('input', update);
+  update();
+}
+
+// ── Platform score checks ──────────────────────────────────────────
+function scorePost(platform, title, caption, hashtags) {
+  const meta = PLATFORM_META[platform];
+  const checks = [];
+  const captionLen = caption.length;
+  checks.push({ label: 'Length', pass: captionLen <= meta.charLimit });
+  checks.push({ label: 'Has price', pass: /\$[\d,]+/.test(caption + title) });
+  checks.push({ label: 'Has phone', pass: /\d{3}[\s.-]?\d{3}[\s.-]?\d{4}/.test(caption) });
+  if (platform === 'tiktok') {
+    checks.push({ label: '#fyp', pass: /\#fyp/i.test(hashtags) });
+    checks.push({ label: 'Short hook', pass: captionLen <= 150 });
+  }
+  if (platform === 'facebook') {
+    checks.push({ label: 'Location', pass: /tx|texas|houston/i.test(caption) });
+  }
+  if (platform === 'instagram') {
+    checks.push({ label: '20+ hashtags', pass: (hashtags.match(/#\w+/g) || []).length >= 20 });
+  }
+  return checks;
+}
+
+// ── Render post cards ──────────────────────────────────────────────
+function renderPostCards(results) {
+  const cards = document.getElementById('post-cards');
+  const placeholder = document.getElementById('output-placeholder');
+  cards.innerHTML = '';
+
+  results.forEach(({ platform, content, varNum, isAI }, cardIdx) => {
+    if (!content) return;
+    const meta = PLATFORM_META[platform];
+    const angle = ANGLES[selectedAngle];
+    const card = document.createElement('div');
+    card.className = 'post-card';
+    card.style.animationDelay = `${cardIdx * 0.07}s`;
+
+    const scores = scorePost(platform, content.title, content.caption, content.hashtags);
+    const scoreHTML = scores.map(s =>
+      `<span class="score-check ${s.pass ? 'score-pass' : 'score-fail'}">${s.pass ? '✓' : '✗'} ${s.label}</span>`
+    ).join('');
+
+    const titleId = `title-${platform}-${varNum}`;
+    const captionId = `caption-${platform}-${varNum}`;
+    const tagsId = `tags-${platform}-${varNum}`;
+    const countId = `count-${platform}-${varNum}`;
+    const tip = SCHEDULE_GUIDE[platform];
+
+    card.innerHTML = `
+      <div class="post-card-head">
+        <span class="post-plat-icon">${meta.icon}</span>
+        <span class="post-plat-name">${meta.name}</span>
+        <div class="post-badges">
+          <span class="post-badge badge-angle">${angle.icon} ${angle.label}</span>
+          ${variationCount > 1 ? `<span class="post-badge badge-var">V${varNum}</span>` : ''}
+          <span class="post-badge ${isAI ? 'badge-ai' : 'badge-tpl'}">${isAI ? '⚡ AI' : '📝 Template'}</span>
+        </div>
+        <div class="post-actions">
+          <button class="post-act-btn copy-btn" data-pid="${platform}-${varNum}">📋 Copy</button>
+          <button class="post-act-btn amber post-btn" data-url="${meta.url}" data-platform="${platform}">Post →</button>
+        </div>
+      </div>
+      <div class="post-card-body">
+        <div class="post-field">
+          <div class="post-field-lbl">Title / Headline</div>
+          <textarea class="post-editable" id="${titleId}" rows="2">${escapeHtml(content.title)}</textarea>
+        </div>
+        <div class="post-field">
+          <div class="post-field-lbl">
+            Post Body / Caption
+            <span class="char-count" id="${countId}"></span>
+          </div>
+          <textarea class="post-editable" id="${captionId}" rows="10">${escapeHtml(content.caption)}</textarea>
+        </div>
+        ${content.hashtags ? `
+        <div class="post-field">
+          <div class="post-field-lbl">Hashtags (${(content.hashtags.match(/#\w+/g)||[]).length} tags)</div>
+          <div class="post-hashtags" contenteditable="true" id="${tagsId}">${content.hashtags}</div>
+        </div>` : ''}
+        <div class="platform-score">${scoreHTML}</div>
+        <div class="post-tip">⏰ ${tip.freq} &nbsp;·&nbsp; Best: ${tip.bestTimes[0]} &nbsp;·&nbsp; 💡 ${tip.tip}</div>
+      </div>`;
+    cards.appendChild(card);
+
+    // Wire char counter
+    attachCharCounter(captionId, countId, meta.charLimit);
+
+    // Copy button
+    card.querySelector('.copy-btn').addEventListener('click', function() {
+      const title = document.getElementById(titleId)?.value || '';
+      const caption = document.getElementById(captionId)?.value || '';
+      const tags = document.getElementById(tagsId)?.textContent || '';
+      navigator.clipboard.writeText([title, caption, tags].filter(Boolean).join('\n\n'))
+        .then(() => { this.textContent = '✅ Copied!'; setTimeout(() => this.textContent = '📋 Copy', 2200); });
+    });
+
+    // Post Now button
+    card.querySelector('.post-btn').addEventListener('click', function() {
+      if (this.classList.contains('posted')) return;
+      window.open(this.dataset.url, '_blank');
+      this.textContent = '✅ Posted';
+      this.classList.add('posted');
+      // Log the post
+      PostLog.add({
+        truckId: selectedTruck.id,
+        truckName: `${selectedTruck.year} ${selectedTruck.make} ${selectedTruck.model}`,
+        platform,
+        angle: selectedAngle,
+        variation: varNum
+      });
+      renderFatigue();
+    });
+  });
+
+  placeholder.style.display = 'none';
+  cards.style.display = 'flex';
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ── Generate button ────────────────────────────────────────────────
+document.getElementById('gen-btn').addEventListener('click', async () => {
+  if (!selectedTruck) { showToast('Select a truck first.'); return; }
+  const platforms = [...document.querySelectorAll('.plat-check.checked')].map(c => c.dataset.platform);
+  if (!platforms.length) { showToast('Select at least one platform.'); return; }
+
+  const btn = document.getElementById('gen-btn');
+  btn.classList.add('loading');
+  btn.innerHTML = `<span class="gen-spinner"></span> Generating…`;
+  btn.disabled = true;
+
+  // Switch to posts tab
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelector('[data-tab="posts"]').classList.add('active');
+  document.getElementById('tab-posts').classList.add('active');
+
+  const results = [];
+  const useAI = !!apiKey;
+
+  for (const platform of platforms) {
+    for (let v = 1; v <= variationCount; v++) {
+      let content = null;
+      if (useAI) {
+        try {
+          const raw = await callClaude(buildSystemPrompt(), buildUserPrompt(selectedTruck, platform, selectedAngle, v, variationCount));
+          const jsonMatch = raw.match(/\{[\s\S]*\}/);
+          if (jsonMatch) content = JSON.parse(jsonMatch[0]);
+        } catch(e) { /* fall through to template */ }
+      }
+      if (!content) {
+        content = generateTemplate(selectedTruck, platform, selectedAngle, v);
+      }
+      results.push({ platform, content, varNum: v, isAI: useAI && !!content });
+    }
+  }
+
+  renderPostCards(results);
+
+  btn.classList.remove('loading');
+  btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> Regenerate`;
+  btn.disabled = false;
+
+  if (window.innerWidth < 960) {
+    document.getElementById('post-cards').scrollIntoView({ behavior:'smooth', block:'start' });
+  }
+});
+
+// ── Schedule Tab ───────────────────────────────────────────────────
+function renderScheduleTab() {
+  const grid = document.getElementById('schedule-grid');
+  grid.innerHTML = Object.entries(SCHEDULE_GUIDE).map(([platform, s]) => {
+    const meta = PLATFORM_META[platform];
+    const timeChips = s.bestTimes.map(t => `<span class="sched-time-chip">${t}</span>`).join('');
+    return `
+    <div class="sched-card">
+      <div class="sched-head">
+        <span class="sched-icon">${meta.icon}</span>
+        <span class="sched-name">${meta.name}</span>
+      </div>
+      <div class="sched-rule"><strong>Frequency:</strong> ${s.freq}</div>
+      <div class="sched-times">
+        <div class="sched-time-lbl">Best Times</div>
+        ${timeChips}
+      </div>
+      <div class="sched-anti">
+        <div class="sched-anti-lbl">Anti-Repeat Rule</div>
+        <div class="sched-anti-text">${ANTI_REPEAT[platform]}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── Post Log Tab ───────────────────────────────────────────────────
+function renderPostLog() {
+  const container = document.getElementById('log-container');
+  const log = PostLog.get();
+  if (!log.length) {
+    container.innerHTML = '<div class="log-empty">No posts logged yet. Hit "Post →" on any generated post to log it here.</div>';
+    return;
+  }
+  const rows = log.map(e => {
+    const days = Math.floor((Date.now() - new Date(e.ts).getTime()) / 86400000);
+    const dayClass = days < 2 ? 'days-fresh' : days < 7 ? 'days-ok' : 'days-stale';
+    const meta = PLATFORM_META[e.platform] || {};
+    const angle = ANGLES[e.angle] || {};
+    return `
+    <tr>
+      <td>${e.truckName || e.truckId}</td>
+      <td><span class="log-plat-badge">${meta.icon || ''} ${meta.name || e.platform}</span></td>
+      <td>${angle.icon || ''} ${angle.label || e.angle}</td>
+      <td>${e.variation > 1 ? `V${e.variation}` : '—'}</td>
+      <td><span class="log-days ${dayClass}">${days === 0 ? 'Today' : days + 'd ago'}</span></td>
+    </tr>`;
+  }).join('');
+
+  container.innerHTML = `
+    <button class="log-clear-btn" id="log-clear-btn">Clear Log</button>
+    <table class="log-table">
+      <thead><tr>
+        <th>Truck</th><th>Platform</th><th>Angle</th><th>Var</th><th>When</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+
+  document.getElementById('log-clear-btn').addEventListener('click', () => {
+    if (confirm('Clear all post history?')) { PostLog.clear(); }
+  });
+}
+
+// ── Hashtag Lab ────────────────────────────────────────────────────
+function renderHashtagLab() {
+  const lab = document.getElementById('hashtag-lab');
+  const platforms = ['facebook','tiktok','instagram'];
+  lab.innerHTML = platforms.map(platform => {
+    const meta = PLATFORM_META[platform];
+    const sets = HASHTAG_SETS[platform];
+    if (!sets || !sets[0].length) return '';
+    const activeIdx = hashPoolIndexes[platform] || 0;
+    const pools = sets.map((set, i) => {
+      if (!set.length) return '';
+      const isActive = i === activeIdx;
+      const poolId = `hash-${platform}-${i}`;
+      return `
+      <div class="hash-pool">
+        <div class="hash-pool-lbl">
+          Pool ${i+1}
+          ${isActive ? '<span class="hash-active-dot" title="Active pool"></span>' : ''}
+        </div>
+        <div class="hash-tags" id="${poolId}">${set.join(' ')}</div>
+        <button class="hash-copy-btn" data-poolid="${poolId}">Copy</button>
+      </div>`;
+    }).join('');
+
+    return `
+    <div class="hash-platform">
+      <div class="hash-plat-head">
+        <span>${meta.icon}</span>
+        <span class="hash-plat-name">${meta.name}</span>
+        <button class="hash-rotate-btn" data-platform="${platform}">↻ Rotate Active Pool</button>
+      </div>
+      <div class="hash-pool-row">${pools}</div>
+    </div>`;
+  }).join('');
+
+  // Copy buttons
+  lab.querySelectorAll('.hash-copy-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const el = document.getElementById(btn.dataset.poolid);
+      if (!el) return;
+      navigator.clipboard.writeText(el.textContent)
+        .then(() => { btn.textContent = '✅ Copied!'; setTimeout(() => btn.textContent = 'Copy', 1800); });
+    });
+  });
+
+  // Rotate buttons
+  lab.querySelectorAll('.hash-rotate-btn').forEach(btn => {
+    btn.addEventListener('click', () => rotateHashtags(btn.dataset.platform));
+  });
+}
+
+// ── Init ──────────────────────────────────────────────────────────
+populateTrucks();
+updateStats();
+renderScheduleTab();
+renderPostLog();
+renderHashtagLab();
+</script>
+</body>
+</html>

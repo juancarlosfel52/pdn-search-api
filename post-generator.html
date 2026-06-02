@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Social Post Generator — Paso Del Norte</title>
+  <link rel="stylesheet" href="css/main.css" />
+  <style>
+    .gen-shell {
+      padding-top: var(--nav-h);
+      min-height: 100vh;
+      background: var(--black);
+    }
+
+    /* ── Page header ── */
+    .gen-hero {
+      background: var(--black-2);
+      border-bottom: 1px solid var(--border);
+      padding: 40px 0 32px;
+    }
+    .gen-hero-inner {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .gen-hero-title {
+      font-family: var(--font-display);
+      font-size: clamp(28px, 5vw, 52px);
+      font-weight: 900;
+      text-transform: uppercase;
+      color: var(--chrome-bright);
+      line-height: 1;
+    }
+    .gen-hero-title em { color: var(--amber); font-style: normal; }
+    .gen-hero-sub { font-size: 13px; color: var(--text-2); margin-top: 8px; }
+
+    /* ── Step layout ── */
+    .gen-body { padding: 36px 0 80px; }
+    .gen-grid {
+      display: grid;
+      grid-template-columns: 400px 1fr;
+      gap: 28px;
+      align-items: start;
+    }
+
+    /* ── Step cards ── */
+    .step-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+    .step-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 18px 22px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface-2);
+    }
+    .step-num {
+      width: 28px; height: 28px;
+      background: var(--amber);
+      color: var(--black);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-display);
+      font-size: 14px;
+      font-weight: 900;
+      flex-shrink: 0;
+    }
+    .step-title {
+      font-family: var(--font-display);
+      font-size: 15px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--chrome-bright);
+    }
+    .step-body { padding: 20px 22px; }
+
+    /* ── Truck selector ── */
+    .truck-select-tabs {
+      display: flex;
+      gap: 0;
+      margin-bottom: 16px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+    }
+    .truck-tab {
+      flex: 1;
+      padding: 8px 12px;
+      font-family: var(--font-display);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-2);
+      background: var(--surface-2);
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .truck-tab.active { background: var(--amber); color: var(--black); }
+
+    .truck-panel { display: none; }
+    .truck-panel.active { display: block; }
+
+    /* Truck card mini */
+    .truck-pick-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 280px;
+      overflow-y: auto;
+    }
+    .truck-pick-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .truck-pick-item:hover { border-color: var(--amber); }
+    .truck-pick-item.selected { border-color: var(--amber); background: var(--amber-trace); }
+    .truck-pick-img {
+      width: 56px; height: 38px;
+      border-radius: 4px;
+      object-fit: cover;
+      flex-shrink: 0;
+      background: var(--black-3);
+    }
+    .truck-pick-name {
+      font-family: var(--font-display);
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--chrome-bright);
+    }
+    .truck-pick-detail { font-size: 11px; color: var(--text-2); }
+
+    /* Manual entry */
+    .manual-grid { display: flex; flex-direction: column; gap: 10px; }
+    .manual-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+    /* ── Image upload ── */
+    .drop-zone {
+      border: 2px dashed var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.25s;
+      background: var(--surface-2);
+    }
+    .drop-zone:hover, .drop-zone.drag-over {
+      border-color: var(--amber);
+      background: var(--amber-trace);
+    }
+    .drop-zone-icon { font-size: 36px; margin-bottom: 8px; }
+    .drop-zone-text { font-size: 13px; color: var(--text-2); }
+    .drop-zone-sub { font-size: 11px; color: var(--text-3); margin-top: 4px; }
+    #img-input { display: none; }
+
+    .img-preview-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+      gap: 8px;
+      margin-top: 14px;
+    }
+    .img-thumb {
+      position: relative;
+      aspect-ratio: 1;
+      border-radius: 6px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .img-thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .img-thumb-remove {
+      position: absolute;
+      top: 3px; right: 3px;
+      width: 18px; height: 18px;
+      background: rgba(0,0,0,0.75);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      color: #fff;
+      cursor: pointer;
+      border: none;
+      line-height: 1;
+    }
+    .img-thumb.primary-img { border-color: var(--amber); border-width: 2px; }
+    .img-thumb.primary-img::after {
+      content: '★';
+      position: absolute;
+      bottom: 2px; left: 4px;
+      font-size: 10px;
+      color: var(--amber);
+    }
+
+    /* ── Platform selector ── */
+    .platform-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .platform-check {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.15s;
+      background: var(--surface-2);
+    }
+    .platform-check:hover { border-color: var(--border-glow); }
+    .platform-check input { display: none; }
+    .platform-check.checked { border-color: var(--amber); background: var(--amber-trace); }
+    .platform-icon { font-size: 20px; flex-shrink: 0; }
+    .platform-name { font-family: var(--font-display); font-size: 13px; font-weight: 700; text-transform: uppercase; color: var(--chrome-bright); }
+    .platform-desc { font-size: 10px; color: var(--text-2); }
+
+    /* ── Generate button ── */
+    .gen-btn-wrap { margin-top: 20px; }
+    #gen-btn {
+      width: 100%;
+      padding: 16px;
+      font-size: 16px;
+      letter-spacing: 0.12em;
+      position: relative;
+      overflow: hidden;
+    }
+    #gen-btn::after {
+      content: '';
+      position: absolute;
+      left: -100%;
+      top: 0; bottom: 0;
+      width: 60%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+      animation: none;
+    }
+    #gen-btn.loading::after { animation: shimmer-btn 1s infinite; }
+    @keyframes shimmer-btn {
+      0% { left: -100%; }
+      100% { left: 200%; }
+    }
+    .gen-spinner {
+      display: inline-block;
+      width: 14px; height: 14px;
+      border: 2px solid rgba(0,0,0,0.3);
+      border-top-color: var(--black);
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Right column — output ── */
+    .output-placeholder {
+      background: var(--surface);
+      border: 1px dashed var(--border);
+      border-radius: var(--radius-lg);
+      padding: 60px 32px;
+      text-align: center;
+      color: var(--text-3);
+    }
+    .output-placeholder-icon { font-size: 52px; margin-bottom: 16px; opacity: 0.4; }
+    .output-placeholder-text {
+      font-family: var(--font-display);
+      font-size: 20px;
+      text-transform: uppercase;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--text-2);
+    }
+
+    /* ── Post cards ── */
+    .post-cards { display: flex; flex-direction: column; gap: 20px; }
+    .post-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      animation: fadeUp 0.5s ease forwards;
+      opacity: 0;
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: none; }
+    }
+    .post-card:nth-child(2) { animation-delay: 0.1s; }
+    .post-card:nth-child(3) { animation-delay: 0.2s; }
+    .post-card:nth-child(4) { animation-delay: 0.3s; }
+
+    .post-card-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface-2);
+    }
+    .post-platform-icon { font-size: 22px; }
+    .post-platform-name {
+      font-family: var(--font-display);
+      font-size: 16px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--chrome-bright);
+    }
+    .post-card-actions {
+      margin-left: auto;
+      display: flex;
+      gap: 6px;
+    }
+    .post-action-btn {
+      padding: 5px 12px;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text-2);
+      font-family: var(--font-display);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+    .post-action-btn:hover { border-color: var(--amber); color: var(--amber); }
+    .post-action-btn.post-btn {
+      background: var(--amber);
+      color: var(--black);
+      border-color: var(--amber);
+    }
+    .post-action-btn.post-btn:hover { background: var(--amber-light); }
+    .post-action-btn.posted {
+      background: var(--green);
+      color: #fff;
+      border-color: var(--green);
+      cursor: default;
+    }
+
+    .post-card-body { padding: 20px; }
+
+    /* Preview image strip */
+    .post-img-strip {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 14px;
+      overflow-x: auto;
+    }
+    .post-img-strip-thumb {
+      width: 80px;
+      height: 56px;
+      border-radius: 4px;
+      object-fit: cover;
+      flex-shrink: 0;
+      border: 1px solid var(--border);
+    }
+
+    /* Editable post content */
+    .post-field { margin-bottom: 12px; }
+    .post-field-label {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      color: var(--amber);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+    .post-editable {
+      width: 100%;
+      background: var(--black);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 10px 12px;
+      color: var(--text-1);
+      font-size: 13px;
+      line-height: 1.6;
+      resize: vertical;
+      min-height: 36px;
+      font-family: var(--font-body);
+      transition: border-color 0.2s;
+    }
+    .post-editable:focus { outline: none; border-color: var(--amber); }
+    .post-hashtags {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--amber);
+      line-height: 1.8;
+    }
+
+    /* ── Countdown ── */
+    .countdown-bar {
+      background: var(--surface);
+      border: 1px solid var(--border-glow);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+    .countdown-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: var(--green);
+      flex-shrink: 0;
+      box-shadow: 0 0 8px var(--green);
+      animation: pulse-dot 1.5s ease infinite;
+    }
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+    .countdown-text { font-size: 13px; color: var(--text-2); flex: 1; }
+    .countdown-timer {
+      font-family: var(--font-mono);
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--amber);
+      letter-spacing: 0.1em;
+    }
+    .countdown-platform {
+      font-size: 11px;
+      color: var(--text-3);
+      font-family: var(--font-mono);
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 900px) {
+      .gen-grid { grid-template-columns: 1fr; }
+      .manual-row { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 560px) {
+      .platform-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav class="nav" role="navigation">
+  <a href="index.html" class="nav-logo">
+    <div class="nav-logo-icon" aria-hidden="true"></div>
+    <div class="nav-logo-text">Paso Del <span>Norte</span></div>
+  </a>
+  <ul class="nav-links" role="list">
+    <li><a href="index.html" class="nav-link">Home</a></li>
+    <li><a href="inventory.html" class="nav-link">Inventory</a></li>
+    <li><a href="docs.html" class="nav-link">Documents</a></li>
+    <li><a href="post-generator.html" class="nav-link active">Post Generator</a></li>
+    <li><a href="index.html#contact" class="nav-link">Contact</a></li>
+  </ul>
+  <div class="nav-actions">
+    <div class="nav-phone">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 0110 1.18 2 2 0 0112 3.14V6.18a2 2 0 01-1.45 1.93l-1.18.39a16 16 0 006.61 6.61l.39-1.18A2 2 0 0118.82 12h3a2 2 0 012 2.18z"/></svg>
+      (832) 555-0180
+    </div>
+    <button class="nav-hamburger" aria-label="Open menu"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+<div class="nav-overlay" aria-hidden="true"></div>
+<div class="nav-drawer" role="dialog">
+  <a href="index.html" class="nav-link">Home</a>
+  <a href="inventory.html" class="nav-link">Inventory</a>
+  <a href="docs.html" class="nav-link">Documents</a>
+  <a href="post-generator.html" class="nav-link">Post Generator</a>
+  <a href="index.html#contact" class="nav-link">Contact</a>
+</div>
+
+<div class="gen-shell">
+
+  <!-- Hero -->
+  <div class="gen-hero">
+    <div class="container gen-hero-inner">
+      <div>
+        <h1 class="gen-hero-title">Social <em>Post</em> Generator</h1>
+        <p class="gen-hero-sub">Generate platform-ready listings for Facebook, Craigslist, TikTok & Instagram in seconds.</p>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-self:flex-end;">
+        <a href="admin.html" class="btn btn-ghost btn-sm">Admin Panel</a>
+        <a href="inventory.html" class="btn btn-primary btn-sm">View Inventory</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Body -->
+  <div class="gen-body">
+    <div class="container gen-grid">
+
+      <!-- ── LEFT COLUMN ── -->
+      <div>
+
+        <!-- Step 1: Select Truck -->
+        <div class="step-card">
+          <div class="step-header">
+            <div class="step-num">1</div>
+            <div class="step-title">Select or Enter Truck</div>
+          </div>
+          <div class="step-body">
+            <div class="truck-select-tabs">
+              <button class="truck-tab active" data-tab="from-inventory">From Inventory</button>
+              <button class="truck-tab" data-tab="manual">Manual Entry</button>
+            </div>
+
+            <!-- From inventory -->
+            <div class="truck-panel active" id="panel-from-inventory">
+              <div class="truck-pick-grid" id="truck-pick-list">
+                <!-- Rendered by JS -->
+              </div>
+            </div>
+
+            <!-- Manual entry -->
+            <div class="truck-panel" id="panel-manual">
+              <div class="manual-grid">
+                <div class="manual-row">
+                  <div class="form-group">
+                    <label class="form-label" for="m-year">Year</label>
+                    <input class="form-input" type="number" id="m-year" name="year" placeholder="2021" style="height:40px;" />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="m-make">Make</label>
+                    <select class="form-input" id="m-make" name="make" style="height:40px;">
+                      <option value="">Select...</option>
+                      <option>Peterbilt</option><option>Kenworth</option><option>Freightliner</option>
+                      <option>International</option><option>Mack</option><option>Volvo</option>
+                      <option>Western Star</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="m-model">Model</label>
+                  <input class="form-input" id="m-model" name="model" placeholder="389, W900, Cascadia…" style="height:40px;" />
+                </div>
+                <div class="manual-row">
+                  <div class="form-group">
+                    <label class="form-label" for="m-price">Price ($)</label>
+                    <input class="form-input" type="number" id="m-price" name="price" placeholder="150000" style="height:40px;" />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="m-mileage">Mileage</label>
+                    <input class="form-input" type="number" id="m-mileage" name="mileage" placeholder="350000" style="height:40px;" />
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="m-engine">Engine</label>
+                  <input class="form-input" id="m-engine" name="engine" placeholder="Cummins X15 565HP" style="height:40px;" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="m-trans">Transmission</label>
+                  <input class="form-input" id="m-trans" name="trans" placeholder="Eaton Fuller 18-Speed" style="height:40px;" />
+                </div>
+                <div class="manual-row">
+                  <div class="form-group">
+                    <label class="form-label" for="m-sleeper">Sleeper</label>
+                    <input class="form-input" id="m-sleeper" name="sleeper" placeholder='72" Flat Top' style="height:40px;" />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="m-location">Location</label>
+                    <input class="form-input" id="m-location" name="location" placeholder="Houston, TX" style="height:40px;" />
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="m-notes">Key Selling Points</label>
+                  <textarea class="form-input" id="m-notes" name="notes" rows="3" placeholder="APU, low mileage, one owner, fresh tires, DOT ready…"></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 2: Upload Photos -->
+        <div class="step-card">
+          <div class="step-header">
+            <div class="step-num">2</div>
+            <div class="step-title">Add Photos</div>
+          </div>
+          <div class="step-body">
+            <div class="drop-zone" id="drop-zone">
+              <div class="drop-zone-icon">📸</div>
+              <div class="drop-zone-text">Drop photos here or click to upload</div>
+              <div class="drop-zone-sub">JPG, PNG, HEIC — up to 20 photos · First photo = main image</div>
+            </div>
+            <input type="file" id="img-input" accept="image/*" multiple />
+            <div class="img-preview-grid" id="img-preview"></div>
+          </div>
+        </div>
+
+        <!-- Step 3: Platforms -->
+        <div class="step-card">
+          <div class="step-header">
+            <div class="step-num">3</div>
+            <div class="step-title">Select Platforms</div>
+          </div>
+          <div class="step-body">
+            <div class="platform-grid" id="platform-grid">
+              <div class="platform-check checked" data-platform="facebook">
+                <input type="checkbox" checked />
+                <div class="platform-icon">📘</div>
+                <div>
+                  <div class="platform-name">Facebook</div>
+                  <div class="platform-desc">Marketplace + Groups</div>
+                </div>
+              </div>
+              <div class="platform-check checked" data-platform="craigslist">
+                <input type="checkbox" checked />
+                <div class="platform-icon">📋</div>
+                <div>
+                  <div class="platform-name">Craigslist</div>
+                  <div class="platform-desc">For Sale by Dealer</div>
+                </div>
+              </div>
+              <div class="platform-check checked" data-platform="tiktok">
+                <input type="checkbox" checked />
+                <div class="platform-icon">🎵</div>
+                <div>
+                  <div class="platform-name">TikTok</div>
+                  <div class="platform-desc">Video caption + tags</div>
+                </div>
+              </div>
+              <div class="platform-check" data-platform="instagram">
+                <input type="checkbox" />
+                <div class="platform-icon">📸</div>
+                <div>
+                  <div class="platform-name">Instagram</div>
+                  <div class="platform-desc">Feed + Reels caption</div>
+                </div>
+              </div>
+              <div class="platform-check" data-platform="truckpaper">
+                <input type="checkbox" />
+                <div class="platform-icon">🚛</div>
+                <div>
+                  <div class="platform-name">TruckPaper</div>
+                  <div class="platform-desc">Full spec listing</div>
+                </div>
+              </div>
+              <div class="platform-check" data-platform="ebay">
+                <input type="checkbox" />
+                <div class="platform-icon">🛒</div>
+                <div>
+                  <div class="platform-name">eBay Motors</div>
+                  <div class="platform-desc">Auction or Buy It Now</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 4: Generate -->
+        <div class="gen-btn-wrap">
+          <button class="btn btn-primary btn-lg" id="gen-btn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            Generate Posts
+          </button>
+        </div>
+
+        <!-- Countdown timers -->
+        <div id="countdown-area" style="margin-top:20px;display:flex;flex-direction:column;gap:10px;"></div>
+
+      </div>
+
+      <!-- ── RIGHT COLUMN — OUTPUT ── -->
+      <div id="output-col">
+        <div class="output-placeholder" id="output-placeholder">
+          <div class="output-placeholder-icon">⚡</div>
+          <div class="output-placeholder-text">Posts Will Appear Here</div>
+          <div style="font-size:13px;color:var(--text-3);">Select a truck, add photos, choose platforms, then hit Generate.</div>
+        </div>
+        <div class="post-cards" id="post-cards" style="display:none;"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="js/config.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/data.js"></script>
+<script src="js/main.js"></script>
+<script>
+/* ============================================================
+   POST GENERATOR ENGINE
+   ============================================================ */
+
+// ── State ─────────────────────────────────────────────────
+let selectedTruck = null;
+let uploadedImages = []; // { file, url }
+let activeTab = 'from-inventory';
+const countdowns = {}; // platform → interval
+
+// ── Tab switching ─────────────────────────────────────────
+document.querySelectorAll('.truck-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    activeTab = tab.dataset.tab;
+    document.querySelectorAll('.truck-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.truck-panel').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('panel-' + activeTab)?.classList.add('active');
+  });
+});
+
+// ── Platform toggle ───────────────────────────────────────
+document.querySelectorAll('.platform-check').forEach(card => {
+  card.addEventListener('click', () => {
+    card.classList.toggle('checked');
+    card.querySelector('input').checked = card.classList.contains('checked');
+  });
+});
+
+// ── Render inventory list ─────────────────────────────────
+function renderTruckList() {
+  const list = document.getElementById('truck-pick-list');
+  list.innerHTML = TRUCKS.filter(t => t.status === 'available').map(t => `
+    <div class="truck-pick-item" data-id="${t.id}">
+      <img class="truck-pick-img" src="${t.images[0]}" alt="${t.make}" loading="lazy" />
+      <div>
+        <div class="truck-pick-name">${t.year} ${t.make} ${t.model}</div>
+        <div class="truck-pick-detail">${formatMileage(t.mileage)} · ${formatPrice(t.price)} · ${t.location}</div>
+      </div>
+    </div>`).join('');
+
+  list.querySelectorAll('.truck-pick-item').forEach(item => {
+    item.addEventListener('click', () => {
+      list.querySelectorAll('.truck-pick-item').forEach(i => i.classList.remove('selected'));
+      item.classList.add('selected');
+      selectedTruck = getTruck(item.dataset.id);
+    });
+  });
+}
+renderTruckList();
+
+// ── Image upload ──────────────────────────────────────────
+const dropZone = document.getElementById('drop-zone');
+const imgInput = document.getElementById('img-input');
+const imgPreview = document.getElementById('img-preview');
+
+dropZone.addEventListener('click', () => imgInput.click());
+imgInput.addEventListener('change', e => addImages(Array.from(e.target.files)));
+
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('drag-over');
+  addImages(Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/')));
+});
+
+function addImages(files) {
+  files.slice(0, 20 - uploadedImages.length).forEach(file => {
+    const url = URL.createObjectURL(file);
+    uploadedImages.push({ file, url });
+  });
+  renderImagePreview();
+}
+
+function renderImagePreview() {
+  imgPreview.innerHTML = uploadedImages.map((img, i) => `
+    <div class="img-thumb${i === 0 ? ' primary-img' : ''}">
+      <img src="${img.url}" alt="Photo ${i+1}" />
+      <button class="img-thumb-remove" data-idx="${i}" title="Remove">✕</button>
+    </div>`).join('');
+
+  imgPreview.querySelectorAll('.img-thumb-remove').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const idx = parseInt(btn.dataset.idx, 10);
+      URL.revokeObjectURL(uploadedImages[idx].url);
+      uploadedImages.splice(idx, 1);
+      renderImagePreview();
+    });
+  });
+}
+
+// ── Get truck data (inventory or manual) ──────────────────
+function getTruckData() {
+  if (activeTab === 'from-inventory') {
+    return selectedTruck;
+  }
+  const year = document.getElementById('m-year').value;
+  const make = document.getElementById('m-make').value;
+  const model = document.getElementById('m-model').value;
+  const price = parseInt(document.getElementById('m-price').value, 10) || 0;
+  const mileage = parseInt(document.getElementById('m-mileage').value, 10) || 0;
+  if (!year || !make || !model || !price) return null;
+  return {
+    year, make, model, price, mileage,
+    engine: document.getElementById('m-engine').value || 'Diesel Engine',
+    transmission: document.getElementById('m-trans').value || '',
+    sleeper: document.getElementById('m-sleeper').value || '',
+    location: document.getElementById('m-location').value || 'Texas',
+    description: document.getElementById('m-notes').value || '',
+    features: [],
+    dotReady: false,
+    condition: 'good'
+  };
+}
+
+// ── Content generator ─────────────────────────────────────
+function generateContent(truck, platform) {
+  const price = formatPrice(truck.price);
+  const miles = formatMileage(truck.mileage);
+  const engine = truck.engine || 'Diesel Engine';
+  const loc = truck.location || 'Texas';
+  const sleeper = truck.sleeper ? `${truck.sleeper} · ` : '';
+  const extras = (truck.features || []).slice(0, 5).join(', ') || truck.description?.slice(0, 80) || '';
+
+  const title = `${truck.year} ${truck.make} ${truck.model} — ${engine.split(' ').slice(0,3).join(' ')} | ${miles} | ${price}`;
+
+  const body = [
+    `${truck.year} ${truck.make} ${truck.model}${truck.trim ? ' ' + truck.trim : ''}`,
+    `Engine: ${engine}`,
+    truck.transmission ? `Transmission: ${truck.transmission}` : '',
+    `Mileage: ${miles}`,
+    sleeper ? `Sleeper: ${truck.sleeper}` : '',
+    extras ? `Features: ${extras}` : '',
+    `Condition: ${(truck.condition || 'good').charAt(0).toUpperCase() + (truck.condition||'good').slice(1)}`,
+    truck.dotReady ? '✅ DOT Ready' : '',
+    `Location: ${loc}`,
+    `Price: ${price}`,
+    `Financing available — all credit considered.`,
+    ``,
+    `📞 Call or text: (832) 555-0180`,
+    `Paso Del Norte: Truck & Equipment Sales — Houston, TX`
+  ].filter(Boolean).join('\n');
+
+  const tags = [
+    '#semitruck', '#' + truck.make.toLowerCase(),
+    '#' + (truck.model || '').toLowerCase().replace(/\s/g,''),
+    '#owneroperator', '#diesel', '#truckforsale',
+    '#trucking', '#bigrig', '#18wheeler',
+    '#' + loc.split(',')[0].toLowerCase().replace(/\s/g,'') + 'trucks',
+    '#commercialtruck', '#heavyduty', '#trucklife',
+    '#pasodelNorte', '#houstontrucks'
+  ].join(' ');
+
+  const platforms = {
+    facebook: {
+      title,
+      caption: `🚛 FOR SALE — ${truck.year} ${truck.make} ${truck.model}\n\n` + body + `\n\n${tags}`,
+      hashtags: tags,
+      tip: 'Post in Facebook Marketplace + local trucking groups for max reach.',
+      url: 'https://www.facebook.com/marketplace/create/vehicle'
+    },
+    craigslist: {
+      title,
+      caption: `FOR SALE: ${truck.year} ${truck.make} ${truck.model} — ${price}\n\n` + body + `\n\nNo low-ballers. Serious buyers only. Photos available on request.`,
+      hashtags: '',
+      tip: 'Post under "For Sale by Dealer" in your local city heavy equipment section.',
+      url: 'https://post.craigslist.org/k/for-sale'
+    },
+    tiktok: {
+      title: `${truck.year} ${truck.make} ${truck.model} FOR SALE 🚛 ${price}`,
+      caption: `${truck.year} ${truck.make} ${truck.model} for sale at Paso Del Norte! 💪\n${engine} · ${miles} · ${loc}\nPriced at ${price} — financing available!\nCall/text (832) 555-0180 👇\n\n${tags} #fyp #trucktok #diesel`,
+      hashtags: tags + ' #fyp #trucktok #foryoupage #trucksoftiktok',
+      tip: 'Film a 15–30 sec walkaround video. Use this as your caption. Pin your contact in comments.',
+      url: 'https://www.tiktok.com/upload'
+    },
+    instagram: {
+      title: `${truck.year} ${truck.make} ${truck.model} — ${price}`,
+      caption: `New listing just dropped 🔥\n\n${truck.year} ${truck.make} ${truck.model}\n${engine} · ${miles}\n📍 ${loc}\n💵 ${price} — Financing available\n\nCall or DM us to get behind the wheel.\n☎️ (832) 555-0180\n\n${tags}`,
+      hashtags: tags + ' #instagramtrucks #diesel',
+      tip: 'Use best photo as cover. Add phone number to story and link in bio.',
+      url: 'https://www.instagram.com'
+    },
+    truckpaper: {
+      title,
+      caption: body,
+      hashtags: '',
+      tip: 'Create a free account at TruckPaper.com and fill in the listing form.',
+      url: 'https://www.truckpaper.com/sell'
+    },
+    ebay: {
+      title: `${truck.year} ${truck.make} ${truck.model} ${engine.split(' ').slice(0,2).join(' ')} ${miles} DIESEL SEMI TRUCK`,
+      caption: body + `\n\nSeller accepts PayPal, wire transfer, or cash on pickup.\nVehicle is located in ${loc}.\nBuyer responsible for transport.`,
+      hashtags: '',
+      tip: 'List under "Cars & Trucks > Semi Trucks". Set Buy It Now or Best Offer.',
+      url: 'https://www.ebay.com/sell'
+    }
+  };
+
+  return platforms[platform] || null;
+}
+
+// ── Platform display config ───────────────────────────────
+const PLATFORM_META = {
+  facebook:   { name: 'Facebook Marketplace', icon: '📘', color: '#1877f2' },
+  craigslist: { name: 'Craigslist',           icon: '📋', color: '#7f4098' },
+  tiktok:     { name: 'TikTok',               icon: '🎵', color: '#fe2c55' },
+  instagram:  { name: 'Instagram',            icon: '📸', color: '#e1306c' },
+  truckpaper: { name: 'TruckPaper',           icon: '🚛', color: '#f59e0b' },
+  ebay:       { name: 'eBay Motors',          icon: '🛒', color: '#e53238' }
+};
+
+// ── Render post cards ─────────────────────────────────────
+function renderPostCards(truck) {
+  const selected = [...document.querySelectorAll('.platform-check.checked')].map(c => c.dataset.platform);
+  if (!selected.length) { showToast('Select at least one platform.'); return; }
+
+  const cards = document.getElementById('post-cards');
+  const imgStrip = uploadedImages.slice(0, 8).map(img =>
+    `<img class="post-img-strip-thumb" src="${img.url}" alt="photo" />`).join('');
+
+  cards.innerHTML = selected.map(platform => {
+    const content = generateContent(truck, platform);
+    const meta = PLATFORM_META[platform];
+    if (!content) return '';
+    return `
+    <div class="post-card" id="card-${platform}">
+      <div class="post-card-header">
+        <span class="post-platform-icon">${meta.icon}</span>
+        <span class="post-platform-name">${meta.name}</span>
+        <div class="post-card-actions">
+          <button class="post-action-btn copy-btn" data-platform="${platform}" title="Copy all text">📋 Copy</button>
+          <button class="post-action-btn post-btn" data-platform="${platform}" data-url="${content.url}" title="Open platform">Post Now →</button>
+        </div>
+      </div>
+      <div class="post-card-body">
+        ${imgStrip ? `<div class="post-img-strip">${imgStrip}</div>` : ''}
+        <div class="post-field">
+          <div class="post-field-label">Title / Headline</div>
+          <textarea class="post-editable" id="title-${platform}" rows="2">${content.title}</textarea>
+        </div>
+        <div class="post-field">
+          <div class="post-field-label">Post Body / Caption</div>
+          <textarea class="post-editable" id="caption-${platform}" rows="12">${content.caption}</textarea>
+        </div>
+        ${content.hashtags ? `
+        <div class="post-field">
+          <div class="post-field-label">Hashtags</div>
+          <div class="post-hashtags" contenteditable="true" id="tags-${platform}">${content.hashtags}</div>
+        </div>` : ''}
+        <div style="margin-top:10px;padding:8px 12px;background:var(--amber-trace);border:1px solid var(--border-glow);border-radius:4px;font-size:11px;color:var(--amber);">
+          💡 ${content.tip}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('output-placeholder').style.display = 'none';
+  cards.style.display = 'flex';
+
+  // Copy buttons
+  cards.querySelectorAll('.copy-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const p = btn.dataset.platform;
+      const title = document.getElementById(`title-${p}`)?.value || '';
+      const caption = document.getElementById(`caption-${p}`)?.value || '';
+      const tags = document.getElementById(`tags-${p}`)?.textContent || '';
+      navigator.clipboard.writeText([title, caption, tags].filter(Boolean).join('\n\n'))
+        .then(() => { btn.textContent = '✅ Copied!'; setTimeout(() => btn.textContent = '📋 Copy', 2000); });
+    });
+  });
+
+  // Post Now buttons
+  cards.querySelectorAll('.post-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (btn.classList.contains('posted')) return;
+      window.open(btn.dataset.url, '_blank');
+      btn.textContent = '✅ Posted';
+      btn.classList.add('posted');
+      startCountdown(btn.dataset.platform);
+    });
+  });
+}
+
+// ── Countdown timer ───────────────────────────────────────
+function startCountdown(platform) {
+  const meta = PLATFORM_META[platform];
+  const area = document.getElementById('countdown-area');
+  const id = `cd-${platform}`;
+
+  // Don't duplicate
+  if (document.getElementById(id)) return;
+
+  let seconds = 5 * 60; // 5 min default
+
+  const bar = document.createElement('div');
+  bar.className = 'countdown-bar';
+  bar.id = id;
+  bar.innerHTML = `
+    <div class="countdown-dot"></div>
+    <div class="countdown-text">
+      <strong style="color:var(--chrome-bright);">${meta.icon} ${meta.name}</strong> — Post live! Check back when timer hits zero.
+      <div class="countdown-platform">Tap to open platform and verify post went through.</div>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
+      <div class="countdown-timer" id="timer-${platform}">5:00</div>
+      <button style="font-size:10px;color:var(--text-3);background:none;border:none;cursor:pointer;font-family:var(--font-mono);" onclick="stopCountdown('${platform}')">Stop</button>
+    </div>`;
+  area.appendChild(bar);
+
+  countdowns[platform] = setInterval(() => {
+    seconds--;
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    const el = document.getElementById(`timer-${platform}`);
+    if (el) el.textContent = `${m}:${s.toString().padStart(2,'0')}`;
+    if (seconds <= 0) {
+      clearInterval(countdowns[platform]);
+      if (el) el.textContent = '✅ Go check!';
+      el?.closest('.countdown-bar')?.style.setProperty('border-color', 'var(--green)');
+      showToast(`Time's up — go check your ${meta.name} post!`);
+    }
+  }, 1000);
+}
+
+function stopCountdown(platform) {
+  clearInterval(countdowns[platform]);
+  document.getElementById(`cd-${platform}`)?.remove();
+}
+
+// ── Generate button ───────────────────────────────────────
+document.getElementById('gen-btn').addEventListener('click', async () => {
+  const truck = getTruckData();
+  if (!truck) {
+    showToast('Please select a truck or fill in all required fields.');
+    return;
+  }
+  const btn = document.getElementById('gen-btn');
+  btn.classList.add('loading');
+  btn.innerHTML = `<span class="gen-spinner"></span> Generating…`;
+  btn.disabled = true;
+
+  // Try Claude AI first, fall back to templates
+  const AI_SYSTEM = `You are a professional truck sales copywriter for ${PDN_CONFIG.BIZ}, ${PDN_CONFIG.LOCATION}. Write compelling, human, platform-native posts. Never sound robotic. Audience: owner-operators, fleet buyers, oilfield workers.`;
+
+  async function aiPost(t, platform) {
+    const platformRules = {
+      facebook:   'Facebook Marketplace. Max 400 chars body. Conversational, 3-5 emojis. End with phone.',
+      craigslist: 'Craigslist. NO emojis. Plain text. ALL CAPS title. Formal.',
+      tiktok:     'TikTok caption. Hook in first 4 words. Max 150 chars. 5-7 hashtags including #fyp.',
+      instagram:  'Instagram. Visual language. 150-200 char caption then 25 hashtags.',
+      truckpaper: 'TruckPaper. Professional spec-heavy listing. No emojis.',
+      ebay:       'eBay Motors. SEO title max 80 chars. Full spec body. Payment/pickup terms.'
+    };
+    const raw = await pdnClaude(AI_SYSTEM,
+      `Write a ${platform} post for: ${t.year} ${t.make} ${t.model} | ${t.engine} | ${formatMileage(t.mileage)} | ${formatPrice(t.price)} | ${t.location}
+Features: ${(t.features||[]).join(', ')} | ${t.dotReady?'DOT Ready':''}  ${t.financing?'Financing available':''}
+Phone: ${PDN_CONFIG.PHONE}
+Platform rules: ${platformRules[platform]}
+Return JSON: {"title":"...","caption":"...","hashtags":"..."}`, 500);
+    const m = raw.match(/\{[\s\S]*\}/);
+    return m ? JSON.parse(m[0]) : null;
+  }
+
+  const selected = [...document.querySelectorAll('.platform-check.checked')].map(c => c.dataset.platform);
+  const aiResults = {};
+  for (const plat of selected) {
+    try { aiResults[plat] = await aiPost(truck, plat); } catch(e) { aiResults[plat] = null; }
+  }
+
+  // Override generateContent to use AI result when available
+  const _orig = generateContent;
+  window.generateContent = function(t, platform) {
+    return aiResults[platform] || _orig(t, platform);
+  };
+
+  renderPostCards(truck);
+  window.generateContent = _orig;
+
+  btn.classList.remove('loading');
+  btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> Regenerate`;
+  btn.disabled = false;
+
+  // Scroll to output on mobile
+  if (window.innerWidth < 900) {
+    document.getElementById('post-cards').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+});
+</script>
+</body>
+</html>

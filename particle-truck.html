@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Loading — Paso Del Norte</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; overflow: hidden; background: #060608; }
+    canvas#three { display: block; width: 100%; height: 100%; position: fixed; inset: 0; }
+
+    /* ── Brand top ── */
+    .load-brand {
+      position: fixed;
+      top: 38px;
+      left: 50%;
+      transform: translateX(-50%);
+      text-align: center;
+      pointer-events: none;
+      z-index: 10;
+    }
+    .load-brand-name {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: clamp(18px, 3vw, 28px);
+      font-weight: 900;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: #f4f4f5;
+    }
+    .load-brand-name span { color: #f59e0b; }
+    .load-brand-sub {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: rgba(244,244,245,0.3);
+      margin-top: 5px;
+    }
+
+    /* ── Bottom loading UI ── */
+    .load-ui {
+      position: fixed;
+      bottom: 52px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(520px, 88vw);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      z-index: 10;
+    }
+
+    .load-status {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      color: rgba(244,244,245,0.45);
+      transition: color 0.6s;
+    }
+    /* Bar track */
+    .load-bar-track {
+      width: 100%;
+      height: 2px;
+      background: rgba(255,255,255,0.07);
+      position: relative;
+      overflow: visible;
+    }
+    /* Filled bar */
+    .load-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: #f59e0b;
+      transition: background 1.2s ease;
+      position: relative;
+    }
+    .load-bar-fill.green { background: #22c55e; }
+    /* Glow on the leading edge */
+    .load-bar-fill::after {
+      content: '';
+      position: absolute;
+      right: -1px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #f59e0b;
+      box-shadow: 0 0 10px 4px rgba(245,158,11,0.7);
+      transition: background 1.2s ease, box-shadow 1.2s ease;
+    }
+    .load-bar-fill.green::after {
+      background: #22c55e;
+      box-shadow: 0 0 12px 5px rgba(34,197,94,0.65);
+    }
+    .load-status.green { color: rgba(34,197,94,0.7); }
+    /* Enter button */
+    .load-enter {
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+      pointer-events: none;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: #060608;
+      background: #f59e0b;
+      border: none;
+      padding: 12px 44px;
+      cursor: pointer;
+      margin-top: 4px;
+    }
+    .load-enter.visible {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+    .load-enter:hover { background: #d97706; }
+
+    /* ── Vignette ── */
+    .vignette {
+      position: fixed; inset: 0; z-index: 5; pointer-events: none;
+      background: radial-gradient(ellipse at center,
+        transparent 38%,
+        rgba(6,6,8,0.55) 70%,
+        rgba(6,6,8,0.92) 100%);
+    }
+
+    /* ── Speed lines canvas ── */
+    #speed-canvas {
+      position: fixed; inset: 0; z-index: 6;
+      pointer-events: none; opacity: 0;
+      transition: opacity 0.1s;
+    }
+
+    /* ── Ambient dust canvas ── */
+    #dust-canvas {
+      position: fixed; inset: 0; z-index: 4; pointer-events: none;
+    }
+
+    /* ── Neon flicker ── */
+    @keyframes neon-flicker {
+      0%   { opacity: 0; }
+      5%   { opacity: 0.9; }
+      6%   { opacity: 0.1; }
+      8%   { opacity: 1; }
+      9%   { opacity: 0.2; }
+      10%  { opacity: 1; }
+      60%  { opacity: 1; }
+      61%  { opacity: 0.4; }
+      62%  { opacity: 1; }
+      100% { opacity: 1; }
+    }
+    .load-brand-name {
+      animation: neon-flicker 1.8s ease forwards;
+    }
+    .load-brand-sub {
+      animation: neon-flicker 2.2s ease forwards;
+    }
+
+  </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;900&family=JetBrains+Mono&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <canvas id="three"></canvas>
+  <canvas id="dust-canvas"></canvas>
+  <canvas id="speed-canvas"></canvas>
+
+<div class="vignette"></div>
+
+  <!-- Brand -->
+  <div class="load-brand">
+    <div class="load-brand-name">Paso Del <span>Norte</span></div>
+    <div class="load-brand-sub">Truck &amp; Equipment Sales</div>
+  </div>
+
+  <!-- Loading bar UI -->
+  <div class="load-ui">
+    <div class="load-status" id="load-status">
+      <span id="load-label">Initializing...</span>
+      <span id="load-pct">0%</span>
+    </div>
+    <div class="load-bar-track">
+      <div class="load-bar-fill" id="load-bar"></div>
+    </div>
+    <button class="load-enter" id="load-enter" onclick="window.location.href='index.html'">
+      Enter Platform
+    </button>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/OBJLoader.js"></script>
+  <script>
+  const canvas = document.getElementById('three');
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.2;
+  renderer.outputEncoding = THREE.sRGBEncoding;
+
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color('#060608');
+
+  // --- Environment map for body reflections ---
+  // Paint an equirectangular sky: deep night + amber horizon + cool moon patch
+  (function buildEnvMap() {
+    const ec = document.createElement('canvas');
+    ec.width = 512; ec.height = 256;
+    const ex = ec.getContext('2d');
+
+    // Sky gradient (top → horizon)
+    const skyG = ex.createLinearGradient(0, 0, 0, 256);
+    skyG.addColorStop(0,    '#04040a');
+    skyG.addColorStop(0.55, '#0b0b16');
+    skyG.addColorStop(0.78, '#180c02');
+    skyG.addColorStop(1,    '#2c1604');
+    ex.fillStyle = skyG;
+    ex.fillRect(0, 0, 512, 256);
+
+    // Amber horizon band
+    const hG = ex.createLinearGradient(0, 178, 0, 256);
+    hG.addColorStop(0, 'rgba(245,158,11,0.0)');
+    hG.addColorStop(0.5,'rgba(245,158,11,0.22)');
+    hG.addColorStop(1, 'rgba(180,90,5,0.35)');
+    ex.fillStyle = hG;
+    ex.fillRect(0, 178, 512, 78);
+
+    // Moon bright patch (upper-right quadrant of equirect)
+    const mG = ex.createRadialGradient(390, 55, 0, 390, 55, 40);
+    mG.addColorStop(0,   'rgba(210,220,255,0.95)');
+    mG.addColorStop(0.25,'rgba(170,185,240,0.55)');
+    mG.addColorStop(0.7, 'rgba(120,140,210,0.12)');
+    mG.addColorStop(1,   'rgba(0,0,0,0)');
+    ex.fillStyle = mG;
+    ex.fillRect(0, 0, 512, 256);
+
+    // A few subtle star glints
+    for (let i = 0; i < 60; i++) {
+      const sx = Math.random() * 512, sy = Math.random() * 140;
+      const sa = Math.random() * 0.5 + 0.15;
+      ex.beginPath(); ex.arc(sx, sy, 0.7, 0, Math.PI * 2);
+      ex.fillStyle = `rgba(200,210,255,${sa})`; ex.fill();
+    }
+
+    const envTex = new THREE.CanvasTexture(ec);
+    envTex.mapping = THREE.EquirectangularReflectionMapping;
+    const pmrem = new THREE.PMREMGenerator(renderer);
+    pmrem.compileEquirectangularShader();
+    const envRT = pmrem.fromEquirectangular(envTex);
+    scene.environment = envRT.texture;
+    pmrem.dispose(); envTex.dispose();
+  })();
+  // No fog — truck stays visible across full drive-out
+
+  const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 200);
+  camera.position.set(-8, 3.5, 12);
+  camera.lookAt(0, 1.5, 0);
+
+  // Lighting
+  scene.add(new THREE.AmbientLight('#1a1208', 1.2));
+
+  const keyLight = new THREE.DirectionalLight('#f59e0b', 2.5);
+  keyLight.position.set(6, 8, 6);
+  keyLight.castShadow = true;
+  keyLight.shadow.mapSize.set(2048, 2048);
+  keyLight.shadow.camera.near = 0.1;
+  keyLight.shadow.camera.far = 60;
+  keyLight.shadow.camera.left = -15;
+  keyLight.shadow.camera.right = 15;
+  keyLight.shadow.camera.top = 10;
+  keyLight.shadow.camera.bottom = -10;
+  scene.add(keyLight);
+
+  const rimLight = new THREE.DirectionalLight('#c0d0e0', 1.4);
+  rimLight.position.set(-8, 5, -6);
+  scene.add(rimLight);
+
+  // --- Moon ---
+  const moonPos = new THREE.Vector3(10, 7, -18);
+
+  const moonMesh = new THREE.Mesh(
+    new THREE.SphereGeometry(1.4, 40, 40),
+    new THREE.MeshStandardMaterial({
+      color: '#cdd4ee',
+      emissive: '#8898cc',
+      emissiveIntensity: 0.7,
+      roughness: 0.88,
+      metalness: 0.0
+    })
+  );
+  moonMesh.position.copy(moonPos);
+  scene.add(moonMesh);
+
+  // Soft halo glow around moon (additive billboard quad)
+  const moonGlowMat = new THREE.ShaderMaterial({
+    uniforms: { opacity: { value: 1.0 } },
+    vertexShader: `
+      varying vec2 vUv;
+      void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }
+    `,
+    fragmentShader: `
+      varying vec2 vUv;
+      uniform float opacity;
+      void main() {
+        float d = length(vUv - 0.5) * 2.0;
+        if (d >= 1.0) discard;
+        float g = exp(-d * 3.2) * 0.58;
+        float rim = smoothstep(0.60, 0.40, d) * 0.16;
+        float edge = 1.0 - smoothstep(0.72, 1.0, d);  // hard fade to 0 before quad border
+        vec3 col = mix(vec3(0.72,0.80,1.0), vec3(0.50,0.60,0.92), d);
+        gl_FragColor = vec4(col, (g + rim) * edge * opacity);
+      }
+    `,
+    transparent: true,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false,
+    side: THREE.DoubleSide
+  });
+  const moonGlow = new THREE.Mesh(new THREE.PlaneGeometry(11, 11), moonGlowMat);
+  moonGlow.position.copy(moonPos);
+  scene.add(moonGlow);
+
+  // Moon casts a cool-white fill light on the scene
+  const moonLight = new THREE.PointLight('#a8b8e0', 1.1, 90);
+  moonLight.position.copy(moonPos);
+  scene.add(moonLight);
+
+  // No point light headlight — avoids visible fake headlight artifact
+
+  // ─── Terrain & Highway ────────────────────────────────────────────────────
+
+  // Asphalt road (center strip)
+  const roadMat = new THREE.MeshStandardMaterial({
+    color: '#111010', roughness: 0.88, metalness: 0.06, envMapIntensity: 0.6
+  });
+  const road = new THREE.Mesh(new THREE.PlaneGeometry(300, 5), roadMat);
+  road.rotation.x = -Math.PI / 2;
+  road.position.set(40, -0.01, 0);
+  road.receiveShadow = true;
+  scene.add(road);
+
+  // Dirt shoulder (wider, flanking the road)
+  const dirtMat = new THREE.MeshStandardMaterial({
+    color: '#1c1408', roughness: 0.97, metalness: 0.0, envMapIntensity: 0.2
+  });
+  [-4.5, 4.5].forEach(oz => {
+    const shoulder = new THREE.Mesh(new THREE.PlaneGeometry(300, 5.5), dirtMat);
+    shoulder.rotation.x = -Math.PI / 2;
+    shoulder.position.set(40, -0.012, oz);
+    shoulder.receiveShadow = true;
+    scene.add(shoulder);
+  });
+
+  // Road center dashes (yellow)
+  const dashMat = new THREE.MeshStandardMaterial({
+    color: '#d4a017', roughness: 0.75, metalness: 0.1, envMapIntensity: 0.4
+  });
+  for (let xi = -8; xi < 90; xi += 6) {
+    const dash = new THREE.Mesh(new THREE.PlaneGeometry(3.2, 0.14), dashMat);
+    dash.rotation.x = -Math.PI / 2;
+    dash.position.set(xi, 0.005, 0);
+    scene.add(dash);
+  }
+
+  // White edge lines
+  const edgeMat = new THREE.MeshStandardMaterial({
+    color: '#cccccc', roughness: 0.8, metalness: 0.05
+  });
+  [-2.3, 2.3].forEach(ez => {
+    const edgeLine = new THREE.Mesh(new THREE.PlaneGeometry(300, 0.1), edgeMat);
+    edgeLine.rotation.x = -Math.PI / 2;
+    edgeLine.position.set(40, 0.004, ez);
+    scene.add(edgeLine);
+  });
+
+  // Highway sign builder
+  const poleMat  = new THREE.MeshStandardMaterial({ color: '#707878', metalness: 0.75, roughness: 0.35, envMapIntensity: 1.2 });
+  const signMat  = new THREE.MeshStandardMaterial({ color: '#0b3d14', roughness: 0.65, metalness: 0.08, envMapIntensity: 0.5 });
+  const signBord = new THREE.MeshStandardMaterial({ color: '#e8e8e8', roughness: 0.9 });
+  const miMatW   = new THREE.MeshStandardMaterial({ color: '#d0d0d0', roughness: 0.85 });
+  const miMatB   = new THREE.MeshStandardMaterial({ color: '#1a1208', roughness: 0.9 });
+
+  function makeHighwaySign(x, z, w, h) {
+    const g = new THREE.Group();
+    // Two poles
+    const poleH = 5.2;
+    const poleGeo = new THREE.CylinderGeometry(0.07, 0.09, poleH, 8);
+    const poleSpan = w * 0.42;
+    [-poleSpan, poleSpan].forEach(px => {
+      const p = new THREE.Mesh(poleGeo, poleMat);
+      p.position.set(px, poleH / 2, 0);
+      p.castShadow = true;
+      g.add(p);
+    });
+    // Horizontal crossbar
+    const bar = new THREE.Mesh(new THREE.BoxGeometry(w + 0.2, 0.1, 0.1), poleMat);
+    bar.position.set(0, poleH - 0.05, 0);
+    g.add(bar);
+    // Sign border (white frame)
+    const frame = new THREE.Mesh(new THREE.BoxGeometry(w + 0.14, h + 0.12, 0.04), signBord);
+    frame.position.set(0, poleH + h / 2, 0.005);
+    g.add(frame);
+    // Sign panel (green)
+    const panel = new THREE.Mesh(new THREE.BoxGeometry(w, h, 0.06), signMat.clone());
+    panel.position.set(0, poleH + h / 2, 0.04);
+    panel.castShadow = true;
+    g.add(panel);
+    g.position.set(x, 0, z);
+    scene.add(g);
+    return g;
+  }
+
+  // Mile marker post builder (small roadside markers)
+  function makeMileMarker(x, z) {
+    const g = new THREE.Group();
+    const post = new THREE.Mesh(new THREE.BoxGeometry(0.12, 1.5, 0.12), miMatW);
+    post.position.set(0, 0.75, 0);
+    post.castShadow = true;
+    g.add(post);
+    const sign = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.28, 0.06), miMatB);
+    sign.position.set(0, 1.6, 0);
+    g.add(sign);
+    g.position.set(x, 0, z);
+    scene.add(g);
+  }
+
+  // Place signs along the truck's rightward drive path
+  makeHighwaySign(14,  -3.8, 3.4, 1.2);  // sign before drive-out
+  makeHighwaySign(28,  -3.8, 2.8, 1.0);  // mid
+  makeHighwaySign(44,  -3.8, 3.0, 1.1);  // far right
+
+  // Mile markers at road shoulder (right side every ~8 units)
+  [6, 14, 22, 30, 38, 46].forEach(xi => makeMileMarker(xi, 3.0));
+
+  const glowStrip = { position: { x: 0 } }; // retained for render loop compat
+
+  // Truck state
+  let truck = null;
+  let wheelMeshes = [];
+  let groundOffset = 0;   // stores -box2.min.y so render loop can use it
+  let driveX = 0;
+  let driveXTarget = 0;
+  let driving = false;
+  let driveTriggered = false;
+
+  // Spring suspension physics
+  let suspY = 0, suspVel = 0;
+  const SPRING_K = 70, SPRING_DAMP = 8;
+  let nextBump = 2.0;
+
+  // Wheel spin
+  let wheelAngle = 0, wheelSpeed = 0, wheelSpeedTarget = 0.04;
+  let prevT = 0;
+
+  // Materials — envMap set from scene.environment automatically for MeshStandardMaterial
+  const bodyMat = new THREE.MeshStandardMaterial({
+    color: '#1a1208', metalness: 0.85, roughness: 0.22,
+    envMapIntensity: 2.2   // strong reflection pickup
+  });
+  const chromeMat = new THREE.MeshStandardMaterial({
+    color: '#c8c8d0', metalness: 1.0, roughness: 0.08,
+    envMapIntensity: 3.5   // mirror-like chrome
+  });
+  const glassMat = new THREE.MeshStandardMaterial({
+    color: '#1a2a3a', metalness: 0.3, roughness: 0.03,
+    transparent: true, opacity: 0.55,
+    envMapIntensity: 2.8   // glass catches sky + moon
+  });
+
+  // Load OBJ — guard against missing loader
+  function loadTruck() {
+    if (typeof THREE.OBJLoader === 'undefined') {
+      console.warn('OBJLoader not ready, retrying...');
+      setTimeout(loadTruck, 200);
+      return;
+    }
+    const objLoader = new THREE.OBJLoader();
+    objLoader.load(
+      'assets/truck/truck.obj',
+      function(obj) {
+        try {
+          obj.traverse(child => {
+            if (!child.isMesh) return;
+            const n = (child.name || '').toLowerCase();
+            if (n.includes('glass') || n.includes('window') || n.includes('wind')) child.material = glassMat;
+            else if (n.includes('chrome') || n.includes('exhaust') || n.includes('stack') || n.includes('bumper')) child.material = chromeMat;
+            else child.material = bodyMat.clone();
+            child.castShadow = true;
+            child.receiveShadow = true;
+            // Collect wheel meshes for spin animation
+            if (n.includes('wheel') || n.includes('tire') || n.includes('tyre') || n.includes('rim') || n.includes('axle')) {
+              wheelMeshes.push(child);
+            }
+          });
+          const box = new THREE.Box3().setFromObject(obj);
+          const size = box.getSize(new THREE.Vector3());
+          const center = box.getCenter(new THREE.Vector3());
+          const scale = 6 / Math.max(size.x, size.y, size.z);
+          obj.scale.setScalar(scale);
+
+          // Fix orientation: OBJ is Z-up exported — stand it up and face right
+          obj.rotation.x = -Math.PI / 2;   // lay Z-up → Y-up
+          obj.rotation.z = Math.PI;         // face right (positive X)
+          // No rotation.y — combined with -π/2 X it creates a compound world tilt
+
+          // Re-compute bounding box after rotation to seat on ground
+          obj.updateMatrixWorld(true);
+          const box2 = new THREE.Box3().setFromObject(obj);
+          const center2 = box2.getCenter(new THREE.Vector3());
+          groundOffset = -box2.min.y;       // store so render loop can maintain height
+          obj.position.set(-center2.x, groundOffset, -center2.z);
+
+          scene.add(obj);
+          truck = obj;
+        } catch(e) { console.error('Truck setup error:', e); }
+      },
+      xhr => {
+        if (xhr.total) {
+          const p = Math.round(xhr.loaded / xhr.total * 100);
+          document.getElementById('load-label').textContent = 'Loading model... ' + p + '%';
+        }
+      },
+      err => console.error('OBJ load error:', err)
+    );
+  }
+  loadTruck();
+
+  // Loading bar
+  const bar    = document.getElementById('load-bar');
+  const pct    = document.getElementById('load-pct');
+  const label  = document.getElementById('load-label');
+  const status = document.getElementById('load-status');
+  const enter  = document.getElementById('load-enter');
+
+  const STEPS = [
+    [18,  600,  'Loading assets...'],
+    [42,  900,  'Building inventory...'],
+    [65,  700,  'Connecting systems...'],
+    [83,  800,  'Verifying account...'],
+    [100, 600,  'Ready.'],
+  ];
+  let currentPct = 0;
+
+  function animateBar(targetPct, duration, lbl, onDone) {
+    label.textContent = lbl;
+    const start = performance.now(), from = currentPct;
+    function tick(now) {
+      const t = Math.min((now - start) / duration, 1);
+      const ease = t < 0.5 ? 2*t*t : -1+(4-2*t)*t;
+      currentPct = from + (targetPct - from) * ease;
+      bar.style.width = currentPct + '%';
+      pct.textContent = Math.round(currentPct) + '%';
+      if (!driveTriggered && currentPct >= 90) {
+        driveTriggered = true; driving = true;
+        wheelSpeedTarget = 5.0;          // wheels spin hard on takeoff
+        suspVel += 0.06;                 // one last bounce on launch
+        camera.fov = 60; camera.updateProjectionMatrix();
+        // Hide truck 1 second after animation starts
+        setTimeout(() => { if (truck) truck.visible = false; }, 1000);
+        setTimeout(() => {
+          driveXTarget = 50;
+          speedLinesActive = true;
+          setTimeout(() => { speedLinesActive = false; }, 1500);
+        }, 150);
+      }
+      if (t < 1) requestAnimationFrame(tick);
+      else { currentPct = targetPct; onDone && onDone(); }
+    }
+    requestAnimationFrame(tick);
+  }
+
+  function runSteps(i) {
+    if (i >= STEPS.length) return;
+    const [tp, dur, lbl] = STEPS[i];
+    animateBar(tp, dur, lbl, () => setTimeout(() => runSteps(i + 1), 120));
+  }
+
+  function onLoadComplete() {
+    bar.classList.add('green'); status.classList.add('green');
+    label.textContent = 'System ready'; pct.textContent = '100%';
+    setTimeout(() => enter.classList.add('visible'), 400);
+  }
+
+  enter.onclick = () => { window.location.href = 'index.html'; };
+  setTimeout(() => runSteps(0), 600);
+  const totalDur = STEPS.reduce((a, s) => a + s[1] + 120, 0);
+  setTimeout(onLoadComplete, 600 + totalDur);
+
+  // Starry night sky (top 48% of screen)
+  const dustC = document.getElementById('dust-canvas');
+  const dustX = dustC.getContext('2d');
+  function resizeDust() { dustC.width = window.innerWidth; dustC.height = window.innerHeight; }
+  resizeDust();
+
+  // Star palette: mostly cool white-blue, occasional warm
+  function starColor() {
+    const r = Math.random();
+    if (r < 0.12) return [255, 242, 200];   // warm golden
+    if (r < 0.30) return [190, 212, 255];   // cool blue
+    if (r < 0.55) return [230, 235, 255];   // blue-white
+    return [248, 250, 255];                 // pure white
+  }
+
+  const STARS = Array.from({ length: 180 }, () => {
+    const [cr, cg, cb] = starColor();
+    return {
+      x: Math.random() * window.innerWidth,
+      y: Math.random() * window.innerHeight * 0.46,  // top 46%
+      r: Math.pow(Math.random(), 2.2) * 1.3 + 0.18, // mostly tiny, a few big
+      baseA: Math.random() * 0.45 + 0.25,
+      tSpeed: Math.random() * 1.1 + 0.25,
+      tPhase: Math.random() * Math.PI * 2,
+      tAmp: Math.random() * 0.28 + 0.06,
+      cr, cg, cb
+    };
+  });
+
+  // Wishing star
+  let wishActive = false, wishT = 0, wishDur = 0;
+  let wishX0 = 0, wishY0 = 0, wishX1 = 0, wishY1 = 0;
+  let nextWish = 3.5 + Math.random() * 5;
+
+  function fireWishingStar() {
+    wishActive = true; wishT = 0;
+    wishDur = 0.85 + Math.random() * 0.45;
+    const W = dustC.width, H = dustC.height * 0.42;
+    wishX0 = W * (0.08 + Math.random() * 0.55);
+    wishY0 = H * (0.04 + Math.random() * 0.35);
+    const ang = (28 + Math.random() * 22) * Math.PI / 180;
+    const dist = 180 + Math.random() * 160;
+    wishX1 = wishX0 + Math.cos(ang) * dist;
+    wishY1 = wishY0 + Math.sin(ang) * dist;
+  }
+
+  let lastStarTs = performance.now();
+
+  function tickDust(now) {
+    const dt = Math.min((now - lastStarTs) / 1000, 0.05);
+    lastStarTs = now;
+    const elapsed = now / 1000;
+
+    dustX.clearRect(0, 0, dustC.width, dustC.height);
+
+    // Draw stars
+    STARS.forEach(s => {
+      const twinkle = s.baseA + Math.sin(elapsed * s.tSpeed + s.tPhase) * s.tAmp;
+      const a = Math.max(0.04, Math.min(1, twinkle));
+
+      // Soft glow halo for brighter/larger stars
+      if (s.r > 0.75) {
+        const gr = dustX.createRadialGradient(s.x, s.y, 0, s.x, s.y, s.r * 4.5);
+        gr.addColorStop(0,   `rgba(${s.cr},${s.cg},${s.cb},${(a * 0.38).toFixed(3)})`);
+        gr.addColorStop(0.5, `rgba(${s.cr},${s.cg},${s.cb},${(a * 0.10).toFixed(3)})`);
+        gr.addColorStop(1,   `rgba(${s.cr},${s.cg},${s.cb},0)`);
+        dustX.beginPath(); dustX.arc(s.x, s.y, s.r * 4.5, 0, Math.PI * 2);
+        dustX.fillStyle = gr; dustX.fill();
+      }
+
+      // Star core
+      dustX.beginPath(); dustX.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      dustX.fillStyle = `rgba(${s.cr},${s.cg},${s.cb},${a.toFixed(3)})`;
+      dustX.fill();
+
+      // Cross sparkle on the brightest ones
+      if (s.r > 1.0 && a > 0.55) {
+        const sp = s.r * 3.2 * (a - 0.3);
+        dustX.strokeStyle = `rgba(${s.cr},${s.cg},${s.cb},${(a * 0.45).toFixed(3)})`;
+        dustX.lineWidth = 0.6;
+        dustX.beginPath(); dustX.moveTo(s.x - sp, s.y); dustX.lineTo(s.x + sp, s.y); dustX.stroke();
+        dustX.beginPath(); dustX.moveTo(s.x, s.y - sp); dustX.lineTo(s.x, s.y + sp); dustX.stroke();
+      }
+    });
+
+    // Wishing star countdown
+    nextWish -= dt;
+    if (nextWish <= 0 && !wishActive) {
+      fireWishingStar();
+      nextWish = 7 + Math.random() * 9;
+    }
+
+    // Draw wishing star
+    if (wishActive) {
+      wishT += dt;
+      const p = Math.min(wishT / wishDur, 1);
+      const cx = wishX0 + (wishX1 - wishX0) * p;
+      const cy = wishY0 + (wishY1 - wishY0) * p;
+      const trailFrac = 0.20;
+      const tp = Math.max(0, p - trailFrac);
+      const tx = wishX0 + (wishX1 - wishX0) * tp;
+      const ty = wishY0 + (wishY1 - wishY0) * tp;
+
+      // Fade envelope
+      const fadeIn  = Math.min(p / 0.12, 1);
+      const fadeOut = p > 0.72 ? 1 - (p - 0.72) / 0.28 : 1;
+      const wa = fadeIn * fadeOut;
+
+      // Trail
+      const tg = dustX.createLinearGradient(tx, ty, cx, cy);
+      tg.addColorStop(0,   `rgba(200,215,255,0)`);
+      tg.addColorStop(0.6, `rgba(220,232,255,${(0.28 * wa).toFixed(3)})`);
+      tg.addColorStop(1,   `rgba(255,255,255,${(0.92 * wa).toFixed(3)})`);
+      dustX.beginPath(); dustX.moveTo(tx, ty); dustX.lineTo(cx, cy);
+      dustX.strokeStyle = tg; dustX.lineWidth = 1.8; dustX.stroke();
+
+      // Glowing head
+      const hg = dustX.createRadialGradient(cx, cy, 0, cx, cy, 9);
+      hg.addColorStop(0,   `rgba(255,255,255,${wa.toFixed(3)})`);
+      hg.addColorStop(0.35,`rgba(210,225,255,${(0.55 * wa).toFixed(3)})`);
+      hg.addColorStop(1,   `rgba(160,190,255,0)`);
+      dustX.beginPath(); dustX.arc(cx, cy, 9, 0, Math.PI * 2);
+      dustX.fillStyle = hg; dustX.fill();
+
+      // Four-point sparkle cross on head
+      if (wa > 0.25) {
+        const sp = 6 * wa;
+        dustX.strokeStyle = `rgba(255,255,255,${(wa * 0.75).toFixed(3)})`;
+        dustX.lineWidth = 0.9;
+        dustX.beginPath(); dustX.moveTo(cx - sp, cy); dustX.lineTo(cx + sp, cy); dustX.stroke();
+        dustX.beginPath(); dustX.moveTo(cx, cy - sp); dustX.lineTo(cx, cy + sp); dustX.stroke();
+        // Diagonal arms (dimmer)
+        const sd = sp * 0.55;
+        dustX.strokeStyle = `rgba(255,255,255,${(wa * 0.35).toFixed(3)})`;
+        dustX.beginPath(); dustX.moveTo(cx - sd, cy - sd); dustX.lineTo(cx + sd, cy + sd); dustX.stroke();
+        dustX.beginPath(); dustX.moveTo(cx + sd, cy - sd); dustX.lineTo(cx - sd, cy + sd); dustX.stroke();
+      }
+
+      if (p >= 1) wishActive = false;
+    }
+
+    requestAnimationFrame(tickDust);
+  }
+  requestAnimationFrame(tickDust);
+
+  // Speed lines
+  const spC = document.getElementById('speed-canvas');
+  const spX = spC.getContext('2d');
+  let speedLinesActive = false, speedLineOpacity = 0;
+  const LINES = Array.from({length:40}, () => ({
+    x: Math.random()*window.innerWidth, y: Math.random()*window.innerHeight,
+    len: Math.random()*180+60, speed: Math.random()*22+12, a: Math.random()*0.5+0.2
+  }));
+  function resizeSpeed() { spC.width=window.innerWidth; spC.height=window.innerHeight; }
+  resizeSpeed();
+  function tickSpeed() {
+    if (!speedLinesActive && speedLineOpacity<=0) { requestAnimationFrame(tickSpeed); return; }
+    speedLineOpacity += speedLinesActive ? 0.06 : -0.04;
+    speedLineOpacity = Math.max(0, Math.min(1, speedLineOpacity));
+    spC.style.opacity = speedLineOpacity;
+    spX.clearRect(0,0,spC.width,spC.height);
+    if (speedLineOpacity>0) {
+      LINES.forEach(l => {
+        l.x += l.speed*speedLineOpacity;
+        if (l.x > spC.width+l.len) l.x = -l.len;
+        spX.beginPath(); spX.moveTo(l.x,l.y); spX.lineTo(l.x+l.len,l.y);
+        const g = spX.createLinearGradient(l.x,0,l.x+l.len,0);
+        g.addColorStop(0,'rgba(245,158,11,0)');
+        g.addColorStop(0.4,`rgba(245,158,11,${l.a*speedLineOpacity})`);
+        g.addColorStop(1,'rgba(245,158,11,0)');
+        spX.strokeStyle=g; spX.lineWidth=Math.random()*1.2+0.3; spX.stroke();
+      });
+    }
+    requestAnimationFrame(tickSpeed);
+  }
+  tickSpeed();
+
+  // Mouse parallax
+  let mouseX=0, mouseY=0;
+  window.addEventListener('mousemove', e => {
+    mouseX = (e.clientX/window.innerWidth - 0.5)*2;
+    mouseY = (e.clientY/window.innerHeight - 0.5)*1;
+  });
+
+  window.addEventListener('resize', () => {
+    resizeDust(); resizeSpeed();
+    camera.aspect = window.innerWidth/window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+
+  // Render loop
+  const clock = new THREE.Clock();
+  function animate() {
+    requestAnimationFrame(animate);
+    const t = clock.getElapsedTime();
+    if (truck) {
+      // Delta time
+      const dt = Math.min(t - prevT, 0.05);
+      prevT = t;
+
+      driveX += (driveXTarget - driveX) * 0.08;
+
+      // --- Wheel spin ---
+      wheelSpeed += (wheelSpeedTarget - wheelSpeed) * (driving ? 0.07 : 0.025);
+      wheelAngle += wheelSpeed * dt * 55;
+      wheelMeshes.forEach(m => { m.rotation.x = wheelAngle; });
+
+      // --- Road bump impulses (idle only) ---
+      if (!driving && dt > 0) {
+        nextBump -= dt;
+        if (nextBump <= 0) {
+          suspVel += Math.random() * 0.05 + 0.025;   // upward kick
+          nextBump = 1.4 + Math.random() * 1.8;       // next bump in 1.4–3.2s
+        }
+      }
+
+      // --- Spring-damper suspension ---
+      const springForce = -SPRING_K * suspY - SPRING_DAMP * suspVel;
+      suspVel += springForce * dt;
+      suspY += suspVel * dt;
+      // Clamp so truck never clips below floor
+      if (suspY < -0.12) { suspY = -0.12; suspVel = Math.abs(suspVel) * 0.4; }
+
+      truck.position.x = driveX;
+      truck.position.y = groundOffset + suspY;   // groundOffset keeps truck on road
+
+      if (!driving) {
+        // Idle: gentle sway — camera locked, no mouse tilt
+        truck.rotation.z = Math.PI + Math.sin(t * 0.5) * 0.008;
+        truck.position.y += Math.sin(t * 0.7) * 0.006;
+        camera.lookAt(0, 1.5, 0);
+      } else {
+        // Driving: lock rotation, camera stays put
+        truck.rotation.z = Math.PI;
+        camera.lookAt(0, 1.5, 0);
+      }
+
+      glowStrip.position.x = driveX;
+    }
+
+    // Moon halo always faces camera
+    moonGlow.quaternion.copy(camera.quaternion);
+
+    renderer.render(scene, camera);
+  }
+  animate();
+  </script>
+</body>
+</html>

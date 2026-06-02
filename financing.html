@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Financing & Trade-In — Paso Del Norte: Truck & Equipment Sales</title>
+  <meta name="description" content="Commercial truck financing for owner-operators and fleet buyers. All credit types. Fast approvals. Trade-in appraisal available." />
+  <link rel="stylesheet" href="css/main.css" />
+  <style>
+    .fin-hero {
+      padding: calc(var(--nav-h) + 60px) 0 60px;
+      background: var(--black-2);
+      border-bottom: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
+    }
+    .fin-hero::after {
+      content: '';
+      position: absolute;
+      bottom: -80px; right: -80px;
+      width: 400px; height: 400px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(245,158,11,0.08), transparent 70%);
+      pointer-events: none;
+    }
+    .fin-tabs {
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid var(--border);
+      background: var(--black-2);
+      position: sticky;
+      top: var(--nav-h);
+      z-index: 50;
+    }
+    .fin-tab {
+      font-family: var(--font-display);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-2);
+      padding: 16px 28px;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .fin-tab.active {
+      color: var(--amber);
+      border-bottom-color: var(--amber);
+    }
+    .fin-tab:hover { color: var(--chrome-bright); }
+
+    .fin-panel { display: none; }
+    .fin-panel.active { display: block; }
+
+    /* Financing layout */
+    .fin-layout {
+      display: grid;
+      grid-template-columns: 1fr 420px;
+      gap: 40px;
+      padding: 60px 0;
+    }
+
+    /* Form card */
+    .fin-form-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 36px;
+    }
+    .fin-form-card h2 {
+      font-family: var(--font-display);
+      font-size: 28px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--chrome-bright);
+      margin-bottom: 8px;
+    }
+    .fin-form-card p { font-size: 13px; color: var(--text-2); margin-bottom: 28px; line-height: 1.6; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .form-divider {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--amber);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      padding: 20px 0 10px;
+      border-top: 1px solid var(--border);
+      margin-top: 8px;
+    }
+    .form-submit-wrap { margin-top: 24px; }
+
+    /* Info sidebar */
+    .fin-info { display: flex; flex-direction: column; gap: 20px; }
+    .fin-info-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+    }
+    .fin-info-card h3 {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--chrome-bright);
+      margin-bottom: 12px;
+    }
+    .fin-list { display: flex; flex-direction: column; gap: 8px; }
+    .fin-list-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 13px;
+      color: var(--text-2);
+      line-height: 1.6;
+    }
+    .fin-list-item::before {
+      content: '→';
+      color: var(--amber);
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    /* Rate cards */
+    .rate-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .rate-card {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      text-align: center;
+    }
+    .rate-card.highlight {
+      border-color: var(--amber);
+      background: var(--amber-trace);
+    }
+    .rate-card-rate {
+      font-family: var(--font-display);
+      font-size: 28px;
+      font-weight: 900;
+      color: var(--amber);
+      line-height: 1;
+    }
+    .rate-card-label { font-size: 11px; color: var(--text-2); margin-top: 4px; }
+    .rate-card-term { font-family: var(--font-mono); font-size: 10px; color: var(--text-3); margin-top: 6px; }
+
+    /* Calculator section */
+    .calc-section { padding: 60px 0; background: var(--black-2); }
+    .calc-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      align-items: start;
+    }
+    .calc-card {
+      background: var(--surface);
+      border: 1px solid var(--border-glow);
+      border-radius: var(--radius-lg);
+      padding: 36px;
+    }
+    .calc-result-card {
+      background: var(--black);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-top: 20px;
+    }
+    .calc-result-monthly {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .calc-big {
+      font-family: var(--font-display);
+      font-size: 52px;
+      font-weight: 900;
+      color: var(--amber);
+      line-height: 1;
+    }
+    .calc-label { font-family: var(--font-mono); font-size: 11px; color: var(--text-2); letter-spacing: 0.1em; }
+    .calc-result-details { display: flex; flex-direction: column; gap: 10px; }
+    .calc-result-details div {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+    }
+    .calc-result-details span { color: var(--text-2); }
+    .calc-result-details strong { color: var(--chrome-bright); }
+
+    /* Trade-in form */
+    .trade-condition-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+    .condition-option { display: none; }
+    .condition-label {
+      display: block;
+      text-align: center;
+      padding: 12px 8px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-size: 12px;
+      color: var(--text-2);
+      transition: all 0.2s;
+    }
+    .condition-option:checked + .condition-label {
+      border-color: var(--amber);
+      background: var(--amber-trace);
+      color: var(--amber);
+    }
+
+    @media (max-width: 900px) {
+      .fin-layout { grid-template-columns: 1fr; }
+      .calc-layout { grid-template-columns: 1fr; }
+      .form-row { grid-template-columns: 1fr; }
+      .rate-grid { grid-template-columns: 1fr; }
+      .trade-condition-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav class="nav" role="navigation" aria-label="Main navigation">
+  <a href="index.html" class="nav-logo">
+    <div class="nav-logo-icon" aria-hidden="true"></div>
+    <div class="nav-logo-text">Paso Del <span>Norte</span></div>
+  </a>
+  <ul class="nav-links" role="list">
+    <li><a href="index.html" class="nav-link">Home</a></li>
+    <li><a href="inventory.html" class="nav-link">Inventory</a></li>
+    <li><a href="financing.html" class="nav-link active">Financing</a></li>
+    <li><a href="docs.html" class="nav-link">Documents</a></li>
+    <li><a href="post-generator.html" class="nav-link">Post Generator</a></li>
+    <li><a href="truck-search.html" class="nav-link">TX Truck Search</a></li>
+    <li><a href="index.html#contact" class="nav-link">Contact</a></li>
+  </ul>
+  <div class="nav-actions">
+    <div class="nav-phone">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 0110 1.18 2 2 0 0112 3.14V6.18a2 2 0 01-1.45 1.93l-1.18.39a16 16 0 006.61 6.61l.39-1.18A2 2 0 0118.82 12h3a2 2 0 012 2.18z"/></svg>
+      (832) 555-0180
+    </div>
+    <button class="nav-hamburger" aria-label="Open menu"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+<div class="nav-overlay" aria-hidden="true"></div>
+<div class="nav-drawer" role="dialog">
+  <a href="index.html" class="nav-link">Home</a>
+  <a href="inventory.html" class="nav-link">Inventory</a>
+  <a href="financing.html" class="nav-link">Financing</a>
+  <a href="index.html#contact" class="nav-link">Contact</a>
+</div>
+
+<!-- Hero -->
+<div class="fin-hero">
+  <div class="container">
+    <div class="section-label">Commercial Financing</div>
+    <h1 class="section-title" style="margin-bottom:16px;">Finance Your <em>Next Rig</em></h1>
+    <p style="font-size:16px;color:var(--text-2);max-width:540px;line-height:1.7;">
+      Owner-operators, LLCs, corporations, and first-time buyers. We work with multiple lenders
+      to get you behind the wheel fast — all credit situations considered.
+    </p>
+  </div>
+</div>
+
+<!-- Tabs -->
+<div class="fin-tabs" role="tablist" aria-label="Financing sections">
+  <button class="fin-tab active" data-tab="financing" role="tab" aria-selected="true" id="tab-financing">Financing Application</button>
+  <button class="fin-tab" data-tab="calculator" role="tab" aria-selected="false" id="tab-calculator">Payment Calculator</button>
+  <button class="fin-tab" data-tab="trade" role="tab" aria-selected="false" id="tab-trade">Trade-In</button>
+</div>
+
+<!-- ─── Financing Panel ─────────────────────────────────── -->
+<div class="fin-panel active" id="panel-financing" role="tabpanel" aria-labelledby="tab-financing">
+  <div class="container fin-layout">
+    <!-- Form -->
+    <div>
+      <div class="fin-form-card">
+        <h2>Financing Application</h2>
+        <p>Fill out the form below and we'll contact you within 1 business hour. Soft pull — no impact to your credit score for initial inquiry.</p>
+
+        <form id="fin-form" novalidate>
+          <div class="form-divider">Personal Information</div>
+          <div style="display:flex;flex-direction:column;gap:14px;">
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="fin-fname">First Name *</label>
+                <input class="form-input" type="text" id="fin-fname" name="firstName" required autocomplete="given-name" />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="fin-lname">Last Name *</label>
+                <input class="form-input" type="text" id="fin-lname" name="lastName" required autocomplete="family-name" />
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="fin-phone">Phone *</label>
+                <input class="form-input" type="tel" id="fin-phone" name="phone" required autocomplete="tel" />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="fin-email">Email</label>
+                <input class="form-input" type="email" id="fin-email" name="email" autocomplete="email" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="fin-state">State</label>
+              <input class="form-input" type="text" id="fin-state" name="state" placeholder="TX" maxlength="2" autocomplete="address-level1" />
+            </div>
+          </div>
+
+          <div class="form-divider">Business Information</div>
+          <div style="display:flex;flex-direction:column;gap:14px;">
+            <div class="form-group">
+              <label class="form-label" for="fin-biztype">Business Type</label>
+              <select class="form-input" id="fin-biztype" name="bizType">
+                <option value="">Select...</option>
+                <option>Owner-Operator (Sole Prop)</option>
+                <option>LLC</option>
+                <option>Corporation</option>
+                <option>Partnership</option>
+                <option>Individual (Personal)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="fin-dot">DOT Number (if applicable)</label>
+              <input class="form-input" type="text" id="fin-dot" name="dot" placeholder="US DOT #" />
+            </div>
+          </div>
+
+          <div class="form-divider">Truck & Financing Details</div>
+          <div style="display:flex;flex-direction:column;gap:14px;">
+            <div class="form-group">
+              <label class="form-label" for="fin-truck">Truck of Interest (optional)</label>
+              <select class="form-input" id="fin-truck" name="truckId">
+                <option value="">Not sure yet</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="fin-amount">Loan Amount Needed ($)</label>
+                <input class="form-input" type="number" id="fin-amount" name="amount" placeholder="150000" min="5000" max="500000" step="1000" />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="fin-down">Down Payment ($)</label>
+                <input class="form-input" type="number" id="fin-down" name="downPayment" placeholder="15000" min="0" step="1000" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="fin-credit">Credit Range</label>
+              <select class="form-input" id="fin-credit" name="creditRange">
+                <option value="">Select range...</option>
+                <option value="720+">720+ (Excellent)</option>
+                <option value="680-719">680–719 (Good)</option>
+                <option value="620-679">620–679 (Fair)</option>
+                <option value="580-619">580–619 (Below Average)</option>
+                <option value="under580">Under 580</option>
+                <option value="unknown">I'm not sure</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="fin-notes">Additional Notes</label>
+              <textarea class="form-input" id="fin-notes" name="notes" rows="3" placeholder="Bankruptcy, repossession history, or other details we should know…" style="resize:vertical;"></textarea>
+            </div>
+          </div>
+
+          <div class="form-submit-wrap">
+            <button type="submit" class="btn btn-primary btn-full btn-lg">
+              Submit Application
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </button>
+            <p style="font-size:11px;color:var(--text-3);text-align:center;margin-top:12px;line-height:1.6;">
+              Soft inquiry only. Your information is secure and will not be shared with third parties without consent.
+            </p>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Info sidebar -->
+    <div class="fin-info">
+      <div class="fin-info-card">
+        <h3>Current Rates</h3>
+        <div class="rate-grid">
+          <div class="rate-card">
+            <div class="rate-card-rate">6.9%</div>
+            <div class="rate-card-label">Excellent Credit</div>
+            <div class="rate-card-term">720+ Score</div>
+          </div>
+          <div class="rate-card highlight">
+            <div class="rate-card-rate">8.9%</div>
+            <div class="rate-card-label">Good Credit</div>
+            <div class="rate-card-term">680–719</div>
+          </div>
+          <div class="rate-card">
+            <div class="rate-card-rate">12%+</div>
+            <div class="rate-card-label">All Credit</div>
+            <div class="rate-card-term">Programs Available</div>
+          </div>
+        </div>
+        <p style="font-size:11px;color:var(--text-3);">Rates are estimates and vary by lender, term, and credit profile.</p>
+      </div>
+
+      <div class="fin-info-card">
+        <h3>What You'll Need</h3>
+        <div class="fin-list">
+          <div class="fin-list-item">Valid driver's license or ID</div>
+          <div class="fin-list-item">CDL if applicable</div>
+          <div class="fin-list-item">2 years tax returns (business buyers)</div>
+          <div class="fin-list-item">3 months bank statements</div>
+          <div class="fin-list-item">Proof of insurance (on approval)</div>
+          <div class="fin-list-item">DOT number if applicable</div>
+        </div>
+      </div>
+
+      <div class="fin-info-card">
+        <h3>Why Use Our Financing</h3>
+        <div class="fin-list">
+          <div class="fin-list-item">Same-day approvals on many applications</div>
+          <div class="fin-list-item">First-time buyer and bad credit programs</div>
+          <div class="fin-list-item">Multiple lenders — we shop for the best rate</div>
+          <div class="fin-list-item">No prepayment penalties</div>
+          <div class="fin-list-item">Terms from 24–84 months</div>
+          <div class="fin-list-item">Fleet and multi-unit accounts welcome</div>
+        </div>
+      </div>
+
+      <a href="tel:8325550180" class="btn btn-primary btn-full">
+        📞 Call to Discuss Financing
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Calculator Panel ────────────────────────────────── -->
+<div class="fin-panel" id="panel-calculator" role="tabpanel" aria-labelledby="tab-calculator">
+  <div class="calc-section">
+    <div class="container calc-layout">
+      <div class="calc-card">
+        <div class="section-label" style="margin-bottom:20px">Payment Estimator</div>
+        <form class="calc-form" aria-label="Payment calculator">
+          <div style="display:flex;flex-direction:column;gap:18px;">
+            <div class="form-group">
+              <label class="form-label" for="calc-price">Truck Purchase Price ($)</label>
+              <input class="form-input" type="number" name="price" id="calc-price" value="165000" min="10000" max="500000" step="5000" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="calc-down">Down Payment Percent: <span id="down-display">10%</span></label>
+              <input type="range" name="down" id="calc-down" min="0" max="50" value="10" style="width:100%;accent-color:var(--amber);cursor:pointer;" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="calc-rate">Interest Rate (APR)</label>
+              <input class="form-input" type="number" name="rate" id="calc-rate" value="8.9" min="1" max="30" step="0.1" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="calc-term">Loan Term (Months)</label>
+              <select class="form-input" name="term" id="calc-term">
+                <option value="24">24 months (2 years)</option>
+                <option value="36">36 months (3 years)</option>
+                <option value="48">48 months (4 years)</option>
+                <option value="60" selected>60 months (5 years)</option>
+                <option value="72">72 months (6 years)</option>
+                <option value="84">84 months (7 years)</option>
+              </select>
+            </div>
+          </div>
+          <div class="calc-output" id="calc-output"></div>
+        </form>
+      </div>
+      <div>
+        <div class="section-label" style="margin-bottom:16px;">Estimated Breakdown</div>
+        <div id="calc-visual" style="font-size:14px;color:var(--text-2);line-height:1.7;">
+          Adjust the inputs to see your payment estimate.
+        </div>
+        <div style="margin-top:28px;padding:24px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);">
+          <div style="font-family:var(--font-mono);font-size:10px;color:var(--amber);letter-spacing:0.2em;text-transform:uppercase;margin-bottom:12px;">Ready to apply?</div>
+          <p style="font-size:13px;color:var(--text-2);margin-bottom:16px;line-height:1.6;">These are estimates only. Actual rates and terms depend on your credit and lender. Contact us to get real numbers.</p>
+          <a href="#" onclick="switchTab('financing')" class="btn btn-primary btn-full">Start Application</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Trade-In Panel ──────────────────────────────────── -->
+<div class="fin-panel" id="panel-trade" role="tabpanel" aria-labelledby="tab-trade">
+  <div class="container" style="padding-top:60px;padding-bottom:80px;">
+    <div class="section-header reveal">
+      <div class="section-label">Trade-In Program</div>
+      <h2 class="section-title">Get Your <em>Value</em></h2>
+      <p class="section-sub">Submit your current truck info and we'll get back to you with a fair estimate within 2 hours.</p>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 400px;gap:40px;align-items:start;" class="trade-grid">
+      <div class="fin-form-card">
+        <h2>Trade-In Request</h2>
+        <p>Tell us about your truck. The more detail you provide, the more accurate your estimate will be.</p>
+
+        <form id="trade-form" novalidate>
+          <div class="form-divider">Your Info</div>
+          <div style="display:flex;flex-direction:column;gap:14px;margin-bottom:8px;">
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="tr-name">Name *</label>
+                <input class="form-input" type="text" id="tr-name" name="name" required />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="tr-phone">Phone *</label>
+                <input class="form-input" type="tel" id="tr-phone" name="phone" required />
+              </div>
+            </div>
+          </div>
+
+          <div class="form-divider">Truck Details</div>
+          <div style="display:flex;flex-direction:column;gap:14px;margin-bottom:8px;">
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="tr-year">Year *</label>
+                <input class="form-input" type="number" id="tr-year" name="year" placeholder="2018" min="1990" max="2025" required />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="tr-make">Make *</label>
+                <select class="form-input" id="tr-make" name="make" required>
+                  <option value="">Select...</option>
+                  <option>Peterbilt</option>
+                  <option>Kenworth</option>
+                  <option>Freightliner</option>
+                  <option>International</option>
+                  <option>Mack</option>
+                  <option>Volvo</option>
+                  <option>Western Star</option>
+                  <option>Other</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="tr-model">Model</label>
+                <input class="form-input" type="text" id="tr-model" name="model" placeholder="389, W900, Cascadia…" />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="tr-mileage">Mileage *</label>
+                <input class="form-input" type="number" id="tr-mileage" name="mileage" placeholder="450000" required />
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="tr-vin">VIN (optional)</label>
+              <input class="form-input" type="text" id="tr-vin" name="vin" placeholder="17-digit VIN" maxlength="17" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="tr-engine">Engine</label>
+              <input class="form-input" type="text" id="tr-engine" name="engine" placeholder="Cummins ISX15, Detroit DD15…" />
+            </div>
+          </div>
+
+          <div class="form-divider">Condition</div>
+          <div style="margin-bottom:14px;">
+            <div class="trade-condition-grid">
+              <div>
+                <input class="condition-option" type="radio" name="condition" id="cond-exc" value="excellent" />
+                <label class="condition-label" for="cond-exc">✅ Excellent<br><span style="font-size:10px;opacity:0.7">Like new, no issues</span></label>
+              </div>
+              <div>
+                <input class="condition-option" type="radio" name="condition" id="cond-good" value="good" checked />
+                <label class="condition-label" for="cond-good">🟡 Good<br><span style="font-size:10px;opacity:0.7">Normal wear</span></label>
+              </div>
+              <div>
+                <input class="condition-option" type="radio" name="condition" id="cond-fair" value="fair" />
+                <label class="condition-label" for="cond-fair">🔴 Fair<br><span style="font-size:10px;opacity:0.7">Needs work</span></label>
+              </div>
+            </div>
+          </div>
+          <div class="form-group" style="margin-bottom:14px;">
+            <label class="form-label" for="tr-issues">Known Issues or Repairs Needed</label>
+            <textarea class="form-input" id="tr-issues" name="issues" rows="3" placeholder="DPF needs cleaning, minor rust on steps, cracked windshield…" style="resize:vertical;"></textarea>
+          </div>
+          <div class="form-group" style="margin-bottom:24px;">
+            <label class="form-label" for="tr-notes">Additional Notes</label>
+            <textarea class="form-input" id="tr-notes" name="tradeNotes" rows="2" placeholder="Interested in buying a specific truck in trade?" style="resize:vertical;"></textarea>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-full btn-lg">
+            Request Trade-In Value
+          </button>
+        </form>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:20px;">
+        <div class="fin-info-card">
+          <h3>How Trade-In Works</h3>
+          <div class="fin-list">
+            <div class="fin-list-item">Submit your truck info online or call us</div>
+            <div class="fin-list-item">We review and contact you within 2 hours</div>
+            <div class="fin-list-item">Bring the truck in for a full appraisal (or send photos)</div>
+            <div class="fin-list-item">We make a cash or credit offer</div>
+            <div class="fin-list-item">Apply the value toward your new truck purchase</div>
+          </div>
+        </div>
+        <div class="fin-info-card">
+          <h3>We Buy Trucks Too</h3>
+          <p style="font-size:13px;color:var(--text-2);line-height:1.6;">
+            Not buying? We still want to see your truck. We purchase clean title semi-trucks directly.
+            Fast payment, no hassle.
+          </p>
+          <a href="tel:8325550180" class="btn btn-ghost btn-full" style="margin-top:16px;">Call to Discuss</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Footer -->
+<footer class="footer" role="contentinfo">
+  <div class="container footer-bottom">
+    <div class="footer-copy">© 2024 Paso Del Norte: Truck & Equipment Sales LLC — Houston, TX</div>
+    <a href="inventory.html" style="color:var(--amber);font-family:var(--font-mono);font-size:11px;">Browse Inventory →</a>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
+<script src="js/data.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="js/config.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/main.js"></script>
+<script>
+  // ── Tab switching ─────────────────────────────────────
+  function switchTab(id) {
+    document.querySelectorAll('.fin-tab').forEach(t => {
+      t.classList.toggle('active', t.dataset.tab === id);
+      t.setAttribute('aria-selected', t.dataset.tab === id);
+    });
+    document.querySelectorAll('.fin-panel').forEach(p => p.classList.toggle('active', p.id === `panel-${id}`));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  document.querySelectorAll('.fin-tab').forEach(tab => {
+    tab.addEventListener('click', () => switchTab(tab.dataset.tab));
+  });
+
+  // Hash routing
+  const hash = location.hash.replace('#', '');
+  if (['calculator', 'trade'].includes(hash)) switchTab(hash);
+
+  // ── Populate truck select ─────────────────────────────
+  const truckSelect = document.getElementById('fin-truck');
+  if (truckSelect && typeof TRUCKS !== 'undefined') {
+    TRUCKS.filter(t => t.status === 'available').forEach(t => {
+      const opt = document.createElement('option');
+      opt.value = t.id;
+      opt.textContent = `${t.year} ${t.make} ${t.model} — ${formatPrice(t.price)}`;
+      truckSelect.appendChild(opt);
+    });
+    // Pre-select from URL
+    const urlTruck = new URLSearchParams(location.search).get('truck');
+    if (urlTruck) truckSelect.value = urlTruck;
+  }
+
+  // ── Down payment display ──────────────────────────────
+  document.getElementById('calc-down')?.addEventListener('input', function() {
+    document.getElementById('down-display').textContent = this.value + '%';
+  });
+
+  // ── Financing form submit ─────────────────────────────
+  document.getElementById('fin-form')?.addEventListener('submit', async e => {
+    e.preventDefault();
+    const data = Object.fromEntries(new FormData(e.target).entries());
+    await submitLead({ ...data, type: 'financing' });
+    showToast('Application submitted! We\'ll call you within 1 hour.');
+    e.target.reset();
+  });
+
+  // ── Trade-in form submit ──────────────────────────────
+  document.getElementById('trade-form')?.addEventListener('submit', async e => {
+    e.preventDefault();
+    const data = Object.fromEntries(new FormData(e.target).entries());
+    await submitLead({ ...data, type: 'trade-in' });
+    showToast('Trade-in request received! We\'ll contact you within 2 hours.');
+    e.target.reset();
+  });
+
+  // ── Responsive trade grid ─────────────────────────────
+  if (window.innerWidth <= 768) {
+    document.querySelector('.trade-grid')?.style.setProperty('grid-template-columns', '1fr');
+  }
+</script>
+</body>
+</html>
