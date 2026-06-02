@@ -87,6 +87,56 @@
       margin-bottom:16px; display:none;
     }
     .add-truck-card.open { display:block; }
+
+    /* Photo upload */
+    .photo-upload-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 6px;
+    }
+    .photo-slot {
+      width: 90px; height: 90px;
+      border: 1.5px dashed var(--border);
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      cursor: pointer;
+      color: var(--chrome);
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      transition: border-color .2s, color .2s, background .2s;
+      position: relative;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .photo-slot:hover { border-color: var(--amber); color: var(--amber); background: rgba(245,158,11,.05); }
+    .photo-slot img {
+      position: absolute;
+      inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
+      border-radius: 9px;
+    }
+    .photo-slot .photo-remove {
+      position: absolute;
+      top: 4px; right: 4px;
+      width: 20px; height: 20px;
+      background: rgba(0,0,0,.75);
+      border: none;
+      border-radius: 50%;
+      color: #fff;
+      font-size: 13px;
+      line-height: 1;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      z-index: 2;
+    }
     .add-truck-title { font-family:var(--font-display); font-size:15px; font-weight:800; text-transform:uppercase; color:var(--chrome-bright); margin-bottom:16px; }
     .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
     .form-grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; }
@@ -628,6 +678,30 @@
           <label class="dash-label">Key Selling Points</label>
           <textarea class="dash-input" id="at-notes" rows="3" placeholder="APU, fresh tires, DOT ready, one owner…"></textarea>
         </div>
+
+        <!-- Photo Upload -->
+        <div class="dash-field">
+          <label class="dash-label">Exterior Photos</label>
+          <div class="photo-upload-grid" id="exterior-grid">
+            <label class="photo-slot" id="ext-slot-add">
+              <input type="file" accept="image/*" multiple style="display:none" id="exterior-input">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="28" height="28"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              <span>Add Exterior</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="dash-field">
+          <label class="dash-label">Interior Photos</label>
+          <div class="photo-upload-grid" id="interior-grid">
+            <label class="photo-slot" id="int-slot-add">
+              <input type="file" accept="image/*" multiple style="display:none" id="interior-input">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="28" height="28"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              <span>Add Interior</span>
+            </label>
+          </div>
+        </div>
+
         <div class="form-actions">
           <button class="btn btn-primary" id="save-truck-btn">Save Truck</button>
           <button class="btn btn-ghost" id="cancel-truck-btn">Cancel</button>
@@ -899,8 +973,66 @@ function renderMyTrucks() {
 document.getElementById('add-truck-btn').addEventListener('click', () => {
   document.getElementById('add-truck-form').classList.toggle('open');
 });
+/* ── Photo upload previews ───────────────────────────────── */
+const photoState = { exterior: [], interior: [] };
+
+function setupPhotoInput(inputId, gridId, type) {
+  const input = document.getElementById(inputId);
+  const grid  = document.getElementById(gridId);
+
+  input.addEventListener('change', () => {
+    Array.from(input.files).forEach(file => {
+      if (photoState[type].length >= 8) return; // max 8 per section
+      const reader = new FileReader();
+      reader.onload = e => {
+        const dataUrl = e.target.result;
+        photoState[type].push(dataUrl);
+        renderPhotoGrid(grid, type);
+      };
+      reader.readAsDataURL(file);
+    });
+    input.value = ''; // reset so same file can be re-added
+  });
+}
+
+function renderPhotoGrid(grid, type) {
+  grid.innerHTML = '';
+  photoState[type].forEach((src, i) => {
+    const slot = document.createElement('div');
+    slot.className = 'photo-slot';
+    slot.innerHTML = `<img src="${src}" alt="photo"><button class="photo-remove" data-i="${i}" data-type="${type}">&times;</button>`;
+    grid.appendChild(slot);
+  });
+  // Add button
+  const addSlot = document.createElement('label');
+  addSlot.className = 'photo-slot';
+  addSlot.innerHTML = `
+    <input type="file" accept="image/*" multiple style="display:none" id="${type}-input">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="24" height="24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+    <span>Add</span>`;
+  grid.appendChild(addSlot);
+  setupPhotoInput(type + '-input', type === 'exterior' ? 'exterior-grid' : 'interior-grid', type);
+
+  // Remove handlers
+  grid.querySelectorAll('.photo-remove').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.preventDefault();
+      const idx = parseInt(btn.dataset.i);
+      photoState[btn.dataset.type].splice(idx, 1);
+      renderPhotoGrid(grid, btn.dataset.type);
+    });
+  });
+}
+
+// Init photo inputs
+setupPhotoInput('exterior-input', 'exterior-grid', 'exterior');
+setupPhotoInput('interior-input', 'interior-grid', 'interior');
+
 document.getElementById('cancel-truck-btn').addEventListener('click', () => {
   document.getElementById('add-truck-form').classList.remove('open');
+  photoState.exterior = []; photoState.interior = [];
+  renderPhotoGrid(document.getElementById('exterior-grid'), 'exterior');
+  renderPhotoGrid(document.getElementById('interior-grid'), 'interior');
 });
 
 document.getElementById('save-truck-btn').addEventListener('click', async () => {
@@ -921,7 +1053,11 @@ document.getElementById('save-truck-btn').addEventListener('click', async () => 
     features: [],
     dotReady: false,
     financing: true,
-    condition: 'good'
+    condition: 'good',
+    photos: {
+      exterior: [...photoState.exterior],
+      interior: [...photoState.interior]
+    }
   };
 
   const btn = document.getElementById('save-truck-btn');
@@ -934,6 +1070,9 @@ document.getElementById('save-truck-btn').addEventListener('click', async () => 
     // Clear form
     ['at-year','at-model','at-price','at-mileage','at-engine','at-trans','at-location','at-notes'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('at-make').value = '';
+    photoState.exterior = []; photoState.interior = [];
+    renderPhotoGrid(document.getElementById('exterior-grid'), 'exterior');
+    renderPhotoGrid(document.getElementById('interior-grid'), 'interior');
   } catch(e) { showToast('Error saving truck: ' + e.message); }
   btn.textContent = 'Save Truck'; btn.disabled = false;
 });
