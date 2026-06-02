@@ -254,12 +254,95 @@
     <button class="nav-hamburger" aria-label="Open menu"><span></span><span></span><span></span></button>
   </div>
 </nav>
+<!-- Mobile Nav Drawer -->
 <div class="nav-overlay" aria-hidden="true"></div>
-<div class="nav-drawer" role="dialog">
-  <a href="index.html" class="nav-link">Home</a>
-  <a href="inventory.html" class="nav-link">Inventory</a>
-  <a href="financing.html" class="nav-link">Financing</a>
-  <a href="index.html#contact" class="nav-link">Contact</a>
+<div class="nav-drawer" role="dialog" aria-label="Mobile menu">
+  <div class="nav-drawer-header">
+    <span class="nav-drawer-logo">PDN Trucks</span>
+    <button class="nav-drawer-close" aria-label="Close menu">&times;</button>
+  </div>
+  <div class="nav-drawer-tabs">
+    <button class="nav-drawer-tab active" data-tab="browse">Browse</button>
+    <button class="nav-drawer-tab" data-tab="services">Services</button>
+    <button class="nav-drawer-tab" data-tab="account">Account</button>
+  </div>
+  <div class="nav-drawer-panels">
+    <!-- Browse -->
+    <div class="nav-drawer-panel active" data-panel="browse">
+      <div class="nav-drawer-section">Inventory</div>
+      <a href="inventory.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+        All Inventory
+      </a>
+      <a href="inventory.html?featured=true" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        Featured Rigs
+      </a>
+      <a href="inventory.html?dotReady=true" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        DOT Ready
+      </a>
+      <a href="truck-search.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        Search Trucks
+      </a>
+      <div class="nav-drawer-cta">
+        <a href="inventory.html" class="btn btn-primary">View All Trucks</a>
+      </div>
+    </div>
+    <!-- Services -->
+    <div class="nav-drawer-panel" data-panel="services">
+      <div class="nav-drawer-section">Financial</div>
+      <a href="financing.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>
+        Financing
+      </a>
+      <a href="financing.html#trade" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 014-4h14M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>
+        Trade-In
+      </a>
+      <div class="nav-drawer-section">Tools</div>
+      <a href="docs.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        Documents
+      </a>
+      <a href="post-generator.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        Post Generator
+      </a>
+      <a href="marketing.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        Marketing
+      </a>
+      <div class="nav-drawer-cta">
+        <a href="#contact" class="btn btn-outline">Contact Us</a>
+      </div>
+    </div>
+    <!-- Account -->
+    <div class="nav-drawer-panel" data-panel="account">
+      <div class="nav-drawer-section">My Account</div>
+      <a href="dashboard.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Dashboard
+      </a>
+      <a href="login.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+        Sign In
+      </a>
+      <div class="nav-drawer-section">Contact</div>
+      <a href="tel:8325550180" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 0110 1.18 2 2 0 0112 3.14V6.18a2 2 0 01-1.45 1.93l-1.18.39a16 16 0 006.61 6.61l.39-1.18A2 2 0 0118.82 12h3a2 2 0 012 2.18z"/></svg>
+        (832) 555-0180
+      </a>
+      <a href="#contact" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        Send Message
+      </a>
+      <div class="nav-drawer-cta">
+        <a href="login.html" class="btn btn-primary">Sign In / Register</a>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- Hero -->

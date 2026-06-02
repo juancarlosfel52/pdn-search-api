@@ -29,23 +29,36 @@
 
   // Mobile drawer
   const hamburger = nav.querySelector('.nav-hamburger');
-  const drawer = document.querySelector('.nav-drawer');
-  const overlay = document.querySelector('.nav-overlay');
+  const drawer    = document.querySelector('.nav-drawer');
+  const overlay   = document.querySelector('.nav-overlay');
 
   function openDrawer() {
     drawer?.classList.add('open');
     overlay?.classList.add('open');
     document.body.style.overflow = 'hidden';
+    hamburger?.setAttribute('aria-expanded', 'true');
   }
   function closeDrawer() {
     drawer?.classList.remove('open');
     overlay?.classList.remove('open');
     document.body.style.overflow = '';
+    hamburger?.setAttribute('aria-expanded', 'false');
   }
 
   hamburger?.addEventListener('click', openDrawer);
   overlay?.addEventListener('click', closeDrawer);
+  drawer?.querySelector('.nav-drawer-close')?.addEventListener('click', closeDrawer);
   drawer?.querySelectorAll('.nav-link').forEach(l => l.addEventListener('click', closeDrawer));
+
+  // Tab switching
+  drawer?.querySelectorAll('.nav-drawer-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      drawer.querySelectorAll('.nav-drawer-tab').forEach(t => t.classList.remove('active'));
+      drawer.querySelectorAll('.nav-drawer-panel').forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      drawer.querySelector('.nav-drawer-panel[data-panel="' + tab.dataset.tab + '"]')?.classList.add('active');
+    });
+  });
 })();
 
 // ─── GSAP Animations ─────────────────────────────────────
