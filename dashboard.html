@@ -997,6 +997,16 @@ function renderMyTrucks() {
           <div class="dash-field"><label class="dash-label">Location</label><input class="dash-input" id="e-location-${t.id}" value="${t.location||''}"/></div>
         </div>
         <div class="dash-field"><label class="dash-label">Notes</label><textarea class="dash-input" id="e-notes-${t.id}" rows="2">${t.description||''}</textarea></div>
+
+        <div class="dash-field">
+          <label class="dash-label">Exterior Photos (up to 8)</label>
+          <div class="photo-upload-grid" id="e-exterior-grid-${t.id}"></div>
+        </div>
+        <div class="dash-field">
+          <label class="dash-label">Interior Photos (up to 8)</label>
+          <div class="photo-upload-grid" id="e-interior-grid-${t.id}"></div>
+        </div>
+
         <div class="form-actions" style="margin-top:12px;">
           <button class="btn btn-primary btn-sm" onclick="saveEditTruck('${t.id}')">Save Changes</button>
           <button class="btn btn-ghost btn-sm" onclick="closeEditTruck('${t.id}')">Cancel</button>
@@ -1005,11 +1015,66 @@ function renderMyTrucks() {
     </div>`).join('');
 }
 
+const editPhotoState = {};
+
 function openEditTruck(id) {
   // Close any other open edit forms
   document.querySelectorAll('.edit-truck-form').forEach(f => f.style.display = 'none');
+  document.querySelectorAll('.my-truck-card').forEach(c => c.style.borderColor = '');
   document.getElementById('edit-form-' + id).style.display = 'block';
   document.getElementById('truck-card-' + id).style.borderColor = 'var(--amber)';
+
+  // Init photo state from existing truck data
+  const truck = userTrucks.find(t => t.id === id);
+  editPhotoState[id] = {
+    exterior: [...(truck?.photos?.exterior || [])],
+    interior: [...(truck?.photos?.interior || [])]
+  };
+
+  renderEditPhotoGrid(id, 'exterior');
+  renderEditPhotoGrid(id, 'interior');
+}
+
+function renderEditPhotoGrid(truckId, type) {
+  const grid = document.getElementById(`e-${type}-grid-${truckId}`);
+  if (!grid) return;
+  grid.innerHTML = '';
+
+  editPhotoState[truckId][type].forEach((src, i) => {
+    const slot = document.createElement('div');
+    slot.className = 'photo-slot';
+    slot.innerHTML = `<img src="${src}" alt="photo"><button class="photo-remove">&times;</button>`;
+    slot.querySelector('.photo-remove').addEventListener('click', e => {
+      e.preventDefault();
+      editPhotoState[truckId][type].splice(i, 1);
+      renderEditPhotoGrid(truckId, type);
+    });
+    grid.appendChild(slot);
+  });
+
+  // Add button (max 8)
+  if (editPhotoState[truckId][type].length < 8) {
+    const addSlot = document.createElement('label');
+    addSlot.className = 'photo-slot';
+    const inputId = `e-${type}-input-${truckId}`;
+    addSlot.innerHTML = `
+      <input type="file" accept="image/*" multiple style="display:none" id="${inputId}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="24" height="24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      <span>Add</span>`;
+    addSlot.querySelector('input').addEventListener('change', e => {
+      Array.from(e.target.files).forEach(file => {
+        if (editPhotoState[truckId][type].length >= 8) return;
+        const reader = new FileReader();
+        reader.onload = ev => {
+          editPhotoState[truckId][type].push(ev.target.result);
+          renderEditPhotoGrid(truckId, type);
+        };
+        reader.readAsDataURL(file);
+      });
+      e.target.value = '';
+    });
+    grid.appendChild(addSlot);
+  }
 }
 
 function closeEditTruck(id) {
@@ -1031,6 +1096,10 @@ async function saveEditTruck(id) {
     transmission: document.getElementById('e-trans-' + id).value,
     location:     document.getElementById('e-location-' + id).value,
     description:  document.getElementById('e-notes-' + id).value,
+    photos: {
+      exterior: [...(editPhotoState[id]?.exterior || [])],
+      interior: [...(editPhotoState[id]?.interior || [])]
+    }
   };
 
   const btn = document.querySelector(`#edit-form-${id} .btn-primary`);
