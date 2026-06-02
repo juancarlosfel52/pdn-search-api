@@ -954,7 +954,7 @@ function renderMyTrucks() {
     return;
   }
   list.innerHTML = userTrucks.map(t => `
-    <div class="my-truck-card">
+    <div class="my-truck-card" id="truck-card-${t.id}">
       <div class="my-truck-info">
         <div class="my-truck-name">${t.year} ${t.make} ${t.model}</div>
         <div class="my-truck-meta">${t.engine || ''} ${t.mileage ? '· ' + Number(t.mileage).toLocaleString() + ' mi' : ''} · ${t.location || ''}</div>
@@ -963,10 +963,86 @@ function renderMyTrucks() {
       <span class="status-chip status-${t.status}">${t.status}</span>
       <div class="my-truck-actions">
         <button class="btn btn-sm btn-primary" onclick="generatePostForTruck('${t.id}')">Generate Post</button>
+        <button class="btn btn-sm btn-ghost" onclick="openEditTruck('${t.id}')">✏ Edit</button>
         <button class="btn btn-sm btn-ghost" onclick="markSold('${t.id}')" ${t.status==='sold'?'disabled':''}>Mark Sold</button>
         <button class="btn btn-sm" style="color:#ef4444;border-color:rgba(239,68,68,.3);background:rgba(239,68,68,.05);" onclick="deleteTruck('${t.id}')">✕</button>
       </div>
+      <!-- Inline edit form -->
+      <div class="edit-truck-form" id="edit-form-${t.id}" style="display:none;">
+        <div style="height:1px;background:var(--border);margin:14px 0;"></div>
+        <div class="form-grid">
+          <div class="dash-field"><label class="dash-label">Year</label><input class="dash-input" type="number" id="e-year-${t.id}" value="${t.year}"/></div>
+          <div class="dash-field"><label class="dash-label">Make</label>
+            <select class="dash-input" id="e-make-${t.id}">
+              <option ${t.make==='Peterbilt'?'selected':''}>Peterbilt</option>
+              <option ${t.make==='Kenworth'?'selected':''}>Kenworth</option>
+              <option ${t.make==='Freightliner'?'selected':''}>Freightliner</option>
+              <option ${t.make==='International'?'selected':''}>International</option>
+              <option ${t.make==='Mack'?'selected':''}>Mack</option>
+              <option ${t.make==='Volvo'?'selected':''}>Volvo</option>
+              <option ${t.make==='Western Star'?'selected':''}>Western Star</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-grid">
+          <div class="dash-field"><label class="dash-label">Model</label><input class="dash-input" id="e-model-${t.id}" value="${t.model}"/></div>
+          <div class="dash-field"><label class="dash-label">Price ($)</label><input class="dash-input" type="number" id="e-price-${t.id}" value="${t.price}"/></div>
+        </div>
+        <div class="form-grid">
+          <div class="dash-field"><label class="dash-label">Mileage</label><input class="dash-input" type="number" id="e-mileage-${t.id}" value="${t.mileage||''}"/></div>
+          <div class="dash-field"><label class="dash-label">Engine</label><input class="dash-input" id="e-engine-${t.id}" value="${t.engine||''}"/></div>
+        </div>
+        <div class="form-grid">
+          <div class="dash-field"><label class="dash-label">Transmission</label><input class="dash-input" id="e-trans-${t.id}" value="${t.transmission||''}"/></div>
+          <div class="dash-field"><label class="dash-label">Location</label><input class="dash-input" id="e-location-${t.id}" value="${t.location||''}"/></div>
+        </div>
+        <div class="dash-field"><label class="dash-label">Notes</label><textarea class="dash-input" id="e-notes-${t.id}" rows="2">${t.description||''}</textarea></div>
+        <div class="form-actions" style="margin-top:12px;">
+          <button class="btn btn-primary btn-sm" onclick="saveEditTruck('${t.id}')">Save Changes</button>
+          <button class="btn btn-ghost btn-sm" onclick="closeEditTruck('${t.id}')">Cancel</button>
+        </div>
+      </div>
     </div>`).join('');
+}
+
+function openEditTruck(id) {
+  // Close any other open edit forms
+  document.querySelectorAll('.edit-truck-form').forEach(f => f.style.display = 'none');
+  document.getElementById('edit-form-' + id).style.display = 'block';
+  document.getElementById('truck-card-' + id).style.borderColor = 'var(--amber)';
+}
+
+function closeEditTruck(id) {
+  document.getElementById('edit-form-' + id).style.display = 'none';
+  document.getElementById('truck-card-' + id).style.borderColor = '';
+}
+
+async function saveEditTruck(id) {
+  const truck = userTrucks.find(t => t.id === id);
+  if (!truck) return;
+
+  const updates = {
+    year:         parseInt(document.getElementById('e-year-' + id).value) || truck.year,
+    make:         document.getElementById('e-make-' + id).value || truck.make,
+    model:        document.getElementById('e-model-' + id).value || truck.model,
+    price:        parseInt(document.getElementById('e-price-' + id).value) || truck.price,
+    mileage:      parseInt(document.getElementById('e-mileage-' + id).value) || 0,
+    engine:       document.getElementById('e-engine-' + id).value,
+    transmission: document.getElementById('e-trans-' + id).value,
+    location:     document.getElementById('e-location-' + id).value,
+    description:  document.getElementById('e-notes-' + id).value,
+  };
+
+  const btn = document.querySelector(`#edit-form-${id} .btn-primary`);
+  btn.textContent = 'Saving…'; btn.disabled = true;
+  try {
+    await pdnUpdateUserTruck(currentUser.uid, id, updates);
+    await loadMyTrucks(currentUser.uid);
+    showToast('Truck updated.');
+  } catch(e) {
+    showToast('Error: ' + e.message);
+    btn.textContent = 'Save Changes'; btn.disabled = false;
+  }
 }
 
 // Add truck
